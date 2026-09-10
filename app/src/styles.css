@@ -260,3 +260,131 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
   font-family: var(--mono); font-size: 12.4px; background: var(--bg-soft);
   border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px;
 }
+
+/* ============ syntax highlighting ============ */
+:root {
+  --hl-key: #bb9af7;   /* keywords */
+  --hl-str: #9ece6a;   /* strings */
+  --hl-num: #ff9e64;   /* numbers, constants */
+  --hl-fn:  #7aa2f7;   /* functions, titles */
+  --hl-cmt: #5b6472;   /* comments */
+  --hl-var: #e0af68;   /* params, attributes */
+  --hl-typ: #7dcfff;   /* types, builtins */
+}
+:root[data-theme='light'] {
+  --hl-key: #7c3aed; --hl-str: #167f3d; --hl-num: #b45309;
+  --hl-fn: #2563c4;  --hl-cmt: #8b93a1; --hl-var: #a16207; --hl-typ: #0e7490;
+}
+
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-section, .hljs-doctag { color: var(--hl-key); }
+.hljs-string, .hljs-regexp, .hljs-addition, .hljs-meta .hljs-string { color: var(--hl-str); }
+.hljs-number, .hljs-symbol, .hljs-bullet, .hljs-quote, .hljs-link { color: var(--hl-num); }
+.hljs-title, .hljs-title.function_, .hljs-name, .hljs-selector-id { color: var(--hl-fn); }
+.hljs-comment { color: var(--hl-cmt); font-style: italic; }
+.hljs-attr, .hljs-attribute, .hljs-variable, .hljs-template-variable, .hljs-params { color: var(--hl-var); }
+.hljs-built_in, .hljs-type, .hljs-class .hljs-title, .hljs-title.class_ { color: var(--hl-typ); }
+.hljs-meta, .hljs-deletion { color: var(--hl-cmt); }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 600; }
+
+.prose pre { position: relative; }
+.prose pre::before {
+  content: attr(data-lang);
+  position: absolute; top: 7px; right: 11px;
+  font-size: 10px; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--faint); pointer-events: none;
+}
+
+/* ============ display math ============ */
+.prose .katex-display {
+  margin: 18px 0;
+  padding: 14px 18px;
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg-soft));
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+.prose .katex-display > .katex { font-size: 1.06em; }
+.prose .katex { color: var(--text); }
+/* an inline formula should read as part of the sentence, not as a box */
+.prose :not(.katex-display) > .katex { font-size: 1.02em; }
+
+/* ============ interactive figures ============ */
+.viz {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px 14px;
+  margin: 22px 0;
+}
+.viz-error { border-color: var(--danger); }
+.viz-error p { color: var(--muted); font-size: 12.5px; margin: 6px 0 0; }
+
+.viz-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.viz-choice { display: inline-flex; gap: 3px; background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: 8px; padding: 3px; flex-wrap: wrap; }
+.viz-choice button {
+  background: none; border: none; border-radius: 6px; padding: 4px 11px;
+  font-size: 12.3px; color: var(--muted);
+}
+.viz-choice button:hover { color: var(--text); }
+.viz-choice button.on { background: var(--panel); color: var(--accent); box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+
+.plot { width: 100%; height: auto; display: block; margin: 0 auto; }
+.plot.polar { max-width: 320px; }
+.plot-grid { stroke: var(--line); stroke-width: 1; opacity: .5; }
+.plot-axis { stroke: var(--muted); stroke-width: 1.1; opacity: .75; }
+.plot-tick { fill: var(--faint); font-size: 9.5px; font-family: var(--mono); }
+.plot-label { fill: var(--muted); font-size: 10px; }
+
+.viz-curve { fill: none; stroke: var(--text); stroke-width: 2; stroke-linejoin: round; }
+.viz-approx { fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linejoin: round; }
+.viz-ghost { fill: none; stroke: var(--line); stroke-width: 1.6; }
+.viz-bar { fill: var(--accent); fill-opacity: .22; stroke: var(--accent); stroke-opacity: .55; stroke-width: 1; }
+.viz-region { fill: var(--accent); fill-opacity: .12; stroke: none; }
+.viz-sector { fill: var(--accent); fill-opacity: .18; stroke: none; }
+.viz-band { fill: var(--mastered); fill-opacity: .07; }
+.viz-marker { stroke: var(--mastered); stroke-width: 1.2; stroke-dasharray: 4 4; opacity: .8; }
+.viz-limit { stroke: var(--mastered); stroke-width: 1.4; stroke-dasharray: 5 4; }
+.viz-limit-label { fill: var(--mastered); font-size: 10px; }
+.viz-dot { fill: var(--accent); }
+.viz-point { fill: var(--learning); stroke: var(--panel); stroke-width: 1.5; }
+.viz-slice { stroke: var(--learning); stroke-width: 3.5; stroke-linecap: round; }
+.viz-shell { fill: var(--learning); fill-opacity: .75; }
+.viz-radius { stroke: var(--muted); stroke-width: 1.2; }
+.viz-vector { stroke: var(--learning); stroke-width: 2.2; stroke-linecap: round; }
+.viz-annot { fill: var(--muted); font-size: 10.5px; font-family: var(--mono); }
+
+.viz-slider { display: flex; align-items: center; gap: 11px; margin-top: 12px; }
+.viz-slider-label { font-size: 12px; color: var(--muted); min-width: 62px; }
+.viz-slider input[type='range'] { flex: 1; accent-color: var(--accent); height: 3px; }
+.viz-slider-value {
+  font-family: var(--mono); font-size: 12px; color: var(--accent);
+  min-width: 52px; text-align: right; font-variant-numeric: tabular-nums;
+}
+
+.viz-readout {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+  gap: 8px; margin-top: 13px;
+}
+.viz-stat {
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: 7px; padding: 7px 10px;
+}
+.viz-stat-v {
+  display: block; font-family: var(--mono); font-size: 14px;
+  font-variant-numeric: tabular-nums; color: var(--text);
+}
+.viz-stat-k { display: block; font-size: 10.5px; color: var(--faint); margin-top: 1px; }
+.viz-stat.good .viz-stat-v { color: var(--mastered); }
+.viz-stat.warn .viz-stat-v { color: var(--learning); }
+
+.viz-note {
+  margin: 13px 0 0; padding-top: 12px; border-top: 1px solid var(--line);
+  font-size: 12.6px; line-height: 1.6; color: var(--muted);
+}
+.viz-note code {
+  font-family: var(--mono); font-size: 11.6px; background: var(--bg-soft);
+  border: 1px solid var(--line); border-radius: 4px; padding: 0 4px;
+}
+.viz-note b { color: var(--text); font-weight: 600; }

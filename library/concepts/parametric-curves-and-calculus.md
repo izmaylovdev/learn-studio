@@ -76,6 +76,10 @@ $$
 
 The integrand $\sqrt{(x')^2+(y')^2}$ is the particle's **speed**, so arc length is $\int \text{speed}\,dt$ — total distance travelled. That reading makes the formula obvious rather than memorized.
 
+```viz
+type: parametric
+```
+
 **The parametrization must trace the curve exactly once**, or you'll count some of it twice. This is the practical reason to care about the distinction above.
 
 ## Area under a parametric curve

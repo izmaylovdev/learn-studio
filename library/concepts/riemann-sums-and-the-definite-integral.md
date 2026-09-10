@@ -39,6 +39,10 @@ $$
 
 **That product is the thing to internalize.** In every application later in this course you will write down what one slice contributes and then integrate it. The pattern never changes; only the slice does.
 
+```viz
+type: riemann
+```
+
 | Application | One slice contributes |
 |---|---|
 | Area under a curve | $f(x)\,dx$ |
@@ -64,6 +68,21 @@ This trips people up constantly on exams. "Find the area" and "find the integral
 You may have met left endpoints, right endpoints, and midpoints as separate rules. For a continuous $f$ they all converge to the same number — the gap between the left and right sums is at most $|f(b)-f(a)|\Delta x \to 0$. That's why the definition can say "pick any $x_i^*$" and still be well-defined.
 
 The sample point only matters when you're *approximating* with finite $n$, which is where the midpoint rule and Simpson's rule earn their keep.
+
+The definition is short enough to be code, and writing it once is worth more than
+reading it three times:
+
+```python
+def riemann(f, a, b, n, rule="mid"):
+    dx = (b - a) / n
+    offset = {"left": 0.0, "mid": 0.5, "right": 1.0}[rule]
+    return sum(f(a + (i + offset) * dx) for i in range(n)) * dx
+
+riemann(lambda x: x**2, 0, 2, 1000)        # 2.666666... -> 8/3
+riemann(lambda x: x**2, 0, 2, 10, "left")  # 2.28  -- visibly short
+riemann(lambda x: x**2, 0, 2, 10, "mid")   # 2.665 -- errors cancel
+```
+
 
 ## The properties, and where they come from
 

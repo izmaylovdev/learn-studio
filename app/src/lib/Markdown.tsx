@@ -3,7 +3,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeHighlight from 'rehype-highlight';
 import { Mermaid } from './Mermaid';
+import { Viz } from './viz';
 import type { Check } from '../types';
 
 const CHECK_BLOCK = /^:::check\s*\n([\s\S]*?)\n?:::\s*$/gm;
@@ -67,7 +69,7 @@ export function Markdown({
           <ReactMarkdown
             key={i}
             remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[rehypeKatex]}
+            rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true, detect: false }]]}
             components={{
               a({ href, children, ...rest }) {
                 if (href?.startsWith('#/c/')) {
@@ -83,14 +85,16 @@ export function Markdown({
               code({ className, children, ...rest }) {
                 const lang = /language-(\w+)/.exec(className ?? '')?.[1];
                 if (lang === 'mermaid') return <Mermaid chart={String(children).trim()} theme={theme} />;
+                if (lang === 'viz') return <Viz source={String(children)} />;
                 return <code className={className} {...rest}>{children}</code>;
               },
               pre({ children }) {
-                // A mermaid diagram replaces the whole block — don't nest it in <pre>.
+                // Diagrams and figures replace the whole block — don't nest them in <pre>.
                 const only = Array.isArray(children) ? children[0] : children;
                 const cls = (only as { props?: { className?: string } })?.props?.className ?? '';
-                if (cls.includes('language-mermaid')) return <>{children}</>;
-                return <pre>{children}</pre>;
+                if (cls.includes('language-mermaid') || cls.includes('language-viz')) return <>{children}</>;
+                const lang = /language-(\w+)/.exec(cls)?.[1];
+                return <pre data-lang={lang}>{children}</pre>;
               },
             }}
           >

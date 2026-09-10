@@ -61,6 +61,10 @@ $$
 
 **A Taylor series is the limit of getting the tangent line's idea exactly right.** Matching every derivative at a single point pins down the function on a whole interval — which is a genuinely surprising fact about how rigid smooth functions are.
 
+```viz
+type: taylor
+```
+
 ## The series to memorize
 
 These six are the working set. Everything else comes from manipulating them.

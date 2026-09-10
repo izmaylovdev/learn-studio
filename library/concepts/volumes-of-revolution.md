@@ -33,6 +33,10 @@ graph TD
 
 That is the entire taxonomy. Perpendicular slices are circles; parallel slices are cylinders.
 
+```viz
+type: solid
+```
+
 ## Disks and washers
 
 Slice perpendicular to the axis. Each slice is a thin circular plate of thickness $dx$:

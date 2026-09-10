@@ -52,6 +52,12 @@ $$
 
 $p=1$ diverges. Everything above 1, however slightly, converges. **This is the most useful single fact in the stage** — most series you meet behave like some power of $n$, and comparison turns that resemblance into a verdict.
 
+```viz
+type: series
+```
+
+Compare **∑1/n** against **∑1/√n** and **∑1/n²** at large N. All three have terms tending to zero; only the last one settles.
+
 ## Direct comparison
 
 For $0 \le a_n \le b_n$:

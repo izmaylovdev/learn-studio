@@ -58,6 +58,10 @@ For $r = \cos 3\theta$, one petal is traced as $\theta$ runs from $-\pi/6$ to $\
 
 **Find where $r=0$.** Those angles are where a loop opens and closes, and they are almost always your limits.
 
+```viz
+type: polar
+```
+
 ## Area between polar curves
 
 $$

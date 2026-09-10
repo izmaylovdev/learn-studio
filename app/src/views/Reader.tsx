@@ -24,6 +24,19 @@ export function Reader({
   }, [id]);
 
   useEffect(() => { void load(); }, [load]);
+
+  // Same reason the graph refreshes on focus: the material is authored in the
+  // editor, so tabbing back should show the edit without a manual reload.
+  useEffect(() => {
+    const on = () => { if (!document.hidden) void load(); };
+    addEventListener('focus', on);
+    document.addEventListener('visibilitychange', on);
+    return () => {
+      removeEventListener('focus', on);
+      document.removeEventListener('visibilitychange', on);
+    };
+  }, [load]);
+
   useEffect(() => () => clearTimeout(notesTimer.current), []);
 
   const flash = (msg: string) => {

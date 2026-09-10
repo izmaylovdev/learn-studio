@@ -69,6 +69,30 @@ Body is markdown. Available in the renderer:
   cramped and left-aligned. The reader repairs that spelling automatically, but
   write the fenced form so the files render correctly in other markdown tools too.
 - **` ```mermaid `** — rendered diagrams.
+- **` ```python `** (or any language) — syntax-highlighted code with a language
+  badge. Untagged fences render plain.
+- **` ```viz `** — an interactive figure. Body is `key: value`; only `type` is
+  read today:
+
+  ````
+  ```viz
+  type: riemann
+  ```
+  ````
+
+  | `type` | What the reader can manipulate |
+  |---|---|
+  | `riemann` | n, sample rule, function — sum vs exact integral and the error |
+  | `taylor` | function, degree N — f against T_N, with the radius band drawn |
+  | `series` | series choice, N — partial sums approaching a limit, or not |
+  | `solid` | washer vs shell, slice position — the slice and the total volume |
+  | `polar` | curve, θ swept — the trace and the ½r²dθ sector accumulating |
+  | `parametric` | curve, t — position, velocity vector, accumulated arc length |
+
+  Each figure is self-contained and carries its own caption explaining what to
+  look for. Add a new one in `app/src/lib/viz/` and register it in that
+  directory's `index.tsx`; an unknown `type` renders as a visible error rather
+  than failing silently.
 - **`:::check` … `:::`** — a recall prompt. The reader hides it behind a reveal,
   then offers self-grading which feeds the scheduler.
 
@@ -119,7 +143,12 @@ material, because it takes up a slot in the graph.
    autoregressive generation specifically?" is a real check.
 4. **Include the failure modes.** What breaks, what people get wrong, what the
    thing costs. That's the part that isn't in the textbook.
-5. **Keep the summary honest.** It's what the dashboard shows when deciding what
+5. **A figure must show a mechanism, not decorate one.** Add a `viz` block only
+   where manipulating something teaches what prose can't — watching midpoint
+   Riemann sums beat left sums at the same n, or a Taylor polynomial failing
+   outside its radius. A figure the reader can't learn anything from by dragging
+   is worse than the paragraph it displaced.
+6. **Keep the summary honest.** It's what the dashboard shows when deciding what
    to study next.
 
 ## Progress model

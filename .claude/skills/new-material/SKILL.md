@@ -41,7 +41,12 @@ Structure that works:
 5. What it connects to next
 
 Three to five `:::check` blocks, with matching `checks:` answers in frontmatter,
-in the same order.
+in the same order. `npm run check` warns if the counts disagree, because the
+reader pairs them positionally and a mismatch shows the wrong answer.
+
+Consider an interactive figure — a ` ```viz ` block, listed in `CLAUDE.md`. Only
+where dragging something teaches what a paragraph can't, and only if an existing
+`type` fits; building a new one is a code change, not an authoring step.
 
 ## 3. Wire the inbound links
 

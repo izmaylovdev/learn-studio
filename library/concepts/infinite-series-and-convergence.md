@@ -38,6 +38,10 @@ $$
 
 **A series is a limit of a sequence** — the sequence of its partial sums. Everything from [[sequences-and-their-limits]] applies, and every theorem in the rest of this course is ultimately a statement about $\{S_N\}$.
 
+```viz
+type: series
+```
+
 ## The divergence test
 
 If $\sum a_n$ converges, then $S_N$ and $S_{N-1}$ both approach the same $S$, so

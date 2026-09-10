@@ -90,6 +90,12 @@ Three forces:
 
 The last two are why you re-center. To approximate $\sin(100)$, don't use the Maclaurin series at $x=100$; use periodicity to bring the argument near zero. Same series, vastly smaller error.
 
+```viz
+type: taylor
+```
+
+Pick **ln(1+x)** and push the degree up: inside the shaded radius the approximation tightens, outside it nothing helps. That is the bound's two geometric factors fighting each other.
+
 ## The shortcut you should prefer
 
 For an **alternating** series with decreasing terms tending to zero, [[alternating-series-and-absolute-convergence]] already gives
@@ -113,6 +119,23 @@ $$
 $$
 
 There's no clean algebraic solution — the factorial doesn't invert. **Increase $N$ until it's satisfied.** That's the intended method, not a failure to find the trick.
+
+```python
+from math import factorial
+
+def terms_needed(x, eps, M=1.0):
+    """Smallest N with the Lagrange bound M|x|^(N+1)/(N+1)! below eps."""
+    N = 0
+    while M * abs(x) ** (N + 1) / factorial(N + 1) >= eps:
+        N += 1
+    return N
+
+terms_needed(0.5, 1e-6)   # 6  -- close to the centre, cheap
+terms_needed(3.0, 1e-6)   # 15 -- same accuracy, far more work
+```
+
+The two calls are the error bound's distance factor, priced out.
+
 
 :::check
 State the Lagrange form of the remainder and explain how it generalizes the Mean Value Theorem.
