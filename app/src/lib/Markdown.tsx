@@ -8,6 +8,7 @@ import type { Check } from '../types';
 
 const CHECK_BLOCK = /^:::check\s*\n([\s\S]*?)\n?:::\s*$/gm;
 const WIKILINK = /\[\[([a-z0-9][a-z0-9-]*)(?:\|([^\]]+))?\]\]/g;
+const INLINE_DISPLAY_MATH = /^\$\$(?!\$)(.+?)\$\$[ \t]*$/gm;
 
 type Segment = { kind: 'md'; text: string } | { kind: 'check'; question: string };
 
@@ -23,6 +24,15 @@ function segment(body: string): Segment[] {
   }
   if (last < body.length) out.push({ kind: 'md', text: body.slice(last) });
   return out;
+}
+
+/**
+ * remark-math only treats `$$` as display math when it fences its own lines;
+ * a whole line of `$$…$$` parses as *inline* math and renders cramped. Accept
+ * both spellings so authoring style can't silently degrade an equation.
+ */
+function fenceDisplayMath(text: string) {
+  return text.replace(INLINE_DISPLAY_MATH, (_all, body: string) => `$$\n${body.trim()}\n$$`);
 }
 
 /** `[[id]]` / `[[id|label]]` become links the anchor renderer turns into chips. */
@@ -84,7 +94,7 @@ export function Markdown({
               },
             }}
           >
-            {linkify(seg.text, titles)}
+            {fenceDisplayMath(linkify(seg.text, titles))}
           </ReactMarkdown>
         );
       })}

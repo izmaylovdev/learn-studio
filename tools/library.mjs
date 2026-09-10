@@ -10,6 +10,7 @@ export const CONCEPTS_DIR = join(ROOT, 'library', 'concepts');
 export const TRACKS_DIR = join(ROOT, 'library', 'tracks');
 
 const WIKILINK = /\[\[([a-z0-9][a-z0-9-]*)(?:\|([^\]]+))?\]\]/g;
+const CHECK_BLOCK = /^:::check\s*$/gm;
 
 function walk(dir) {
   if (!existsSync(dir)) return [];
@@ -47,6 +48,13 @@ function parseConcept(file) {
         q: String(c?.q ?? ''),
         a: String(c?.a ?? ''),
       })).filter((c) => c.q);
+
+  // The reader pairs answers to prompts positionally, so a count mismatch
+  // silently shows the wrong answer under a question.
+  const blockCount = (content.match(CHECK_BLOCK) ?? []).length;
+  if (blockCount !== checks.length) {
+    problems.push(`${blockCount} \`:::check\` block(s) but ${checks.length} answer(s) in frontmatter — answers will pair with the wrong prompts`);
+  }
 
   return {
     id,
@@ -94,8 +102,21 @@ function parseTrack(file) {
  * Edge kinds: 'prereq' (a must come before b), 'related', 'mention' (from [[links]]).
  */
 export function loadLibrary() {
-  const concepts = walk(CONCEPTS_DIR).map(parseConcept).sort((a, b) => a.title.localeCompare(b.title));
-  const tracks = walk(TRACKS_DIR).map(parseTrack).sort((a, b) => a.title.localeCompare(b.title));
+  const broken = [];
+  // One unparseable file must not take down the whole library — report it and
+  // carry on, so `npm run check` can point at the offending path.
+  const safe = (fn) => (file) => {
+    try {
+      return fn(file);
+    } catch (err) {
+      broken.push({ level: 'error', where: file.slice(ROOT.length + 1), message: `could not parse: ${err.message.split('\n')[0]}` });
+      return null;
+    }
+  };
+  const drop = (x) => x !== null;
+
+  const concepts = walk(CONCEPTS_DIR).map(safe(parseConcept)).filter(drop).sort((a, b) => a.title.localeCompare(b.title));
+  const tracks = walk(TRACKS_DIR).map(safe(parseTrack)).filter(drop).sort((a, b) => a.title.localeCompare(b.title));
   const byId = new Map(concepts.map((c) => [c.id, c]));
 
   const edges = [];
@@ -107,7 +128,7 @@ export function loadLibrary() {
     edges.push({ from, to, kind });
   };
 
-  const issues = [];
+  const issues = [...broken];
   for (const c of concepts) {
     for (const p of c.problems) issues.push({ level: 'warn', where: c.file, message: p });
     for (const p of c.prereqs) {

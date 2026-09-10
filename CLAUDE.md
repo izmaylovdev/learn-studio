@@ -57,7 +57,17 @@ Body is markdown. Available in the renderer:
   Renders as a chip, creates a `mention` edge, and shows up in the target's
   "Referenced by". A link to a concept that doesn't exist yet renders dashed and
   is reported as a warning — that's a deliberate way to mark a gap.
-- **`$inline$` and `$$display$$`** — KaTeX.
+- **`$inline$`** — inline KaTeX. For **display** math, fence it on its own lines:
+
+  ```
+  $$
+  \int_a^b f(x)\,dx = F(b) - F(a)
+  $$
+  ```
+
+  A whole line of `$$...$$` is parsed by remark-math as *inline* math and renders
+  cramped and left-aligned. The reader repairs that spelling automatically, but
+  write the fenced form so the files render correctly in other markdown tools too.
 - **` ```mermaid `** — rendered diagrams.
 - **`:::check` … `:::`** — a recall prompt. The reader hides it behind a reveal,
   then offers self-grading which feeds the scheduler.
