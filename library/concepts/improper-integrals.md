@@ -1,6 +1,7 @@
 ---
 id: improper-integrals
 title: Improper Integrals
+field: Integration Techniques
 summary: Integrals over infinite intervals or across infinite discontinuities are defined by limits — and whether they converge is the same question series will ask.
 tags: [integration, convergence, limits]
 difficulty: 3

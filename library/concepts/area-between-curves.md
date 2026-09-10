@@ -1,6 +1,7 @@
 ---
 id: area-between-curves
 title: Area Between Curves
+field: Applications of Integration
 summary: The first real application of slicing — and the place to learn the habit that carries every later one. Draw it, name the slice, then integrate.
 tags: [applications, integration, geometry]
 difficulty: 2

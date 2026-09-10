@@ -1,6 +1,7 @@
 ---
 id: taylor-and-maclaurin-series
 title: Taylor and Maclaurin Series
+field: Power and Taylor Series
 summary: Build a power series that matches a function's every derivative at a point — the payoff of the whole course, and the reason a calculator can evaluate sine.
 tags: [series, power-series, approximation]
 difficulty: 4

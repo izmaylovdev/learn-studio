@@ -1,6 +1,7 @@
 ---
 id: fundamental-theorem-of-calculus
 title: The Fundamental Theorem of Calculus
+field: Foundations of the Integral
 summary: Two statements that link the limit-of-sums definition to antiderivatives — one lets you evaluate integrals, the other builds functions out of them.
 tags: [integration, foundations, theorems]
 difficulty: 3

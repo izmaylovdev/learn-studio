@@ -44,6 +44,7 @@ export interface ConceptMeta {
   id: string;
   file: string;
   title: string;
+  field: string;
   summary: string;
   tags: string[];
   difficulty: number;
@@ -54,6 +55,8 @@ export interface ConceptMeta {
   checks: Check[];
   mentions: string[];
   depth: number;
+  /** position in reading order, from the tracks; unplaced concepts sort last */
+  order: number;
   formulaCount: number;
   backlinks: Backlink[];
 }
@@ -94,6 +97,8 @@ export interface Issue { level: 'warn' | 'error'; where: string; message: string
 
 export interface Graph {
   concepts: ConceptMeta[];
+  /** field names in the order a reader should meet them */
+  fields: string[];
   tracks: Track[];
   edges: { from: string; to: string; kind: EdgeKind }[];
   issues: Issue[];

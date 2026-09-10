@@ -37,6 +37,7 @@ between you and a dangling `prereqs:` entry.
 ---
 id: scaled-dot-product-attention   # kebab-case, must equal the filename
 title: Scaled Dot-Product Attention
+field: Attention Mechanisms       # sidebar grouping; see below
 summary: One sentence. Shown on cards and in the graph — make it earn its place.
 tags: [transformers, attention]
 difficulty: 3                       # 1-5
@@ -51,6 +52,17 @@ checks:                             # answers for the :::check blocks, in order
     a: Dot products of d_k-dimensional vectors have variance d_k...
 ---
 ```
+
+`field` groups concepts into collapsible sections in the sidebar. Pick the area
+of mathematics, at a granularity that makes the list navigable — the existing
+ones are "Integration Techniques", "Sequences and Series" and so on, not
+"Calculus 2". A concept without one is filed under **Unfiled** and warned about.
+
+Fields and the concepts inside them are **ordered by the tracks**, not
+alphabetically: a concept sorts by where it first appears in any track's stages,
+and a field sorts by the earliest position any of its concepts holds. So the
+sidebar shows u-Substitution before Partial Fractions. A concept in no track
+sorts to the end — which is a quiet signal that it should probably be in one.
 
 Body is markdown. Available in the renderer:
 

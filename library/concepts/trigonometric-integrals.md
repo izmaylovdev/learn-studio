@@ -1,6 +1,7 @@
 ---
 id: trigonometric-integrals
 title: Trigonometric Integrals
+field: Integration Techniques
 summary: Use identities to peel off one factor as du — the parity of the exponents tells you exactly which identity to reach for.
 tags: [integration, techniques, trigonometry]
 difficulty: 3

@@ -1,6 +1,7 @@
 ---
 id: power-series-and-radius-of-convergence
 title: Power Series and Radius of Convergence
+field: Power and Taylor Series
 summary: An infinite polynomial that converges on an interval — a function defined by a series, and the first step toward representing familiar functions as sums.
 tags: [series, power-series, convergence]
 difficulty: 3

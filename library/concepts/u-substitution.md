@@ -1,6 +1,7 @@
 ---
 id: u-substitution
 title: u-Substitution
+field: Integration Techniques
 summary: The chain rule read backwards — and the technique every other integration method eventually reduces to.
 tags: [integration, techniques]
 difficulty: 2

@@ -1,6 +1,7 @@
 ---
 id: integration-by-parts
 title: Integration by Parts
+field: Integration Techniques
 summary: The product rule reversed — trade the integral you can't do for one you can, and know when the trade is going backwards.
 tags: [integration, techniques]
 difficulty: 3

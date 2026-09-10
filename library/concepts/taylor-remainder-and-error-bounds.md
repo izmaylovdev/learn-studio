@@ -1,6 +1,7 @@
 ---
 id: taylor-remainder-and-error-bounds
 title: Taylor Remainder and Error Bounds
+field: Power and Taylor Series
 summary: How wrong is a truncated Taylor polynomial? Lagrange's remainder answers it — and turns approximation from a hope into a guarantee.
 tags: [series, approximation, error-analysis]
 difficulty: 4

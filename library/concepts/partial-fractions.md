@@ -1,6 +1,7 @@
 ---
 id: partial-fractions
 title: Partial Fractions
+field: Integration Techniques
 summary: Any rational function can be broken into pieces that are each a logarithm or an arctangent — the work is algebra, not calculus.
 tags: [integration, techniques, algebra]
 difficulty: 3

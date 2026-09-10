@@ -1,6 +1,7 @@
 ---
 id: riemann-sums-and-the-definite-integral
 title: Riemann Sums and the Definite Integral
+field: Foundations of the Integral
 summary: An integral is not "the opposite of a derivative" — it is the limit of a sum, and every application in Calculus 2 comes from that definition.
 tags: [integration, foundations, definitions]
 difficulty: 2

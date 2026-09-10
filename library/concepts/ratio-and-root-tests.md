@@ -1,6 +1,7 @@
 ---
 id: ratio-and-root-tests
 title: The Ratio and Root Tests
+field: Sequences and Series
 summary: Ask whether a series eventually behaves like a geometric one — the only tests that handle factorials, and the engine behind radius of convergence.
 tags: [series, convergence, tests]
 difficulty: 3

@@ -1,6 +1,7 @@
 ---
 id: arc-length-and-surface-area
 title: Arc Length and Surface Area
+field: Applications of Integration
 summary: Slice a curve instead of a region — the Pythagorean theorem on an infinitesimal scale produces both formulas, and the ugly integrals that come with them.
 tags: [applications, integration, geometry]
 difficulty: 3

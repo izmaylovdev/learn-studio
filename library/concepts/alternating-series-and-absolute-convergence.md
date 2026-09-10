@@ -1,6 +1,7 @@
 ---
 id: alternating-series-and-absolute-convergence
 title: Alternating Series and Absolute Convergence
+field: Sequences and Series
 summary: Signs that alternate can rescue a series that would otherwise diverge — and the difference between absolute and conditional convergence is stranger than it sounds.
 tags: [series, convergence, tests]
 difficulty: 3

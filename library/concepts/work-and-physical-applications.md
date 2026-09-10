@@ -1,6 +1,7 @@
 ---
 id: work-and-physical-applications
 title: Work and Physical Applications
+field: Applications of Integration
 summary: Work, fluid force, and center of mass are all the same integral in different clothes — force times distance, summed over slices that each move a different amount.
 tags: [applications, integration, physics]
 difficulty: 3

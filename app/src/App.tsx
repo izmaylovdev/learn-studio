@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getGraph } from './api';
-import type { Graph, Status } from './types';
+import type { ConceptMeta, Graph, Status } from './types';
 import { useRoute } from './lib/router';
 import { Dashboard } from './views/Dashboard';
 import { GraphView } from './views/GraphView';
@@ -50,6 +50,50 @@ export function App() {
     () => new Map((graph?.concepts ?? []).map((c) => [c.id, c.title])),
     [graph]
   );
+
+  // Collapsed fields, not open ones — a field added later should show up rather
+  // than hide itself because nobody has opened it yet.
+  const [closed, setClosed] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('fields:closed') ?? '[]')); }
+    catch { return new Set(); }
+  });
+  useEffect(() => {
+    localStorage.setItem('fields:closed', JSON.stringify([...closed]));
+  }, [closed]);
+
+  const grouped = useMemo(() => {
+    const by = new Map<string, ConceptMeta[]>();
+    for (const c of graph?.concepts ?? []) {
+      const list = by.get(c.field);
+      if (list) list.push(c); else by.set(c.field, [c]);
+    }
+    for (const list of by.values()) {
+      list.sort((a, b) => (a.order - b.order) || a.title.localeCompare(b.title));
+    }
+    const order = graph?.fields ?? [];
+    const rank = (f: string) => (order.indexOf(f) + 1 || Number.MAX_SAFE_INTEGER);
+    return [...by.entries()].sort((a, b) => rank(a[0]) - rank(b[0]));
+  }, [graph]);
+
+  const fieldOf = useMemo(
+    () => new Map((graph?.concepts ?? []).map((c) => [c.id, c.field])),
+    [graph]
+  );
+
+  // Following a link into a collapsed field should reveal it. Deliberately not
+  // keyed on `closed`, so collapsing the field you are currently reading sticks.
+  const activeConcept = route.name === 'concept' ? route.id : null;
+  useEffect(() => {
+    if (!activeConcept) return;
+    const field = fieldOf.get(activeConcept);
+    if (!field) return;
+    setClosed((prev) => {
+      if (!prev.has(field)) return prev;
+      const next = new Set(prev);
+      next.delete(field);
+      return next;
+    });
+  }, [activeConcept, fieldOf]);
 
   if (error) {
     return (
@@ -102,14 +146,42 @@ export function App() {
         </nav>
 
         <div className="side-section">Concepts</div>
-        <div className="concept-list">
-          {graph.concepts.map((c) => (
-            <a key={c.id} href={`#/c/${c.id}`}
-               className={route.name === 'concept' && route.id === c.id ? 'on' : ''}>
-              <span className={`dot ${statusOf(c.id)}`} />
-              {c.title}
-            </a>
-          ))}
+        <div className="fields">
+        {grouped.map(([field, items]) => {
+          const open = !closed.has(field);
+          const here = items.some((c) => route.name === 'concept' && route.id === c.id);
+          return (
+            <section className="field" key={field}>
+              <button
+                className={`field-head${open ? ' open' : ''}${here ? ' here' : ''}`}
+                aria-expanded={open}
+                onClick={() => setClosed((prev) => {
+                  const next = new Set(prev);
+                  next.has(field) ? next.delete(field) : next.add(field);
+                  return next;
+                })}
+              >
+                <svg className="chev" viewBox="0 0 12 12" width="9" height="9" aria-hidden="true">
+                  <path d="M4 2.5 8 6l-4 3.5" fill="none" stroke="currentColor"
+                        strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="field-name">{field}</span>
+                <span className="count">{items.length}</span>
+              </button>
+              {open && (
+                <div className="concept-list">
+                  {items.map((c) => (
+                    <a key={c.id} href={`#/c/${c.id}`}
+                       className={route.name === 'concept' && route.id === c.id ? 'on' : ''}>
+                      <span className={`dot ${statusOf(c.id)}`} />
+                      {c.title}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })}
         </div>
 
         <button className="theme-toggle" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>

@@ -1,6 +1,7 @@
 ---
 id: sequences-and-their-limits
 title: Sequences and Their Limits
+field: Sequences and Series
 summary: An infinite list of numbers and the question of where it settles — the object every series is secretly built from.
 tags: [sequences, convergence, foundations]
 difficulty: 2

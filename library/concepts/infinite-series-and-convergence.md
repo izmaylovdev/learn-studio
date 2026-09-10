@@ -1,6 +1,7 @@
 ---
 id: infinite-series-and-convergence
 title: Infinite Series and Convergence
+field: Sequences and Series
 summary: An infinite sum is defined as the limit of its partial sums — which is why geometric and telescoping series can be evaluated exactly and almost nothing else can.
 tags: [series, convergence, foundations]
 difficulty: 3

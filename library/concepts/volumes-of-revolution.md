@@ -1,6 +1,7 @@
 ---
 id: volumes-of-revolution
 title: Volumes of Revolution
+field: Applications of Integration
 summary: Disks, washers, and shells are not three formulas — they are three choices of slice, and picking the right one is most of the work.
 tags: [applications, integration, geometry]
 difficulty: 3

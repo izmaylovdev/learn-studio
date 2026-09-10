@@ -134,6 +134,7 @@ function parseConcept(file, symbols = {}, sharedIssues = []) {
   if (!data.id) problems.push('missing `id` in frontmatter (fell back to filename)');
   if (!data.title) problems.push('missing `title`');
   if (!data.summary) problems.push('missing `summary`');
+  if (!data.field) problems.push('missing `field` — it will be filed under Unfiled in the sidebar');
 
   const checks = asArray(data.checks).length && typeof data.checks?.[0] === 'string'
     ? data.checks.map((q) => ({ q: String(q), a: '' }))
@@ -157,6 +158,7 @@ function parseConcept(file, symbols = {}, sharedIssues = []) {
     file: relFile,
     formulas,
     title: String(data.title ?? id),
+    field: String(data.field ?? 'Unfiled').trim() || 'Unfiled',
     summary: String(data.summary ?? ''),
     tags: asArray(data.tags),
     difficulty: Number(data.difficulty ?? 3),
@@ -312,11 +314,37 @@ export function conceptDepths(lib) {
 }
 
 /** Strip bodies — the graph payload the UI gets on load. */
+/**
+ * Reading order. Tracks already encode the order a reader should meet things
+ * in, so that is the source of truth; anything no track mentions sorts last.
+ * Both the concept list and the field list use it, which is why the sidebar
+ * shows u-Substitution before Partial Fractions rather than after.
+ */
+function readingOrder(lib) {
+  const at = new Map();
+  let i = 0;
+  for (const t of lib.tracks) for (const s of t.stages) for (const id of s.concepts) {
+    if (!at.has(id)) at.set(id, i++);
+  }
+  return (id) => (at.has(id) ? at.get(id) : Number.MAX_SAFE_INTEGER);
+}
+
 export function summarize(lib, progress) {
   const depths = conceptDepths(lib);
+  const order = readingOrder(lib);
+
+  const firstOfField = new Map();
+  for (const c of lib.concepts) {
+    if (order(c.id) < (firstOfField.get(c.field) ?? Infinity)) firstOfField.set(c.field, order(c.id));
+  }
+
   return {
+    fields: [...firstOfField.keys()].sort(
+      (a, b) => (firstOfField.get(a) - firstOfField.get(b)) || a.localeCompare(b)
+    ),
     concepts: lib.concepts.map(({ body, problems, formulas, ...meta }) => ({
       ...meta,
+      order: order(meta.id),
       formulaCount: (formulas ?? []).filter(Boolean).length,
       depth: depths.get(meta.id) ?? 0,
       backlinks: lib.backlinks.get(meta.id) ?? [],

@@ -1,6 +1,7 @@
 ---
 id: trigonometric-substitution
 title: Trigonometric Substitution
+field: Integration Techniques
 summary: When a square root of a quadratic blocks you, trade x for a trig function so the Pythagorean identity collapses the root.
 tags: [integration, techniques, trigonometry]
 difficulty: 4

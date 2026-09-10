@@ -1,6 +1,7 @@
 ---
 id: polar-coordinates-and-area
 title: Polar Coordinates and Area
+field: Parametric and Polar
 summary: Locate points by distance and angle — and slice regions into circular sectors instead of rectangles, which changes the area formula in a way worth understanding rather than memorizing.
 tags: [polar, curves, applications]
 difficulty: 3

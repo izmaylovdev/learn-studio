@@ -1,6 +1,7 @@
 ---
 id: integral-and-comparison-tests
 title: The Integral and Comparison Tests
+field: Sequences and Series
 summary: Decide convergence by measuring a series against something you already understand — an improper integral, or a p-series.
 tags: [series, convergence, tests]
 difficulty: 3

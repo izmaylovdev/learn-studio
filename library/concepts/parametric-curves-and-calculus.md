@@ -1,6 +1,7 @@
 ---
 id: parametric-curves-and-calculus
 title: Parametric Curves and Calculus
+field: Parametric and Polar
 summary: Describe a curve by where a particle is at each time — it frees you from the vertical line test and makes arc length natural rather than awkward.
 tags: [parametric, curves, applications]
 difficulty: 3
