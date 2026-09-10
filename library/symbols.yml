@@ -352,3 +352,501 @@ minus:
   eg: >-
     Here it is not optional bookkeeping — the sign is what makes the identity
     invert the product rule rather than restate it.
+
+g-fn:
+  glyph: "g"
+  kind: function
+  name: g — the inner function
+  say: "“gee of ex”"
+  def: >-
+    The function on the inside of a composite. In substitution it is the thing
+    you rename u, and its derivative has to already be present in the integrand.
+  eg: >-
+    Spotting g is the whole skill: exponent, radicand, or the argument of a log
+    or trig function — those are where an inner function hides.
+
+sin-fn:
+  glyph: "sin"
+  tex: "\\sin"
+  kind: function
+  name: Sine
+  say: "“sine of”"
+  def: >-
+    A function of an angle. What matters for integration is its derivative:
+    (sin x)′ = cos x, so a spare cos x can serve as du.
+  eg: >-
+    Every trigonometric integral technique is organised around which factor can
+    be peeled off to play du.
+
+cos-fn:
+  glyph: "cos"
+  tex: "\\cos"
+  kind: function
+  name: Cosine
+  say: "“cosine of”"
+  def: >-
+    The other half of the pair. (cos x)′ = −sin x, so a spare sin x is a du up
+    to a sign.
+  eg: >-
+    Which of sine and cosine you peel is decided by which one has the odd power.
+
+m-exp:
+  glyph: "m"
+  kind: variable
+  name: The sine exponent
+  say: "“em”"
+  def: >-
+    How many sine factors there are. You never evaluate m — you only check
+    whether it is odd or even, because that decides the method.
+  eg: >-
+    Parity, not size, is the question. m = 3 and m = 4 are handled by unrelated
+    methods.
+
+k-exp:
+  glyph: "k"
+  kind: variable
+  name: The paired-cosine exponent
+  say: "“kay”"
+  def: >-
+    How many *pairs* of cosines remain after one has been peeled off to be du.
+    Pairs are what an identity can convert; a lone factor is not.
+  eg: >-
+    Writing the cosine power as 2k+1 is what makes the odd case visibly work —
+    one factor leaves, and an even number stays behind to be converted.
+
+a-param:
+  glyph: "a"
+  kind: constant
+  name: The constant in the radicand
+  say: "“ay”"
+  def: >-
+    A fixed number, not a limit of integration. It sets the scale of the
+    substitution and survives into the answer.
+  eg: >-
+    a is whatever makes the radicand match one of the three forms — for
+    √(4−x²) it is 2, because 4 = 2².
+
+a-root:
+  glyph: "a"
+  kind: constant
+  name: A root of the denominator
+  say: "“ay”"
+  def: >-
+    A value that makes one factor vanish. The decomposition has exactly one term
+    per root, which is why factoring completely comes first.
+  eg: >-
+    Substituting a root back in kills every term but its own — that is the fast
+    way to solve for the constants, and it only works for distinct linear roots.
+
+b-root:
+  glyph: "b"
+  kind: constant
+  name: The other root
+  say: "“bee”"
+  def: >-
+    The other value that makes the denominator vanish. Each root of the
+    denominator contributes its own term to the decomposition.
+  eg: >-
+    Repeated roots are the exception: a factor appearing k times needs every
+    power from 1 up to k, not one term.
+
+implies:
+  glyph: "⇒"
+  tex: "\\Rightarrow"
+  kind: operator
+  name: Implies
+  say: "“therefore”, “which gives”"
+  def: >-
+    The thing on the left forces the thing on the right. It is one-directional —
+    it does not claim the reverse.
+  eg: >-
+    In a substitution it marks a choice being cashed in: once you pick the
+    substitution, the simplification follows with no further decisions.
+
+plus:
+  glyph: "+"
+  kind: operator
+  name: Plus sign
+  say: "“plus”"
+  def: >-
+    Addition. Between two terms it combines them.
+  eg: >-
+    Under a square root it does not distribute — √(a+b) is not √a + √b, which is
+    the error that makes arc-length integrals look easier than they are.
+
+one-const:
+  glyph: "1"
+  kind: constant
+  name: One
+  say: "“one”"
+  def: >-
+    The multiplicative identity. In an integrand it is usually the trace of
+    something that cancelled, or a term deliberately added to complete a square.
+  eg: >-
+    The 1 under the arc-length root is the horizontal run — it is why arc length
+    can never come out shorter than the interval.
+
+frac-bar:
+  glyph: "⁄"
+  tex: "\\frac"
+  sel: ".mfrac"
+  kind: operator
+  name: Fraction bar
+  say: "“over”"
+  def: >-
+    Division. Everything above is divided by everything below — the bar also
+    groups, which invisible parentheses in a typed formula would not.
+  eg: >-
+    A fraction whose denominator can vanish is where every convergence and
+    improper-integral question in this course comes from.
+
+P-fn:
+  glyph: "P"
+  kind: function
+  name: The numerator polynomial
+  say: "“pee of ex”"
+  def: >-
+    The top of the rational function. Its degree must be strictly less than the
+    denominator's before you can decompose.
+  eg: >-
+    If it isn't, long-divide first. Skipping that step produces a linear system
+    with no solution — a confusing way to find out.
+
+A-coef:
+  glyph: "A"
+  kind: constant
+  name: An undetermined constant
+  say: "“ay”"
+  def: >-
+    A number you do not know yet. You write the decomposition with unknown
+    numerators, then solve for them.
+  eg: >-
+    Substituting each root in turn kills every term but one, which is far
+    faster than expanding and matching coefficients.
+
+B-coef:
+  glyph: "B"
+  kind: constant
+  name: The other undetermined constant
+  say: "“bee”"
+  def: >-
+    One unknown per factor of the denominator. The count is forced — you need
+    exactly as many as the numerator's degree allows.
+  eg: >-
+    An irreducible quadratic factor gets a *linear* numerator, Ax+B, not a
+    single constant. One degree of freedom would not be enough.
+
+t-var:
+  glyph: "t"
+  kind: variable
+  name: t — the moving endpoint or the parameter
+  say: "“tee”"
+  def: >-
+    A variable standing in for something you are about to take to a limit, or
+    the parameter tracing a curve. Either way it is the thing that moves.
+  eg: >-
+    In an improper integral t is what makes the integral proper again: you
+    integrate to t honestly, then ask what happens as t runs away.
+
+A-area:
+  glyph: "A"
+  kind: variable
+  name: Area
+  say: "“ay”"
+  def: >-
+    The quantity being accumulated. It comes out positive because the integrand
+    was arranged to be non-negative, not because areas are.
+  eg: >-
+    A bare ∫f gives *signed* area. The sign bookkeeping does not disappear — you
+    did it in advance by deciding which curve is on top.
+
+V-vol:
+  glyph: "V"
+  kind: variable
+  name: Volume
+  say: "“vee”"
+  def: >-
+    The accumulated total. As always it is one slice's worth, added up.
+  eg: >-
+    Which slice you choose is the only real decision; the integral is the same
+    machine either way.
+
+pi-const:
+  glyph: "π"
+  tex: "\\pi"
+  kind: constant
+  name: Pi
+  say: "“pie”"
+  def: >-
+    The circle constant. Its presence here is the fingerprint of a circular
+    cross-section — it enters through the area of the disk, πR².
+  eg: >-
+    In the shell formula it arrives as 2πr instead, the *circumference* of the
+    unrolled sheet. Same constant, different geometry.
+
+R-outer:
+  glyph: "R"
+  kind: function
+  name: Outer radius
+  say: "“big are of ex”"
+  def: >-
+    The distance from the axis of revolution out to the far edge of the slice.
+    A distance to the axis — not the value of f, unless the axis happens to be
+    the x-axis.
+  eg: >-
+    Revolving about y = 2 makes R equal |f(x) − 2|. Getting the axis into the
+    radius explicitly is what stops memorised formulas from failing.
+
+r-inner:
+  glyph: "r"
+  kind: function
+  name: Inner radius
+  say: "“little are of ex”"
+  def: >-
+    The distance from the axis to the near edge — the hole. Zero when the region
+    touches the axis, which is when a washer becomes a disk.
+  eg: >-
+    You subtract the *areas*, not the radii. π(R−r)² describes no region at all
+    and is the standard error in this topic.
+
+W-work:
+  glyph: "W"
+  kind: variable
+  name: Work
+  say: "“double-you”"
+  def: >-
+    Force times distance, accumulated. Constant force makes it a multiplication;
+    varying force is what forces an integral.
+  eg: >-
+    In a pumping problem every slab weighs the same but travels a different
+    distance — that asymmetry is exactly why it cannot be a multiplication.
+
+F-force:
+  glyph: "F"
+  kind: function
+  name: Force as a function of position
+  say: "“eff of ex”"
+  def: >-
+    How hard you must push when you are at x. If this were constant you would
+    not need calculus.
+  eg: >-
+    Hooke's law F = kx is the archetype. Problems rarely hand you k — you back
+    it out of a sentence like "10 N stretches it 0.2 m".
+
+L-len:
+  glyph: "L"
+  kind: variable
+  name: Arc length
+  say: "“ell”"
+  def: >-
+    Distance along the curve, as opposed to the straight-line distance between
+    its ends.
+  eg: >-
+    Read as ∫ speed dt it is total distance travelled — which is why tracing a
+    circle twice gives 4π, not 2π.
+
+x-of-t:
+  glyph: "x"
+  tex: "x"
+  kind: function
+  name: x as a function of t
+  say: "“ex of tee”"
+  def: >-
+    The horizontal coordinate, given as a function of the parameter rather than
+    as the independent variable. This is what frees the curve from the vertical
+    line test.
+  eg: >-
+    Its derivative is the horizontal component of velocity. Where it vanishes
+    and y′ does not, the tangent is vertical.
+
+y-of-t:
+  glyph: "y"
+  tex: "y"
+  kind: function
+  name: y as a function of t
+  say: "“why of tee”"
+  def: >-
+    The vertical coordinate, also driven by the parameter. The pair (x(t), y(t))
+    is a position, and t records when the particle is there.
+  eg: >-
+    Eliminating t recovers the shape but throws away direction, speed, and how
+    many times the curve is traced.
+
+dt:
+  glyph: "dt"
+  kind: differential
+  name: The time differential
+  say: "“dee tee”"
+  def: >-
+    One infinitesimal step of the parameter. Whatever multiplies it is a rate,
+    and integrating turns that rate into a total.
+  eg: >-
+    Speed × dt is distance. That reading is what makes the parametric arc-length
+    formula obvious instead of memorised.
+
+a-term:
+  glyph: "aₙ"
+  tex: "a_n"
+  match: "an"
+  kind: variable
+  name: The nth term
+  say: "“ay sub en”"
+  def: >-
+    One entry of the sequence — a single number, picked out by its index. Not
+    the sum, and not the sequence.
+  eg: >-
+    aₙ → 0 is necessary for a series to converge and nowhere near sufficient.
+    The harmonic series is the standing counterexample.
+
+b-term:
+  glyph: "bₙ"
+  tex: "b"
+  match: ["bn", "bN"]
+  kind: variable
+  name: The comparison term
+  say: "“bee sub en”"
+  def: >-
+    A second sequence, chosen because you already know whether its series
+    converges. It is the yardstick, not the thing being measured.
+  eg: >-
+    Pick it by keeping only the dominant power in numerator and denominator —
+    that is what makes the ratio tend to something finite and non-zero.
+
+S-partial:
+  glyph: "S_N"
+  tex: "S_N"
+  match: "SN"
+  kind: variable
+  name: The Nth partial sum
+  say: "“ess sub en”"
+  def: >-
+    The sum of the first N terms — an ordinary finite sum, with nothing
+    infinite about it.
+  eg: >-
+    This is the object that makes infinite sums definable at all: you never add
+    infinitely many things, you watch a sequence of finite sums.
+
+S-sum:
+  glyph: "S"
+  tex: "S"
+  kind: variable
+  name: The sum of the series
+  say: "“ess”"
+  def: >-
+    The limit the partial sums approach, when they approach anything. It is a
+    limit, not an addition.
+  eg: >-
+    Knowing a series converges almost never tells you S. Geometric and
+    telescoping series are the rare cases where you can name it.
+
+L-limit:
+  glyph: "L"
+  kind: variable
+  name: The limiting value
+  say: "“ell”"
+  def: >-
+    What the sequence settles down to. In a convergence test it is not an
+    answer, only a verdict — its size decides the outcome.
+  eg: >-
+    L = 1 in the ratio test is genuinely inconclusive, not a near miss: both
+    ∑1/n and ∑1/n² give exactly 1.
+
+N-index:
+  glyph: "N"
+  kind: variable
+  name: The cut-off index
+  say: "“en”"
+  def: >-
+    How far along you have gone. Capitalised to distinguish it from the running
+    index n, which is summed over and disappears.
+  eg: >-
+    n is bound and internal; N is a number you choose. Conflating them is why
+    partial-sum arguments stop making sense.
+
+c-coef:
+  glyph: "cₙ"
+  tex: "c_n"
+  match: "cn"
+  kind: constant
+  name: The nth coefficient
+  say: "“see sub en”"
+  def: >-
+    A fixed number multiplying the nth power. The coefficients are the series;
+    x is the input it gets evaluated at.
+  eg: >-
+    A power series is a function whose *coefficients* are the data — which is
+    why differentiating one is just a rule on the coefficients.
+
+a-center:
+  glyph: "a"
+  kind: constant
+  name: The centre
+  say: "“ay”"
+  def: >-
+    The point the series is expanded around, and the point where convergence is
+    guaranteed no matter what.
+  eg: >-
+    Every question about a power series is really about distance from a. At
+    x = a the series is just c₀ and cannot fail.
+
+R-radius:
+  glyph: "R"
+  kind: constant
+  name: Radius of convergence
+  say: "“are”"
+  def: >-
+    Half the width of the set where the series converges. Inside it, absolutely;
+    outside it, not at all.
+  eg: >-
+    R says nothing about the two endpoints — those converge or not
+    independently, and must be tested one at a time by hand.
+
+p-exp:
+  glyph: "p"
+  kind: variable
+  name: The p-exponent
+  say: "“pee”"
+  def: >-
+    The power that decides convergence, and the only thing about the series that
+    matters for the verdict.
+  eg: >-
+    p > 1 converges out at infinity, p < 1 converges near zero. The two point
+    opposite ways because fast decay is good far out and violent blow-up is bad
+    up close.
+
+less-than:
+  glyph: "<"
+  kind: operator
+  name: Less than
+  say: "“is less than”"
+  def: >-
+    A strict inequality. The two sides are not allowed to be equal.
+  eg: >-
+    Strictness is the whole content at a boundary case: |x−a| < R says nothing
+    at all about what happens when |x−a| = R.
+
+le:
+  glyph: "≤"
+  tex: "\\le"
+  kind: operator
+  name: Less than or equal
+  say: "“is at most”"
+  def: >-
+    A bound that the left side is allowed to attain.
+  eg: >-
+    In an error bound this is a guarantee, not an estimate — the true error is
+    somewhere in that range, and you are certain of the worst case.
+
+abs-bars:
+  glyph: "| |"
+  tex: "|"
+  sel: ".delimsizing"
+  kind: operator
+  name: Absolute value
+  say: "“the size of”"
+  def: >-
+    Distance from zero — magnitude with the sign thrown away.
+  eg: >-
+    Here it is what makes a test about *size* rather than sign, which is why the
+    ratio and root tests prove absolute convergence and get alternating series
+    for free.

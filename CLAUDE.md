@@ -190,14 +190,24 @@ material, because it takes up a slot in the graph.
 `constant`, `operator`, `differential`; they drive the colour coding and the
 filter chips, and the Lexicon page lists everything with an "appears in" index.
 
-Two fields exist because KaTeX output is not plain text:
+Three fields exist because KaTeX output is not plain text:
 
 - **`tex`** — the LaTeX that produces the glyph, when different (`\int` for `∫`).
-  Used by the indexer to verify the symbol belongs to the formula.
+  Used by the indexer to verify the symbol belongs to the formula. Keep it to the
+  part that is stable: `b-term` uses `"b"`, not `"b_n"`, because it also has to
+  match `b_{N+1}`.
+- **`match`** — the concatenated text of the rendered leaves, when that differs
+  from the glyph. May be a list of alternatives, tried in order: `b_n` renders as
+  `bn` but `b_{N+1}` renders as `bN`, so `match: ["bn", "bN"]`.
 - **`sel`** — a CSS selector into the rendered KaTeX, for marks that are not text
-  at all. A radical is drawn as an SVG (`sel: ".sqrt .hide-tail"`) and a fraction
-  emits its leaves denominator-first (`sel: ".mfrac"`), so neither can be found
-  by matching characters.
+  at all. A radical is drawn as an SVG (`sel: ".sqrt .hide-tail"`), a fraction
+  emits its leaves denominator-first (`sel: ".mfrac"`), and stretchy delimiters
+  are assembled from glyph fragments the text walker deliberately skips
+  (`sel: ".delimsizing"`). None can be found by matching characters.
+
+Matching is longest-first and claims **per character**, so a symbol may span
+several leaves (`Δx`) and a leaf may hold several symbols — KaTeX merges runs of
+same-font characters, so `uv` arrives as one span and gets split back apart.
 
 A symbol's entry is its *general* meaning. What it does in one particular formula
 belongs in that formula's `notes:` — the same glyph legitimately means different

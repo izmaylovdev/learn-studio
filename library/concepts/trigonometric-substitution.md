@@ -32,6 +32,25 @@ checks:
 
 There is nothing to memorize beyond "which identity turns this radicand into a perfect square." The sign pattern of the radicand picks the identity, and the identity picks the substitution.
 
+```formula
+title: The substitution that kills a radical
+tex: 'x = a\sin\theta \quad\Rightarrow\quad \sqrt{a^2 - x^2} = a\cos\theta'
+symbols: [x-var, equals, a-param, sin-fn, theta-var, implies, radical, minus, cos-fn]
+reading: If you let x be a times sine theta, then the root of a squared minus x squared becomes simply a cosine theta.
+steps:
+  - The radicand has the shape a² − x², a difference. That shape picks the identity, and the identity picks the substitution.
+  - Substituting x = a sin θ turns a² − x² into a²(1 − sin²θ).
+  - 1 − sin²θ is cos²θ, so the radicand is now a perfect square — which is the entire point.
+  - The square root of a perfect square is no square root at all, and what is left is an ordinary trigonometric integral.
+notes:
+  x-var: You are replacing the variable rather than renaming part of the integrand. This runs in the opposite direction to u-substitution.
+  radical: This is the obstacle, not the answer. Everything here exists to make it disappear.
+  theta-var: An angle you invented. It has to be converted back at the end — draw the triangle that x = a sin θ describes and read the answer off it.
+  a-param: A fixed number, not a limit of integration. For √(4−x²) it is 2, because 4 = 2².
+why: >-
+  Nothing here is worth memorising beyond **which identity turns this radicand into a perfect square**. The sign pattern picks the identity and the identity picks the substitution — so the three-row table writes itself. But check for a plain u-substitution first, every time: this is the **expensive** tool.
+```
+
 ## A full worked example
 
 $$

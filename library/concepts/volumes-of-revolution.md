@@ -47,11 +47,25 @@ $$
 
 If the solid has a hole — the region doesn't touch the axis — the slice is an annulus, and you subtract **areas**:
 
-$$
-dV = \pi\big[R_{\text{out}}(x)^2 - R_{\text{in}}(x)^2\big]dx
-$$
+```formula
+title: The washer
+tex: 'V = \pi\int_a^b \big[R(x)^2 - r(x)^2\big]\,dx'
+symbols: [V-vol, equals, pi-const, integral, bound-a, bound-b, R-outer, x-var, minus, r-inner, dx]
+reading: The volume is pi times the integral of the outer radius squared minus the inner radius squared.
+steps:
+  - Slice perpendicular to the axis. Every cross-section is then a circle, or a circle with a hole.
+  - The plate has area πR² with a disc of area πr² missing from its middle.
+  - Multiply that area by the thickness dx to get the volume of one slice.
+  - Integrate to add the slices along the axis.
+notes:
+  minus: You subtract the *areas*, so the squares come before the subtraction. π(R−r)² squares a difference instead, describes no region at all, and is the standard error in this topic.
+  R-outer: A distance to the axis. Revolving about y = 2 rather than y = 0 makes it |f(x) − 2| — put the axis into the radius explicitly instead of reusing a memorised formula.
+  r-inner: Zero when the region touches the axis. That is the only difference between a washer and a disk.
+why: >-
+  Perpendicular slices are circles; parallel slices are cylinders. That is the **entire taxonomy**, and both methods always work — one is just far less painful. The decisive question is always: **would this method force me to invert a function?** That is the reason shells exist.
+```
 
-**Not** $\pi(R_{\text{out}}-R_{\text{in}})^2$. That expression squares a difference instead of differencing squares, and it corresponds to no region at all. It is the single most common error in this topic.
+**Not** $\pi(R-r)^2$. That expression squares a difference instead of differencing squares, and it corresponds to no region at all. It is the single most common error in this topic.
 
 The radius is a **distance to the axis**, which is why revolving about $y=2$ instead of $y=0$ changes $R$ from $f(x)$ to $|f(x)-2|$. Get the axis into the radius explicitly rather than reusing a memorized formula.
 

@@ -24,9 +24,22 @@ $\int_a^b f$ was defined for a **bounded** $f$ on a **bounded** interval. Break 
 
 ## Type 1 — infinite interval
 
-$$
-\int_a^{\infty} f(x)\,dx = \lim_{t\to\infty}\int_a^{t}f(x)\,dx
-$$
+```formula
+title: Making an infinite interval finite again
+tex: '\int_a^{\infty} f(x)\,dx = \lim_{t\to\infty}\int_a^{t} f(x)\,dx'
+symbols: [integral, bound-a, infinity, f-fn, x-var, dx, equals, limit, t-var]
+reading: The integral out to infinity is defined as the limit of the honest, finite integral up to t, as t runs away.
+steps:
+  - The left side is not yet defined. The Riemann integral was built for a bounded interval, and this one is not.
+  - Replace infinity with a finite endpoint t. Now everything on the right is an ordinary definite integral.
+  - Evaluate it as usual. The answer is a function of t.
+  - Take the limit. If it exists and is finite the integral converges to it; otherwise it diverges.
+notes:
+  infinity: Not a number and not an endpoint. It cannot be substituted into an antiderivative — the limit is the only way to reach it.
+  t-var: The whole device. Integrating to t is legal, so you do that first and only then ask what happens as t leaves.
+  limit: This is where convergence is decided, not in the integration.
+why: Both 1/x and 1/x² decay to zero, yet one encloses finite area and the other infinite. **Decaying to zero is not enough — the decay has to be fast enough.** That distinction is the whole subject here, and it returns unchanged when you get to infinite series.
+```
 
 If the limit exists and is finite, the integral **converges** to it; otherwise it **diverges**.
 

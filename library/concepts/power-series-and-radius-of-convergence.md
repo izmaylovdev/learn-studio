@@ -30,9 +30,22 @@ An **infinite polynomial**, centered at $a$. The new thing is that $x$ is a vari
 
 Apply the ratio test from [[ratio-and-root-tests]] to $\sum c_n(x-a)^n$. The $|x-a|$ factors out of the limit, so the condition $L<1$ always takes the form
 
-$$
-|x-a| < R
-$$
+```formula
+title: Where a power series is a function
+tex: 'f(x) = \sum_{n=0}^{\infty} c_n (x-a)^n, \qquad |x-a| < R'
+symbols: [f-fn, x-var, equals, sigma-sum, n-index, infinity, c-coef, a-center, minus, less-than, R-radius]
+reading: The series defines a function of x, but only for those x lying within distance R of the centre.
+steps:
+  - The coefficients are fixed numbers. They are the data — the series *is* its coefficients.
+  - x is an input. Feed one in and the series becomes an ordinary infinite sum of numbers.
+  - That sum converges only if x is close enough to the centre a.
+  - Inside that radius the series is a genuine function; outside it, the notation means nothing at all.
+notes:
+  a-center: The point everything is measured from. At x = a the series collapses to c₀ and cannot fail — which is why convergence is always guaranteed there.
+  minus: Makes this about *distance from the centre*, and every question about a power series is really that question.
+  R-radius: Says nothing whatever about the two endpoints. Those converge or not independently and must each be tested by hand.
+why: A power series is a **function with a domain**, not a formula that always applies. There are only three possibilities — converges at a alone, converges everywhere, or converges on an interval of radius R — and the ratio test finds R almost mechanically. The endpoints are the part that requires actual thought.
+```
 
 Hence exactly three cases:
 

@@ -30,9 +30,23 @@ $$
 
 is only valid when $F$ is constant. When force depends on position, slice the motion into pieces so short that $F$ is essentially constant across each:
 
-$$
-dW = F(x)\,dx \qquad\Longrightarrow\qquad W = \int_a^b F(x)\,dx
-$$
+```formula
+title: Work done by a varying force
+tex: 'W = \int_a^b F(x)\,dx'
+symbols: [W-work, equals, integral, bound-a, bound-b, F-force, x-var, dx]
+reading: The work is the integral of the force over the distance it acts through.
+steps:
+  - Work is force times distance — but only while the force stays constant.
+  - Chop the motion into steps so short that the force barely changes across each one.
+  - Over one such step the work really is F(x) times dx, because F is effectively constant there.
+  - Add the steps up. The integral is what makes "effectively constant" exact.
+notes:
+  F-force: How hard you must push when you are *at x*. If this were a constant you would not need calculus at all — that dependence is the entire reason for the integral.
+  dx: One short displacement, chosen short enough that F does not vary across it.
+  W-work: A total, accumulated. In a pumping problem every slab weighs the same but travels a different distance, and that asymmetry is what makes it an integral rather than a multiplication.
+why: >-
+  The physics does the setup and the calculus is the easy part. Be honest about **what one slice is and how far it moves** — those are different quantities, and treating the distance as a constant is what makes pumping problems go wrong. Two choices cause nearly all the errors: **where you put y = 0**, and whether the distance is measured to the rim or to a spout above it.
+```
 
 **Springs.** Hooke's law says $F(x) = kx$, with $x$ measured from the natural length:
 

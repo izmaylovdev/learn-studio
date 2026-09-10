@@ -30,7 +30,26 @@ $$
 \frac{3x+11}{(x-3)(x+2)} = \frac{4}{x-3} - \frac{1}{x+2}
 $$
 
-and each piece is a logarithm. That is the entire method: **reverse the process of adding fractions over a common denominator.** The calculus is trivial; the algebra is the work.
+and each piece is a logarithm.
+
+```formula
+title: One term per factor
+tex: '\frac{P(x)}{(x-a)(x-b)} = \frac{A}{x-a} + \frac{B}{x-b}'
+symbols: [frac-bar, P-fn, x-var, minus, a-root, b-root, equals, A-coef, plus, B-coef]
+reading: A fraction whose denominator factors into two pieces splits into two simple fractions, one per factor, with constants on top yet to be found.
+steps:
+  - Check the degrees first. The top must be strictly lower than the bottom, or you long-divide before anything else.
+  - Factor the denominator completely. Each factor you find will contribute exactly one term.
+  - Write the decomposition with unknown numerators — you are asserting the shape, not the values.
+  - Solve for A and B. Substituting each root in turn kills every term but one.
+notes:
+  A-coef: Unknown at this stage. Writing the shape before you know the numbers is the method, not a placeholder for it.
+  frac-bar: Every piece on the right is something you can already integrate — a logarithm, a power, or an arctangent. That is the entire payoff.
+  P-fn: If its degree is not lower than the denominator's, this equation has no solution and the linear system you build will be inconsistent.
+why: >-
+  This is **adding fractions run backwards**, and the calculus is trivial — the algebra is the work. It also proves something rare: every real polynomial factors into linear and irreducible quadratic pieces, and every such piece integrates. So **every rational function has an elementary antiderivative**. Contrast ∫e^(−x²)dx, which provably does not.
+```
+ That is the entire method: **reverse the process of adding fractions over a common denominator.** The calculus is trivial; the algebra is the work.
 
 ## The procedure
 

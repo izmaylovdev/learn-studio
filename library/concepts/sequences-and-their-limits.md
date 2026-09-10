@@ -24,9 +24,23 @@ A **sequence** is an infinite ordered list $a_1, a_2, a_3, \dots$ — formally, 
 
 The only question of interest: **as $n$ grows without bound, do the terms settle down to a single number?**
 
-$$
-\lim_{n\to\infty}a_n = L
-$$
+```formula
+title: What convergence of a sequence means
+tex: '\lim_{n\to\infty} a_n = L'
+symbols: [limit, n-index, infinity, a-term, equals, L-limit]
+reading: As the index runs off to infinity, the terms settle down to the single number L.
+steps:
+  - aₙ is one term — a number picked out of the list by its position.
+  - Let the position run off without bound.
+  - If the terms eventually stay as close to L as you like, and never leave again, the sequence converges to L.
+  - If no such L exists, the sequence diverges. Oscillating forever counts as diverging.
+notes:
+  a-term: A single number, not a sum and not the sequence itself. Confusing a sequence with its series is the most expensive mistake available in this stage.
+  L-limit: One fixed number the terms approach. It need not be a term of the sequence, and usually is not.
+  limit: Everything infinite in this course is defined this way — by a limit of finite things. Nothing is ever actually added up infinitely many times.
+why: >-
+  A sequence is a **list**; a series is a **sum**. They are different objects with different questions, and the reference facts here are the ones every convergence test later calls on: **n! beats aⁿ beats n^p beats ln n**, and knowing that ordering cold is what makes the ratio test quick.
+```
 
 If such an $L$ exists the sequence **converges**; otherwise it **diverges**. Divergence covers three quite different behaviours — running off to $\pm\infty$, oscillating between fixed values, or wandering unpredictably — and it's worth naming which one you have, because they behave differently inside series.
 

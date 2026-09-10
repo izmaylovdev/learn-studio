@@ -18,9 +18,23 @@ checks:
 
 # Area Between Curves
 
-$$
-A = \int_a^b \big[f(x) - g(x)\big]\,dx \qquad (f \ge g \text{ on } [a,b])
-$$
+```formula
+title: Area between two curves
+tex: 'A = \int_a^b \big[f(x) - g(x)\big]\,dx'
+symbols: [A-area, equals, integral, bound-a, bound-b, f-fn, x-var, minus, g-fn, dx]
+reading: The area is the integral, from a to b, of the top curve minus the bottom curve.
+steps:
+  - A vertical slice through the region is a thin rectangle. Its width is dx.
+  - Its height is the vertical gap between the curves — the top one minus the bottom one.
+  - Height times width is the area of that one slice.
+  - Integrating from a to b adds every slice up. The integral is only ever doing that.
+notes:
+  minus: Top minus bottom, decided by looking at a sketch — not by the alphabet. If the curves swap order inside the interval you must split there, or the halves cancel.
+  dx: >-
+    The width of one slice. Change it to dy and the whole setup rotates: slices become horizontal, and you need the curves as functions of y.
+  A-area: Comes out positive because you arranged for the integrand to be non-negative. A bare ∫f gives *signed* area — the bookkeeping did not vanish, you did it up front.
+why: The formula is easy and the formula is not the point. **Write down the slice before you write the integral** — volume, arc length and work are all the same machinery with a different slice, and the people who struggle later are the ones who memorised this instead of learning to slice.
+```
 
 The formula is easy. The reason this concept exists is the **method**, because it is the same method for volume, arc length, work, and everything else in this stage.
 

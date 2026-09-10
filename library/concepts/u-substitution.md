@@ -30,9 +30,23 @@ $$
 
 So if you ever see that shape on the right, you know where it came from:
 
-$$
-\int f(g(x))\,g'(x)\,dx = F(g(x)) + C \qquad \text{where } F' = f
-$$
+```formula
+title: Substitution, as a shape you recognise
+tex: "\\int f(g(x))\\,g'(x)\\,dx = \\int f(u)\\,du"
+symbols: [integral, f-fn, g-fn, prime, x-var, dx, equals, u-fn, du]
+reading: The integral of f of g of x, times the derivative of g, equals the plain integral of f in the new variable u.
+steps:
+  - Look for a composite — some function wrapped around an inner one. That inner function is g.
+  - Check that g′(x) is already sitting in the integrand, up to a constant multiple. If it is not, this method does not apply.
+  - Rename u = g(x). Then du = g′(x) dx, and the g′(x) dx you found is consumed whole.
+  - What is left is an integral in u with no trace of x. If any x survives, the substitution was the wrong one.
+notes:
+  u-fn: Here u is not a chosen factor as in integration by parts — it is the inner function, renamed. Same letter, different job.
+  prime: This tick is the entire precondition. The derivative of the inside must already be present; you cannot manufacture it.
+  du: Absorbs the dx along with g′(x). That is why the right-hand side has no x left to integrate against.
+why: >-
+  This is the chain rule read backwards, and the whole skill is **recognising the shape** rather than doing any calculus. One character decides everything: ∫x·e^(x²)dx takes five lines, and ∫e^(x²)dx has **no elementary antiderivative at all**.
+```
 
 Mechanically: set $u = g(x)$, so $du = g'(x)\,dx$, and the integral becomes $\int f(u)\,du$.
 

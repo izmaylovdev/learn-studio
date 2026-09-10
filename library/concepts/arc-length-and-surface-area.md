@@ -43,7 +43,7 @@ $$
 ```formula
 title: Arc length of a graph
 tex: "L = \\int_a^b \\sqrt{1 + f'(x)^2} \\, dx"
-symbols: [integral, bound-a, bound-b, radical, f-fn, prime, x-var, dx, equals]
+symbols: [L-len, integral, bound-a, bound-b, radical, one-const, plus, f-fn, prime, x-var, dx, equals]
 reading: >-
   The length of the curve equals the integral, from a to b, of the square root of
   one plus the derivative squared, with respect to x.
@@ -53,6 +53,8 @@ steps:
   - f′(x) is that dy/dx — the slope of the curve at this point.
   - Integrating adds the hypotenuses, which is why the answer is a length and not an area.
 notes:
+  one-const: The horizontal run of the slice. It is why arc length can never come out shorter than the interval — the shortest a curve can be is straight.
+  L-len: Distance *along* the curve, not the straight-line distance between its ends.
   radical: The reason most arc lengths cannot be computed exactly. √(1+f′²) is rarely a nice function — even f(x)=x² lands you in trig substitution.
   prime: The slope. Steeper curve, longer hypotenuse, larger integrand — which is why the integrand is never below 1.
   dx: The horizontal footprint of one slice. The slice itself is longer, by exactly the factor in front.

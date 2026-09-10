@@ -75,9 +75,23 @@ $$
 
 If $a_n, b_n > 0$ and
 
-$$
-\lim_{n\to\infty}\frac{a_n}{b_n} = L \quad\text{with } 0 < L < \infty
-$$
+```formula
+title: Limit comparison
+tex: '\lim_{n\to\infty}\frac{a_n}{b_n} = L, \qquad 0 < L < \infty'
+symbols: [limit, n-index, infinity, frac-bar, a-term, b-term, equals, L-limit, less-than]
+reading: If the ratio of your terms to a known sequence tends to a finite non-zero number, the two series do the same thing.
+steps:
+  - Pick a comparison bₙ whose series you already know converges or diverges.
+  - Form the ratio of your term to it and take the limit.
+  - If that limit is a finite number and not zero, the two sequences shrink at the same rate.
+  - Then the two series share a verdict — yours converges exactly when the comparison does.
+notes:
+  b-term: The yardstick, not the thing being measured. Choose it by keeping only the dominant power top and bottom — that is what makes the ratio settle down.
+  less-than: Both strictnesses matter. L = 0 or L = ∞ means the two decay at genuinely different rates and the test says nothing.
+  L-limit: Not an answer, only a verdict. Its actual value is irrelevant once you know it is finite and non-zero.
+why: >-
+  Direct comparison needs a true inequality term by term, which is fiddly to arrange and often just false in the direction you want. Limit comparison only needs the **rates** to match, so it works on the messy algebraic fractions that direct comparison chokes on. The p-series are the yardstick everything gets measured against: **∑1/n^p converges exactly when p > 1**.
+```
 
 then both series do the same thing.
 

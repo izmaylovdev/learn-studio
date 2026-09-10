@@ -64,9 +64,23 @@ Take the first derivative, differentiate *that* with respect to $t$, then divide
 
 From [[arc-length-and-surface-area]], $ds = \sqrt{dx^2+dy^2}$. Factor out $dt$:
 
-$$
-L = \int_{\alpha}^{\beta}\sqrt{\left(\frac{dx}{dt}\right)^2+\left(\frac{dy}{dt}\right)^2}\,dt
-$$
+```formula
+title: Arc length as accumulated speed
+tex: "L = \\int_{\\alpha}^{\\beta}\\sqrt{x'(t)^2 + y'(t)^2}\\,dt"
+symbols: [L-len, equals, integral, alpha-bound, beta-bound, radical, x-of-t, prime, t-var, plus, y-of-t, dt]
+reading: The length of the curve is the integral of the particle's speed over the time interval.
+steps:
+  - x′(t) and y′(t) are the horizontal and vertical components of velocity.
+  - The root of their squares is the Pythagorean theorem — the magnitude of that velocity, which is speed.
+  - Speed times dt is the distance covered in one instant.
+  - Integrating from α to β adds those distances into total distance travelled.
+notes:
+  radical: Pythagoras, nothing more. The components are perpendicular, so their squares add.
+  dt: One instant of the parameter. Whatever multiplies it is a rate, and integrating a rate gives a total.
+  prime: Differentiation with respect to the parameter, not with respect to x. Every conversion back to an x-derivative costs one division by x′(t).
+why: >-
+  This is the **more fundamental** form. The √(1+f′(x)²) version is only the special case x = t, and it inherits the vertical line test — it cannot measure a circle's circumference in one integral, and this can. Reading it as ∫speed dt also explains why tracing the circle twice honestly returns 4π: **same curve, different parametrization, different integral**.
+```
 
 This is the **more fundamental** version. The $\sqrt{1+f'(x)^2}$ formula is just the case $x = t$, and it inherits an artificial restriction — it can't measure a circle's circumference in one integral. This one can:
 

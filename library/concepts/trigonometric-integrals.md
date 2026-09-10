@@ -48,6 +48,23 @@ graph TD
   C -->|no| E["both even:<br/>half-angle identities<br/>to lower the powers"]
 ```
 
+```formula
+title: Why an odd power is the easy case
+tex: '\int \sin^m x\,\cos^{2k+1} x\,dx = \int u^m (1-u^2)^k\,du'
+symbols: [integral, sin-fn, m-exp, x-var, cos-fn, k-exp, dx, equals, u-fn, minus, du]
+reading: With an odd power of cosine, the whole integral becomes a polynomial in u, where u is sine of x.
+steps:
+  - An odd cosine power splits as 2k+1 — an even part and one factor left over.
+  - That leftover cos x, together with dx, is exactly du for u = sin x. It leaves the integrand entirely.
+  - The even part is k pairs of cos², and cos² = 1 − sin² converts every pair into u with no square roots.
+  - Nothing but powers of u remains, so what was a trigonometric integral is now a polynomial.
+notes:
+  k-exp: Counts the *pairs* left behind. Pairs are what an identity can convert; a lone factor cannot be, which is why exactly one has to leave as du.
+  m-exp: Never evaluated — it just rides along as an exponent. Only its parity would matter, and here it does not even do that.
+  minus: This is the Pythagorean identity doing the work. It is the only reason the leftover cosines can become sines at all.
+why: The parity is not a special case to memorise, it is **the whole method**. An odd power has a spare factor to donate to du; an even one has nothing to peel, so you must lower the powers with half-angle identities instead. That is why ∫sin³x is a two-line substitution and **∫sin²x is a different technique entirely**.
+```
+
 **Odd cosine power.** $\int \sin^4 x\cos^3 x\,dx$. Peel one cosine off, convert the rest:
 
 $$

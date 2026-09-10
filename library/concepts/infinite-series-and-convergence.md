@@ -32,9 +32,23 @@ $$
 
 Then define
 
-$$
-\sum_{n=1}^{\infty}a_n = \lim_{N\to\infty}S_N
-$$
+```formula
+title: What an infinite sum actually is
+tex: '\sum_{n=1}^{\infty} a_n = \lim_{N\to\infty} S_N'
+symbols: [sigma-sum, n-index, infinity, a-term, equals, limit, N-index, S-partial]
+reading: The infinite sum is defined as the limit of the finite partial sums, as you take more and more terms.
+steps:
+  - Add the first N terms. That is S_N, an ordinary finite sum with nothing infinite about it.
+  - Do it for every N. You now have a *sequence* of partial sums.
+  - Ask whether that sequence converges — an ordinary sequence question.
+  - If it does, its limit is what the infinite sum means. If not, the series diverges.
+notes:
+  S-partial: The bridge. Every question about series is smuggled back to a question about the sequence S_N, which you already know how to handle.
+  n-index: Bound and internal — it is summed over and then gone. N is a number you choose. Conflating the two is where partial-sum arguments stop making sense.
+  sigma-sum: Deceptive notation. It looks like an instruction to add infinitely many things, and it is not; the addition on the right is always finite.
+why: >-
+  **You never add infinitely many numbers.** You watch a sequence of finite sums and ask where it goes. That reframing is what makes the whole topic tractable — and it is why aₙ → 0 is necessary but nowhere near sufficient, with the harmonic series as the standing counterexample.
+```
 
 **A series is a limit of a sequence** — the sequence of its partial sums. Everything from [[sequences-and-their-limits]] applies, and every theorem in the rest of this course is ultimately a statement about $\{S_N\}$.
 

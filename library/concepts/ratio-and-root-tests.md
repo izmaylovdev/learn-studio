@@ -24,8 +24,26 @@ Comparison tests need a known series that resembles yours. When terms contain **
 
 ## The ratio test
 
+```formula
+title: The ratio test
+tex: 'L = \lim_{n\to\infty}\left|\frac{a_{n+1}}{a_n}\right|'
+symbols: [L-limit, equals, limit, n-index, infinity, abs-bars, frac-bar, a-term, plus]
+reading: Compare each term to the one before it, and see what that ratio settles down to.
+steps:
+  - Form the ratio of consecutive terms — the next one over the current one.
+  - Take absolute values, so this is a question about size and not about sign.
+  - Let n run to infinity and see where the ratio settles.
+  - Below 1 the terms are eventually shrinking geometrically and the series converges absolutely. Above 1 they grow, and it diverges.
+notes:
+  frac-bar: The ratio is the whole idea — it asks whether the series is *eventually geometric*, and geometric series are the one family whose behaviour is completely known.
+  abs-bars: Makes this a test about magnitude, which is why it proves absolute convergence and gets alternating series for free.
+  L-limit: L = 1 is genuinely inconclusive, not a near miss — ∑1/n diverges and ∑1/n² converges, and both give exactly 1.
+why: >-
+  Ratios are what **factorials and nth powers** collapse under: (n+1)!/n! is just n+1. That is why this is the test to reach for whenever you see a factorial or something raised to the n, and why it is the engine behind finding a power series' radius of convergence.
+```
+
 $$
-L = \lim_{n\to\infty}\left|\frac{a_{n+1}}{a_n}\right| \qquad \begin{cases} L<1 & \text{converges absolutely}\\ L>1 & \text{diverges}\\ L=1 & \text{inconclusive}\end{cases}
+\begin{cases} L<1 & \text{converges absolutely}\\ L>1 & \text{diverges}\\ L=1 & \text{inconclusive}\end{cases}
 $$
 
 **The intuition is geometric series.** If consecutive terms eventually sit in a fixed ratio $L$, then far out the series behaves like $\sum r^n$ with $r = L$ — and from [[infinite-series-and-convergence]], that converges exactly when $|r|<1$. The test says: the eventual ratio is what matters, and the cutoff is inherited from the geometric case.

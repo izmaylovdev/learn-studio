@@ -53,9 +53,22 @@ converges, while $\sum \frac1n$ diverges. **The signs are doing all the work** �
 
 Truncate after $N$ terms. Because $S$ is always caught between consecutive partial sums:
 
-$$
-\big|S - S_N\big| \le b_{N+1}
-$$
+```formula
+title: The alternating series error bound
+tex: '\big|S - S_N\big| \le b_{N+1}'
+symbols: [abs-bars, S-sum, minus, S-partial, le, b-term, plus, one-const]
+reading: The gap between the true sum and the partial sum is no bigger than the very next term you left out.
+steps:
+  - S is the true sum; S_N is what you actually computed. Their difference is the error.
+  - Because the signs alternate and the terms shrink, the partial sums straddle S — each one overshoots in the opposite direction.
+  - So the true sum is always trapped between two consecutive partial sums.
+  - The width of that trap is the next term, which makes the first omitted term an outright bound on the error.
+notes:
+  one-const: b_{N+1} is the **first term you did not add**. Not a term you kept, and not an estimate — the next one along.
+  le: A guarantee, not an approximation. The true error is somewhere inside that range and you are certain of the worst case.
+  abs-bars: The bound is on the size of the error. The sign is known too — the error always leans the way the next term points.
+why: This is **unusually generous**. Every other error bound in this course involves an unknown point c you can only bound crudely — compare the Lagrange remainder. Here you just look at the next term. To get three decimal places, find the first term below 0.0005 and stop.
+```
 
 **The error is at most the first term you left out.** No other convergence test hands you an error estimate this cheaply, and it makes alternating series the pleasant case for numerical work. To get $\ln 2$ to within $0.001$, take 1000 terms — slow, but you know in advance that it suffices.
 
