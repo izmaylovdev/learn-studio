@@ -94,6 +94,13 @@ Body is markdown. Available in the renderer:
   id and warns when a listed symbol's LaTeX does not occur in the `tex:` — which
   is the difference between a real bug and a formula that just fails to light up.
 
+  `reading:`, `steps:` and `why:` are the "How to read it" pane, which is
+  **collapsed by default** behind a book icon in the formula's toolbar — the
+  formula is the thing to read, and the prose is there for when it doesn't land.
+  Because it's collapsed, a formula missing them looks perfectly fine on the page
+  and the toggle just opens onto nothing, so `npm run check` warns for each one
+  that's absent. Write all three.
+
   Quote the `tex:` in single quotes; YAML then leaves backslashes alone.
 
 - **` ```viz `** — an interactive figure. Body is `key: value`; only `type` is

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import katex from 'katex';
 import type { Formula, FormulaSymbol, SymbolKind } from '../../types';
 import { KIND_GLOSS, KIND_NAME, KIND_ORDER } from './kinds';
@@ -11,6 +11,17 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
   const [coloured, setColoured] = useState(true);
   const [missing, setMissing] = useState<string[]>([]);
   const [order, setOrder] = useState<string[]>([]);
+  // Collapsed by default: the prose is a fallback for when the formula alone
+  // doesn't land, and leaving it open every time trains you to read it instead
+  // of the formula. The choice sticks so nobody re-opens it on every page.
+  const [showReading, setShowReading] = useState(() => {
+    try { return localStorage.getItem('fx:reading') === '1'; } catch { return false; }
+  });
+  const paneId = useId();
+
+  useEffect(() => {
+    try { localStorage.setItem('fx:reading', showReading ? '1' : '0'); } catch { /* private mode */ }
+  }, [showReading]);
 
   const html = useMemo(() => {
     if (!spec) return '';
@@ -54,6 +65,7 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
   const byId = new Map(spec.symbols.map((s) => [s.id, s]));
   const active = selected ? byId.get(selected) ?? null : null;
   const kindsPresent = KIND_ORDER.filter((k) => spec.symbols.some((s) => s.kind === k && !missing.includes(s.id)));
+  const hasReading = Boolean(spec.reading || spec.why || spec.steps.length);
 
   const step = (dir: 1 | -1) => {
     if (!order.length) return;
@@ -94,6 +106,18 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
             <input type="checkbox" checked={coloured} onChange={(e) => setColoured(e.target.checked)} />
             colour
           </label>
+          {hasReading && (
+            <button
+              className={`fx-read${showReading ? ' on' : ''}`}
+              aria-expanded={showReading}
+              aria-controls={paneId}
+              title={showReading ? 'Hide the plain-English reading' : 'Show the plain-English reading'}
+              onClick={() => setShowReading((v) => !v)}
+            >
+              <BookIcon open={showReading} />
+              <span>How to read it</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -117,19 +141,21 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
         )}
       </div>
 
-      <div className="fx-split">
-        <div className="fx-pane">
-          <h5>How to read it</h5>
-          {spec.reading && <p className="fx-reading">{spec.reading}</p>}
-          {spec.steps.length > 0 && (
-            <ol className="fx-steps">
-              {spec.steps.map((s, i) => (
-                <li key={i}><span className="fx-n">{i + 1}</span><span>{s}</span></li>
-              ))}
-            </ol>
-          )}
-          {spec.why && <p className="fx-why" dangerouslySetInnerHTML={{ __html: bold(spec.why) }} />}
-        </div>
+      <div className={`fx-split${showReading && hasReading ? ' two' : ''}`}>
+        {hasReading && showReading && (
+          <div className="fx-pane" id={paneId}>
+            <h5>How to read it</h5>
+            {spec.reading && <p className="fx-reading">{spec.reading}</p>}
+            {spec.steps.length > 0 && (
+              <ol className="fx-steps">
+                {spec.steps.map((s, i) => (
+                  <li key={i}><span className="fx-n">{i + 1}</span><span>{s}</span></li>
+                ))}
+              </ol>
+            )}
+            {spec.why && <p className="fx-why" dangerouslySetInnerHTML={{ __html: bold(spec.why) }} />}
+          </div>
+        )}
 
         <div className="fx-pane fx-insp">
           <h5>{active ? 'This symbol, here' : 'Symbol'}</h5>
@@ -142,6 +168,28 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
         </div>
       </div>
     </div>
+  );
+}
+
+/** Open when the pane is showing, shut when it isn't — the icon states the result of clicking. */
+function BookIcon({ open }: { open: boolean }) {
+  return (
+    <svg className="fx-book" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"
+      fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" strokeLinecap="round">
+      {open ? (
+        <>
+          <path d="M8 4.4C7 3.5 5.4 3.1 2.5 3.1v8.4c2.9 0 4.5.4 5.5 1.3" />
+          <path d="M8 4.4c1-.9 2.6-1.3 5.5-1.3v8.4c-2.9 0-4.5.4-5.5 1.3" />
+          <path d="M8 4.4v8.4" />
+        </>
+      ) : (
+        <>
+          <path d="M4.6 2.6h8.8v10.8H4.6z" />
+          <path d="M4.6 2.6a1.9 1.9 0 0 0-1.9 1.9v8.9h1.9" />
+          <path d="M6.9 6h4.2M6.9 8.6h4.2" />
+        </>
+      )}
+    </svg>
   );
 }
 

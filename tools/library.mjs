@@ -83,7 +83,13 @@ function parseFormulas(content, file, symbols, issues) {
     for (const id of Object.keys(notes)) {
       if (!ids.includes(id)) issues.push({ level: 'warn', where: file, message: `formula note for \`${id}\`, which is not in its \`symbols:\` list` });
     }
-    if (!spec.reading) issues.push({ level: 'warn', where: file, message: `formula \`${spec.title ?? tex.slice(0, 24)}\` has no \`reading:\`` });
+    // These three are the whole "How to read it" pane. It is collapsed by
+    // default in the reader, so a formula missing them looks fine on the page —
+    // the toggle just opens onto nothing. Only the indexer will catch it.
+    const name = spec.title ?? tex.slice(0, 24);
+    for (const [field, value] of [['reading', spec.reading], ['steps', asArray(spec.steps).length], ['why', spec.why]]) {
+      if (!value) issues.push({ level: 'warn', where: file, message: `formula \`${name}\` has no \`${field}:\` — its "How to read it" pane will be incomplete` });
+    }
 
     out.push({
       title: String(spec.title ?? ''),
