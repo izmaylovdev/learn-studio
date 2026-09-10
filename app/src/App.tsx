@@ -71,7 +71,7 @@ export function App() {
     <div className="layout">
       <aside className="sidebar">
         <div className="brand">
-          <h1>laearn studio</h1>
+          <h1>learn studio</h1>
           <p>{graph.stats.concepts} concepts · {graph.stats.edges} links</p>
         </div>
         <nav className="nav">

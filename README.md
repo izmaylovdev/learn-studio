@@ -1,4 +1,4 @@
-# laearn studio
+# learn studio
 
 A personal learning library that keeps the parts Claude artifacts drop: the
 cross-references between materials, the prerequisite structure, and the memory of

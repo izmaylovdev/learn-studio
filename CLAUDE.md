@@ -1,4 +1,4 @@
-# laearn-studio
+# learn-studio
 
 A local-first learning library. Materials are markdown files; prerequisites and
 cross-references between them form a graph; tracks are ordered paths through that
