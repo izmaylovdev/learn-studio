@@ -1,0 +1,37 @@
+{
+  "name": "laearn-studio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Local-first learning studio: a cross-referenced knowledge library, prerequisite graphs, learning tracks and spaced-repetition progress.",
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node tools/server.mjs",
+    "dev:web": "vite",
+    "build": "tsc -b app && vite build",
+    "index": "node tools/index-library.mjs",
+    "check": "node tools/index-library.mjs --strict"
+  },
+  "dependencies": {
+    "cytoscape": "^3.30.2",
+    "cytoscape-dagre": "^2.5.0",
+    "gray-matter": "^4.0.3",
+    "katex": "^0.18.7",
+    "mermaid": "^11.4.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.0",
+    "remark-math": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/cytoscape": "^3.21.9",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}
