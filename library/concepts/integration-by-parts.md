@@ -39,9 +39,22 @@ $$
 
 Rearrange, and write $du = u'dx$, $dv = v'dx$:
 
-$$
-\boxed{\int u\,dv = uv - \int v\,du}
-$$
+```formula
+title: Integration by parts
+tex: '\int u\,dv = uv - \int v\,du'
+symbols: [integral, u-fn, dv, equals, v-fn, minus, du]
+reading: The integral of u against dv equals the product uv, minus the integral of v against du.
+steps:
+  - Split the integrand in two — one piece is u, everything left over including the dx is dv.
+  - Differentiate u to get du; antidifferentiate dv to get v. That is the only calculus in the method.
+  - uv comes for free. No integration is involved in that term at all.
+  - What remains, the integral of v du, is your new problem. The whole method is a bet that it is easier than the one you started with.
+notes:
+  equals: Not a simplification — a trade. Both sides are equally true; only the right-hand one might be easier to compute.
+  dv: Carries the dx. Whatever you call dv must include it, or v comes out wrong and nothing downstream works.
+  du: Costs you a derivative, while v costs you an integral. That asymmetry is the whole reason the method has a right and a wrong choice of u.
+why: Read this as a **trade, not a solution**. You are swapping one integral for another, and it is only progress if the new one is easier. Choosing u badly trades **downhill** and leaves you worse off than when you started — which is exactly what LIATE below is for.
+```
 
 You are not evaluating anything. You are **trading** $\int u\,dv$ for $\int v\,du$. The method works exactly when the new integral is easier than the old one, and it is perfectly possible to trade downhill.
 

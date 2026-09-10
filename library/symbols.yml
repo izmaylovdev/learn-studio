@@ -291,3 +291,64 @@ d-theta:
   say: "“dee theta”"
   def: The infinitesimal wedge of angle swept by one polar slice.
   eg: "Paired with ½r², because the slice is a circular sector and not a rectangle."
+
+u-fn:
+  glyph: "u"
+  kind: function
+  name: u — the part you differentiate
+  say: "“you”"
+  def: >-
+    A function of x that you choose. Not a variable standing for a number — u is
+    a whole piece of the integrand, picked because differentiating it makes
+    things simpler.
+  eg: >-
+    Choosing u is the entire skill in integration by parts. Everything else is
+    mechanical.
+
+v-fn:
+  glyph: "v"
+  kind: function
+  name: v — the part you antidifferentiate
+  say: "“vee”"
+  def: >-
+    The other function of x, obtained by antidifferentiating dv. You have to be
+    able to find it, which is the hard constraint on how you split the integrand.
+  eg: >-
+    Any antiderivative works — the constant cancels out of the final answer, so
+    take the simplest one.
+
+du:
+  glyph: "du"
+  kind: differential
+  name: The differential of u
+  say: "“dee you”"
+  def: >-
+    u′(x)·dx — what one infinitesimal step in x does to u. Getting it means
+    differentiating, which is always doable.
+  eg: >-
+    That asymmetry is the whole trick: du costs a derivative, v costs an
+    integral, so put the awkward factor in u.
+
+dv:
+  glyph: "dv"
+  kind: differential
+  name: The differential of v
+  say: "“dee vee”"
+  def: >-
+    v′(x)·dx — the piece of the integrand you commit to antidifferentiating,
+    and it carries the dx.
+  eg: >-
+    Everything left over after choosing u is dv, including the dx. Leaving the
+    dx out is the most common way to get lost.
+
+minus:
+  glyph: "−"
+  tex: "-"
+  kind: operator
+  name: Minus sign
+  say: "“minus”"
+  def: >-
+    Subtraction. Between two terms it takes the second away from the first.
+  eg: >-
+    Here it is not optional bookkeeping — the sign is what makes the identity
+    invert the product rule rather than restate it.

@@ -6,7 +6,9 @@ import type { FormulaSymbol } from '../../types';
  * find each symbol's `match` string in that stream — so authors write ordinary
  * LaTeX instead of a bespoke token DSL.
  *
- * A symbol can span several leaves (`\Delta x` is "Δ" then "x"), so matches are
+ * A symbol can span several leaves (`\Delta x` is "Δ" then "x") and a leaf can
+ * hold several symbols (KaTeX merges runs of same-font characters, so `uv` is
+ * one span), so claiming is tracked per character, not per leaf. Matches are
  * claimed longest-first and never overlap.
  */
 export interface Annotation {
@@ -52,17 +54,23 @@ export function annotate(container: HTMLElement, symbols: FormulaSymbol[]): Anno
   if (!html) return { found: [], missing: symbols.map((s) => s.id) };
 
   const spans = leaves(html);
-  // Build the leaf text stream plus a map from character offset back to leaf.
+  // Build the leaf text stream, remembering for every character which leaf it
+  // came from and where inside that leaf's text it sits.
   let stream = '';
-  const owner: number[] = [];
+  const slots: { leaf: number; off: number }[] = [];
   spans.forEach((span, i) => {
-    const text = (span.textContent ?? '').replace(/\s+/g, '');
-    for (let c = 0; c < text.length; c++) owner.push(i);
-    stream += text;
+    const raw = span.textContent ?? '';
+    for (let c = 0; c < raw.length; c++) {
+      if (/\s/.test(raw[c])) continue;
+      slots.push({ leaf: i, off: c });
+      stream += raw[c];
+    }
   });
 
   const claimed = new Set<number>();
   const missing: string[] = [];
+  /** leaf index -> the character ranges of it that some symbol won */
+  const work = new Map<number, { sym: FormulaSymbol; start: number; end: number }[]>();
 
   // Some marks are not text at all — KaTeX draws a radical as an SVG, and a
   // fraction's leaves come out denominator-first. Those bind by selector.
@@ -89,24 +97,57 @@ export function annotate(container: HTMLElement, symbols: FormulaSymbol[]): Anno
         const at = stream.indexOf(needle, from);
         if (at === -1) break;
         from = at + 1;
+        const stop = at + needle.length;
 
-        const touched = new Set<number>();
         let free = true;
-        for (let c = at; c < at + needle.length; c++) {
-          const idx = owner[c];
-          if (idx === undefined || claimed.has(idx)) { free = false; break; }
-          touched.add(idx);
-        }
+        for (let c = at; c < stop; c++) if (claimed.has(c)) { free = false; break; }
         if (!free) continue;
+        for (let c = at; c < stop; c++) claimed.add(c);
 
-        for (const idx of touched) {
-          claimed.add(idx);
-          tag(spans[idx], sym);
+        // Split the win into one range per leaf it touches.
+        let c = at;
+        while (c < stop) {
+          const leaf = slots[c].leaf;
+          const start = slots[c].off;
+          let end = start;
+          while (c < stop && slots[c].leaf === leaf) { end = slots[c].off + 1; c++; }
+          const list = work.get(leaf);
+          if (list) list.push({ sym, start, end });
+          else work.set(leaf, [{ sym, start, end }]);
         }
         hit = true;
       }
     }
     if (!hit) missing.push(sym.id);
+  }
+
+  for (const [leafIdx, ranges] of work) {
+    const leaf = spans[leafIdx];
+    const raw = leaf.textContent ?? '';
+
+    // The common case: the symbol owns the whole leaf. Tag KaTeX's own span and
+    // leave the DOM untouched, so nothing about the typesetting can shift.
+    if (ranges.length === 1 && ranges[0].start === 0 && ranges[0].end === raw.length) {
+      tag(leaf, ranges[0].sym);
+      continue;
+    }
+
+    // Otherwise the leaf holds more than this symbol — `uv` is one span, and
+    // tagging it whole would make clicking `u` highlight the `v` too. Wrap just
+    // the matched characters. Right to left, so earlier offsets stay valid as
+    // the text node is split out from under them.
+    const node = leaf.firstChild;
+    if (!node || node.nodeType !== Node.TEXT_NODE) { tag(leaf, ranges[0].sym); continue; }
+    const text = node as Text;
+    ranges.sort((a, b) => b.start - a.start);
+    for (const r of ranges) {
+      text.splitText(r.end);
+      const mine = text.splitText(r.start);
+      const wrap = document.createElement('span');
+      tag(wrap, r.sym);
+      mine.parentNode!.insertBefore(wrap, mine);
+      wrap.appendChild(mine);
+    }
   }
 
   // Arrow-key order is document order, which also covers selector-bound marks.
