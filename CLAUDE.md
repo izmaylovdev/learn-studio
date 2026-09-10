@@ -12,6 +12,7 @@ library and records study progress, but content is written here, in files.
 ```
 library/concepts/*.md   one concept per file — the nodes of the graph
 library/tracks/*.md     ordered paths through concepts
+library/symbols.yml     the symbol lexicon that formula blocks draw on
 progress/progress.json  mastery + review schedule (never edit by hand mid-session)
 tools/library.mjs       the parser. Content model changes start here.
 tools/progress.mjs      SM-2 scheduling and the "what next" logic
@@ -71,6 +72,30 @@ Body is markdown. Available in the renderer:
 - **` ```mermaid `** — rendered diagrams.
 - **` ```python `** (or any language) — syntax-highlighted code with a language
   badge. Untagged fences render plain.
+- **` ```formula `** — a formula you can take apart symbol by symbol. Every
+  symbol becomes clickable, colour-coded by kind, with a plain-English reading,
+  numbered steps, and a card explaining what that symbol means *in this line*:
+
+  ````
+  ```formula
+  title: The evaluation theorem
+  tex: '\int_a^b f(x)\,dx = F(b) - F(a)'
+  symbols: [integral, bound-a, bound-b, f-fn, x-var, dx, equals, F-antideriv]
+  reading: One sentence saying the whole formula out loud.
+  steps:
+    - Read it left to right, one move per step.
+  notes:
+    equals: What this particular symbol is doing here, overriding its general entry.
+  why: The point of the formula. **Bold** is allowed.
+  ```
+  ````
+
+  Symbol ids come from `library/symbols.yml`. `npm run check` fails on an unknown
+  id and warns when a listed symbol's LaTeX does not occur in the `tex:` — which
+  is the difference between a real bug and a formula that just fails to light up.
+
+  Quote the `tex:` in single quotes; YAML then leaves backslashes alone.
+
 - **` ```viz `** — an interactive figure. Body is `key: value`; only `type` is
   read today:
 
@@ -150,6 +175,26 @@ material, because it takes up a slot in the graph.
    is worse than the paragraph it displaced.
 6. **Keep the summary honest.** It's what the dashboard shows when deciding what
    to study next.
+
+## The symbol lexicon
+
+`library/symbols.yml` holds one entry per symbol: `glyph`, `kind`, `name`, `say`
+(how to pronounce it), `def`, `eg`. Kinds are `set`, `function`, `variable`,
+`constant`, `operator`, `differential`; they drive the colour coding and the
+filter chips, and the Lexicon page lists everything with an "appears in" index.
+
+Two fields exist because KaTeX output is not plain text:
+
+- **`tex`** — the LaTeX that produces the glyph, when different (`\int` for `∫`).
+  Used by the indexer to verify the symbol belongs to the formula.
+- **`sel`** — a CSS selector into the rendered KaTeX, for marks that are not text
+  at all. A radical is drawn as an SVG (`sel: ".sqrt .hide-tail"`) and a fraction
+  emits its leaves denominator-first (`sel: ".mfrac"`), so neither can be found
+  by matching characters.
+
+A symbol's entry is its *general* meaning. What it does in one particular formula
+belongs in that formula's `notes:` — the same glyph legitimately means different
+things in different lines, and saying so is most of the value here.
 
 ## Progress model
 

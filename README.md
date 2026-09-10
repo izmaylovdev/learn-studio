@@ -6,6 +6,9 @@ what you've actually learned.
 
 - **Library** — one markdown file per concept, with typeset math, diagrams,
   highlighted code, interactive figures, and `[[wikilinks]]` between them.
+- **Formulas** — click any symbol in an annotated formula to see what it is, how
+  to say it, and what it is doing *in that line*. A searchable Lexicon lists every
+  symbol in the library.
 - **Graph** — prerequisites form a DAG you can see; related links and inline
   mentions overlay it. Nodes are coloured by how well you know them.
 - **Tracks** — ordered, staged paths through the graph for a big topic, with

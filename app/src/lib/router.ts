@@ -3,12 +3,15 @@ import { useEffect, useState } from 'react';
 export type Route =
   | { name: 'dashboard' }
   | { name: 'graph' }
+  | { name: 'lexicon'; q: string }
   | { name: 'concept'; id: string }
   | { name: 'track'; id: string };
 
 export function parse(hash: string): Route {
-  const path = hash.replace(/^#\/?/, '').split('?')[0];
+  const raw = hash.replace(/^#\/?/, '');
+  const [path, search = ''] = raw.split('?');
   const [head, id] = path.split('/');
+  if (head === 'lexicon') return { name: 'lexicon', q: new URLSearchParams(search).get('q') ?? '' };
   if (head === 'c' && id) return { name: 'concept', id: decodeURIComponent(id) };
   if (head === 't' && id) return { name: 'track', id: decodeURIComponent(id) };
   if (head === 'graph') return { name: 'graph' };

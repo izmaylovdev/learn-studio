@@ -47,6 +47,32 @@ $$
 
 The **$n!$ is there to cancel the $n!$ that differentiation produces** from $(x-a)^n$ — not an arbitrary normalization.
 
+```formula
+title: The Taylor series of f about a
+tex: 'f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!} (x-a)^n'
+symbols: [f-fn, x-var, equals, sigma-sum, n-index, infinity, factorial, bound-a]
+reading: >-
+  f at x is the infinite sum, over n, of the n-th derivative of f at the centre,
+  divided by n factorial, times x minus the centre to the n-th power.
+steps:
+  - Each term is built from one derivative of f, all of them measured at the single point a.
+  - Dividing by n! cancels the n! that differentiating (x−a)ⁿ produces, so the coefficient isolates the derivative cleanly.
+  - (x−a)ⁿ measures how far you have moved from the centre. At x = a every term but the first vanishes.
+  - The ∑ to ∞ is the claim that matching every derivative at one point pins the function down on a whole interval.
+notes:
+  bound-a: Here a is not a limit of integration — it is the centre, the one point where the polynomial is forced to agree with f. Setting a = 0 gives a Maclaurin series.
+  n-index: Both the term counter and the number of derivatives taken. Those are the same number, which is the whole trick.
+  factorial: The counterweight. Without it the coefficients would be n! times too big, and the series would not converge to anything useful.
+  equals: The most loaded symbol here. The series can converge and still not equal f — proving this equals requires showing the remainder goes to zero.
+why: >-
+  Read it as an infinite polynomial that has been forced to agree with f in
+  value, slope, curvature, and every higher derivative — all at the single point
+  a. **The surprise is that pinning a function down at one point constrains it
+  across an interval**, which is a statement about how rigid smooth functions
+  are, not about the algebra.
+```
+
+
 Centered at $a=0$ it's called a **Maclaurin series**, which is the case you'll use nine times out of ten.
 
 ## What it means

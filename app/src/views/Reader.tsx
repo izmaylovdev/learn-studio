@@ -65,6 +65,7 @@ export function Reader({
             titles={titles}
             theme={theme}
             answers={concept.checks}
+            formulas={concept.formulas ?? []}
             onGrade={(g) => void send({ grade: g }, 'review recorded')}
           />
         </div>

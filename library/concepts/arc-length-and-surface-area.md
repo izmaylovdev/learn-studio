@@ -40,6 +40,30 @@ $$
 
 **That is the Pythagorean theorem and nothing else.** Deriving it takes ten seconds, which is a better use of memory than storing the formula.
 
+```formula
+title: Arc length of a graph
+tex: "L = \\int_a^b \\sqrt{1 + f'(x)^2} \\, dx"
+symbols: [integral, bound-a, bound-b, radical, f-fn, prime, x-var, dx, equals]
+reading: >-
+  The length of the curve equals the integral, from a to b, of the square root of
+  one plus the derivative squared, with respect to x.
+steps:
+  - One slice of curve is the hypotenuse of a triangle with legs dx and dy.
+  - So ds = √(dx² + dy²). Factor dx out of the root and you get √(1 + (dy/dx)²)·dx.
+  - f′(x) is that dy/dx — the slope of the curve at this point.
+  - Integrating adds the hypotenuses, which is why the answer is a length and not an area.
+notes:
+  radical: The reason most arc lengths cannot be computed exactly. √(1+f′²) is rarely a nice function — even f(x)=x² lands you in trig substitution.
+  prime: The slope. Steeper curve, longer hypotenuse, larger integrand — which is why the integrand is never below 1.
+  dx: The horizontal footprint of one slice. The slice itself is longer, by exactly the factor in front.
+why: >-
+  The whole formula is the Pythagorean theorem applied to an infinitesimal piece
+  of curve, so it is worth deriving rather than memorizing. **Sanity check it:
+  √(1+f′²) ≥ 1 always, so arc length can never come out shorter than the
+  horizontal span** — as it must not.
+```
+
+
 Two sanity checks worth doing once: a straight line $f'=m$ gives $L = \sqrt{1+m^2}\,(b-a)$, correct. And $\sqrt{1+f'^2}\ge 1$ always, so arc length is never shorter than the horizontal span — as it must be.
 
 ## Surface of revolution

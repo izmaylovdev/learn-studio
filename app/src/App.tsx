@@ -4,6 +4,7 @@ import type { Graph, Status } from './types';
 import { useRoute } from './lib/router';
 import { Dashboard } from './views/Dashboard';
 import { GraphView } from './views/GraphView';
+import { Lexicon } from './views/Lexicon';
 import { Reader } from './views/Reader';
 import { TrackView } from './views/TrackView';
 
@@ -80,6 +81,10 @@ export function App() {
             {graph.nextUp.due.length > 0 && <span className="count">{graph.nextUp.due.length} due</span>}
           </a>
           <a href="#/graph" className={route.name === 'graph' ? 'on' : ''}>Knowledge graph</a>
+          <a href="#/lexicon" className={route.name === 'lexicon' ? 'on' : ''}>
+            Lexicon
+            <span className="count">{Object.keys(graph.symbols ?? {}).length}</span>
+          </a>
         </nav>
 
         <div className="side-section">Tracks</div>
@@ -115,6 +120,7 @@ export function App() {
       <main className="main">
         {route.name === 'dashboard' && <Dashboard graph={graph} />}
         {route.name === 'graph' && <GraphView graph={graph} theme={theme} />}
+        {route.name === 'lexicon' && <Lexicon key={route.q} graph={graph} query={route.q} />}
         {route.name === 'track' && <TrackView graph={graph} id={route.id} onChange={refresh} />}
         {route.name === 'concept' && (
           <Reader key={route.id} id={route.id} titles={titles} theme={theme} onChange={refresh} />

@@ -4,13 +4,100 @@ import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join, dirname, basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
+import { load as loadYaml } from 'js-yaml';
 
 export const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 export const CONCEPTS_DIR = join(ROOT, 'library', 'concepts');
 export const TRACKS_DIR = join(ROOT, 'library', 'tracks');
+export const SYMBOLS_FILE = join(ROOT, 'library', 'symbols.yml');
 
 const WIKILINK = /\[\[([a-z0-9][a-z0-9-]*)(?:\|([^\]]+))?\]\]/g;
 const CHECK_BLOCK = /^:::check\s*$/gm;
+const FORMULA_BLOCK = /^```formula[ \t]*\n([\s\S]*?)\n```[ \t]*$/gm;
+
+/** The shared symbol lexicon. Formula blocks reference these ids. */
+export function loadSymbols(issues = []) {
+  if (!existsSync(SYMBOLS_FILE)) return {};
+  let raw;
+  try {
+    raw = loadYaml(readFileSync(SYMBOLS_FILE, 'utf8')) ?? {};
+  } catch (err) {
+    issues.push({ level: 'error', where: 'library/symbols.yml', message: `not valid YAML: ${err.message.split('\n')[0]}` });
+    return {};
+  }
+  const out = {};
+  for (const [id, v] of Object.entries(raw)) {
+    if (!v || typeof v !== 'object') continue;
+    for (const req of ['glyph', 'kind', 'name', 'def']) {
+      if (!v[req]) issues.push({ level: 'warn', where: 'library/symbols.yml', message: `symbol \`${id}\` is missing \`${req}\`` });
+    }
+    out[id] = {
+      id,
+      glyph: String(v.glyph ?? id),
+      tex: v.tex ? String(v.tex) : String(v.glyph ?? id),
+      match: asArray(v.match ?? v.glyph ?? id),
+      sel: v.sel ? String(v.sel) : '',
+      kind: String(v.kind ?? 'operator'),
+      name: String(v.name ?? id),
+      say: String(v.say ?? ''),
+      def: String(v.def ?? ''),
+      eg: String(v.eg ?? ''),
+    };
+  }
+  return out;
+}
+
+/**
+ * Extract ```formula blocks in document order. A block that fails to parse still
+ * occupies its slot as null — the reader pairs blocks to specs positionally.
+ */
+function parseFormulas(content, file, symbols, issues) {
+  const out = [];
+  for (const m of content.matchAll(FORMULA_BLOCK)) {
+    let spec;
+    try {
+      spec = loadYaml(m[1]) ?? {};
+    } catch (err) {
+      issues.push({ level: 'error', where: file, message: `formula block: ${err.message.split('\n')[0]}` });
+      out.push(null);
+      continue;
+    }
+    const tex = String(spec.tex ?? '').trim();
+    if (!tex) {
+      issues.push({ level: 'error', where: file, message: 'formula block has no `tex:`' });
+      out.push(null);
+      continue;
+    }
+    const ids = asArray(spec.symbols);
+    const notes = spec.notes && typeof spec.notes === 'object' ? spec.notes : {};
+
+    for (const id of ids) {
+      if (!symbols[id]) {
+        issues.push({ level: 'error', where: file, message: `formula lists unknown symbol \`${id}\` — add it to library/symbols.yml` });
+      } else if (!tex.includes(symbols[id].tex)) {
+        // Catches a symbol listed for the wrong formula, which would otherwise
+        // just fail to highlight and look like a rendering bug.
+        issues.push({ level: 'warn', where: file, message: `formula lists \`${id}\` but its LaTeX \`${symbols[id].tex}\` does not occur in the \`tex:\`` });
+      }
+    }
+    for (const id of Object.keys(notes)) {
+      if (!ids.includes(id)) issues.push({ level: 'warn', where: file, message: `formula note for \`${id}\`, which is not in its \`symbols:\` list` });
+    }
+    if (!spec.reading) issues.push({ level: 'warn', where: file, message: `formula \`${spec.title ?? tex.slice(0, 24)}\` has no \`reading:\`` });
+
+    out.push({
+      title: String(spec.title ?? ''),
+      tex,
+      reading: String(spec.reading ?? ''),
+      why: String(spec.why ?? ''),
+      steps: asArray(spec.steps),
+      symbols: ids
+        .filter((id) => symbols[id])
+        .map((id) => ({ ...symbols[id], note: String(notes[id] ?? '') })),
+    });
+  }
+  return out;
+}
 
 function walk(dir) {
   if (!existsSync(dir)) return [];
@@ -33,7 +120,7 @@ export function wikilinksIn(body) {
   return [...out];
 }
 
-function parseConcept(file) {
+function parseConcept(file, symbols = {}, sharedIssues = []) {
   const raw = readFileSync(file, 'utf8');
   const { data, content } = matter(raw);
   const id = String(data.id ?? basename(file, '.md'));
@@ -56,9 +143,13 @@ function parseConcept(file) {
     problems.push(`${blockCount} \`:::check\` block(s) but ${checks.length} answer(s) in frontmatter — answers will pair with the wrong prompts`);
   }
 
+  const relFile = file.slice(ROOT.length + 1);
+  const formulas = parseFormulas(content, relFile, symbols, sharedIssues);
+
   return {
     id,
-    file: file.slice(ROOT.length + 1),
+    file: relFile,
+    formulas,
     title: String(data.title ?? id),
     summary: String(data.summary ?? ''),
     tags: asArray(data.tags),
@@ -103,6 +194,7 @@ function parseTrack(file) {
  */
 export function loadLibrary() {
   const broken = [];
+  const symbols = loadSymbols(broken);
   // One unparseable file must not take down the whole library — report it and
   // carry on, so `npm run check` can point at the offending path.
   const safe = (fn) => (file) => {
@@ -115,7 +207,10 @@ export function loadLibrary() {
   };
   const drop = (x) => x !== null;
 
-  const concepts = walk(CONCEPTS_DIR).map(safe(parseConcept)).filter(drop).sort((a, b) => a.title.localeCompare(b.title));
+  const concepts = walk(CONCEPTS_DIR)
+    .map(safe((f) => parseConcept(f, symbols, broken)))
+    .filter(drop)
+    .sort((a, b) => a.title.localeCompare(b.title));
   const tracks = walk(TRACKS_DIR).map(safe(parseTrack)).filter(drop).sort((a, b) => a.title.localeCompare(b.title));
   const byId = new Map(concepts.map((c) => [c.id, c]));
 
@@ -159,7 +254,18 @@ export function loadLibrary() {
     issues.push({ level: 'error', where: 'library/concepts', message: `prerequisite cycle: ${cycle.join(' → ')}` });
   }
 
-  return { concepts, tracks, edges, byId, backlinks, issues };
+  // Which concepts use each symbol — powers the lexicon's "appears in" list.
+  const usage = {};
+  for (const c of concepts) {
+    for (const f of c.formulas ?? []) {
+      if (!f) continue;
+      for (const sym of f.symbols) {
+        (usage[sym.id] ??= []).push({ concept: c.id, title: c.title, formula: f.title });
+      }
+    }
+  }
+
+  return { concepts, tracks, edges, byId, backlinks, issues, symbols, usage };
 }
 
 /** Prereq edges must form a DAG or "what do I learn next" is meaningless. */
@@ -203,14 +309,17 @@ export function conceptDepths(lib) {
 export function summarize(lib, progress) {
   const depths = conceptDepths(lib);
   return {
-    concepts: lib.concepts.map(({ body, problems, ...meta }) => ({
+    concepts: lib.concepts.map(({ body, problems, formulas, ...meta }) => ({
       ...meta,
+      formulaCount: (formulas ?? []).filter(Boolean).length,
       depth: depths.get(meta.id) ?? 0,
       backlinks: lib.backlinks.get(meta.id) ?? [],
     })),
     tracks: lib.tracks.map(({ body, ...t }) => t),
     edges: lib.edges,
     issues: lib.issues,
+    symbols: lib.symbols,
+    symbolUsage: lib.usage,
     progress,
   };
 }

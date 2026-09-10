@@ -40,6 +40,31 @@ Here is the one genuinely new idea. In Cartesian coordinates you slice into rect
 
 A full circle of radius $r$ has area $\pi r^2$. A sector is the fraction $\frac{d\theta}{2\pi}$ of it:
 
+```formula
+title: Area swept in polar coordinates
+tex: 'A = \frac{1}{2} \int_{\alpha}^{\beta} r(\theta)^2 \, d\theta'
+symbols: [equals, half, integral, alpha-bound, beta-bound, r-fn, theta-var, d-theta]
+reading: >-
+  The area is one half the integral, from the starting angle to the ending angle,
+  of the radius squared with respect to the angle.
+steps:
+  - One slice is a thin circular sector pinned at the origin, not a rectangle.
+  - A sector of angle dθ is the fraction dθ/2π of a full circle of area πr², which is where both the ½ and the r² come from.
+  - The limits are the angles that trace the region exactly once — usually found by solving r = 0.
+  - The ∫ then adds the sectors as dθ shrinks to nothing.
+notes:
+  half: Not a fudge factor and not removable. It is what is left of the 2π in the sector fraction after the πr² cancels into it.
+  r-fn: A function of θ, not an independent variable. As you sweep the angle, r is what responds.
+  d-theta: You are sweeping an angle, not a length. Writing dx here would be a different integral over a different axis.
+  theta-var: The variable of integration, consumed by dθ — it does not survive into the answer.
+why: >-
+  Compare with area under a curve, where a slice is f(x)·dx — height times width.
+  Here the slice is a wedge, so the contribution is ½r²·dθ. **Writing ∫r dθ, as if
+  the slice were a rectangle, is the standard error** — and it is dimensionally
+  wrong, which is the fastest way to catch it.
+```
+
+
 $$
 dA = \frac{d\theta}{2\pi}\cdot\pi r^2 = \frac{1}{2}r^2\,d\theta
 $$

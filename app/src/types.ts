@@ -5,6 +5,41 @@ export interface Source { title: string; url: string }
 export interface Check { q: string; a: string }
 export interface Backlink { from: string; kind: EdgeKind }
 
+export type SymbolKind = 'set' | 'function' | 'variable' | 'constant' | 'operator' | 'differential';
+
+export interface Symbol_ {
+  id: string;
+  glyph: string;
+  tex: string;
+  match: string[];
+  sel: string;
+  kind: SymbolKind;
+  name: string;
+  say: string;
+  def: string;
+  eg: string;
+}
+
+/** A symbol as it appears in one particular formula, with any local override. */
+export interface FormulaSymbol extends Symbol_ {
+  note: string;
+}
+
+export interface Formula {
+  title: string;
+  tex: string;
+  reading: string;
+  why: string;
+  steps: string[];
+  symbols: FormulaSymbol[];
+}
+
+export interface SymbolUse {
+  concept: string;
+  title: string;
+  formula: string;
+}
+
 export interface ConceptMeta {
   id: string;
   file: string;
@@ -19,6 +54,7 @@ export interface ConceptMeta {
   checks: Check[];
   mentions: string[];
   depth: number;
+  formulaCount: number;
   backlinks: Backlink[];
 }
 
@@ -34,6 +70,7 @@ export interface ConceptState {
 
 export interface Concept extends ConceptMeta {
   body: string;
+  formulas: (Formula | null)[];
   state: ConceptState;
   mastery: number;
   tracks: { id: string; title: string }[];
@@ -60,6 +97,8 @@ export interface Graph {
   tracks: Track[];
   edges: { from: string; to: string; kind: EdgeKind }[];
   issues: Issue[];
+  symbols: Record<string, Symbol_>;
+  symbolUsage: Record<string, SymbolUse[]>;
   progress: Record<string, ConceptState>;
   trackProgress: Record<string, TrackStat>;
   nextUp: NextUp;

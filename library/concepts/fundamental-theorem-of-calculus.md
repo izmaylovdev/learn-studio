@@ -65,6 +65,31 @@ $$
 
 This is the workhorse. It turns "compute a limit of sums" into "find an antiderivative and subtract."
 
+```formula
+title: The evaluation theorem
+tex: '\int_a^b f(x)\,dx = F(b) - F(a)'
+symbols: [integral, bound-a, bound-b, f-fn, x-var, dx, equals, F-antideriv]
+reading: >-
+  The integral of f from a to b equals any antiderivative of f evaluated at the
+  top limit minus the same antiderivative at the bottom limit.
+steps:
+  - The left side is a limit of sums — see the definition of the definite integral.
+  - The right side involves no sums, no limits, and no slices at all.
+  - F is any function whose derivative is f. Which one you pick cannot matter, because the constant cancels in the subtraction.
+  - Evaluate top first, then subtract bottom. Reversing that flips the sign.
+notes:
+  equals: This equals had to be earned. It is the content of a theorem, not a definition — the two sides were defined by completely unrelated processes.
+  F-antideriv: "“Any” antiderivative. This is doing real work: it is why you may drop the +C on a definite integral."
+  dx: Still marks the variable of integration, even though nothing is being sliced on the right-hand side.
+why: >-
+  The two sides come from different worlds — one is an infinite limiting process,
+  the other is arithmetic on two numbers. **That they always agree is the reason
+  calculus is usable at all**, and it is why the hypotheses matter: f must be
+  continuous on the whole of [a, b], or the right-hand side computes something
+  that is not the integral.
+```
+
+
 Two details worth pinning down:
 
 - **Any antiderivative works.** Antiderivatives differ by a constant, and the constant cancels in $F(b)-F(a)$. This is why you drop the $+C$ on definite integrals — not laziness, cancellation.

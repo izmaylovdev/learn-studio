@@ -44,6 +44,31 @@ $$
 
 Look at its shape: it is **the next term of the series**, with the derivative evaluated at some unknown interior point $c$ rather than at $a$. That's an appealingly tidy statement.
 
+```formula
+title: The Lagrange form of the remainder
+tex: "R_N(x) = \\frac{f^{(N+1)}(c)}{(N+1)!}(x-a)^{N+1}"
+symbols: [remainder, x-var, equals, f-fn, c-mean, factorial, bound-a]
+reading: >-
+  The error left after N terms equals the next derivative of f, evaluated at some
+  unknown point c between a and x, divided by (N+1) factorial, times the distance
+  from the centre raised to the N+1.
+steps:
+  - Compare this with a term of the Taylor series — it is the very next term, with one change.
+  - "That change is c: the derivative is taken at some interior point, not at the centre a."
+  - You are never told where c is. That is why the formula is used to bound the error, not to compute it.
+  - Replace f at c by its largest possible value on the interval and the equality becomes a usable inequality.
+notes:
+  c-mean: The whole difficulty and the whole power. Because c is unknown you cannot evaluate this; because c is guaranteed to exist you can bound it.
+  factorial: The term that wins. (N+1)! outgrows everything, which is why adding terms works — and why e^x, sin and cos equal their series everywhere.
+  bound-a: The centre again. (x−a) growing is why an approximation degrades as you move away from where it was built.
+why: >-
+  Set N = 0 and this reads f(x) = f(a) + f′(c)(x−a) — the Mean Value Theorem.
+  **Taylor's theorem is the MVT with more derivatives**, which is the fact that
+  makes the formula hard to misremember: it is the next term of the series with
+  the derivative evaluated somewhere you do not know.
+```
+
+
 Check $N=0$:
 
 $$

@@ -48,6 +48,11 @@ Consider an interactive figure — a ` ```viz ` block, listed in `CLAUDE.md`. On
 where dragging something teaches what a paragraph can't, and only if an existing
 `type` fits; building a new one is a code change, not an authoring step.
 
+If the concept turns on a formula the reader has to decode rather than just read,
+add a ` ```formula ` block. Check `library/symbols.yml` first and reuse ids;
+adding a symbol there is cheap, but two entries for the same glyph is a bug. Put
+the general meaning in the lexicon and the local meaning in the block's `notes:`.
+
 ## 3. Wire the inbound links
 
 Edit existing concepts to add `[[new-concept-id]]` where the reference is

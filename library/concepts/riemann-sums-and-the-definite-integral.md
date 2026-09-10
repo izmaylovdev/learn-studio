@@ -33,6 +33,30 @@ $$
 
 Read the notation as a sentence. The $\sum$ became $\int$ (an elongated S, for *sum*). The $\Delta x$ became $dx$ — a width that has shrunk to nothing. The $f(x_i^*)$ became $f(x)$ — a height.
 
+```formula
+title: The definition of the definite integral
+tex: '\int_a^b f(x)\,dx = \lim_{n \to \infty} \sum_{i=1}^{n} f(x_i^*)\, \Delta x'
+symbols: [integral, bound-a, bound-b, f-fn, x-var, dx, equals, limit, n-index, infinity, sigma-sum, i-index, sample-point, delta-x]
+reading: >-
+  The integral of f from a to b is what the sum of n rectangles approaches as the
+  number of rectangles grows without bound.
+steps:
+  - The left side is the thing being defined. It does not yet mean anything.
+  - On the right, Δx is the width of one slice and f(xᵢ*) is its height, so their product is one rectangle's area.
+  - The ∑ adds those rectangles up for i = 1 to n — a finite, ordinary sum.
+  - The lim is what turns a finite approximation into an exact quantity, and it is the only hard part.
+notes:
+  equals: This equals sign is a definition, not a theorem. Nothing is being proved — the left side is being given meaning by the right.
+  x-var: A dummy. It is consumed by the integration and never appears in the answer, which is why ∫f(x)dx and ∫f(t)dt are the same number.
+  dx: The trace left by Δx after the limit. Both mark a width; dx is the one that has already shrunk to nothing.
+why: >-
+  Read right to left and the notation stops being arbitrary: ∑ became ∫ (an
+  elongated S, still for sum), Δx became dx (a width that has shrunk to nothing),
+  and f(xᵢ*) became f(x) (a height). **Every application in this course is built
+  by choosing a different slice and running this same machine.**
+```
+
+
 $$
 \underbrace{f(x)}_{\text{height}} \cdot \underbrace{dx}_{\text{width}} = \text{area of one infinitesimal slice}
 $$

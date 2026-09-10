@@ -6,7 +6,7 @@
   "description": "Local-first learning studio: a cross-referenced knowledge library, prerequisite graphs, learning tracks and spaced-repetition progress.",
   "scripts": {
     "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
-    "dev:api": "node tools/server.mjs",
+    "dev:api": "node --watch-path=tools --watch-path=library/symbols.yml tools/server.mjs",
     "dev:web": "vite",
     "build": "tsc -b app && vite build",
     "index": "node tools/index-library.mjs",
@@ -16,6 +16,7 @@
     "cytoscape": "^3.30.2",
     "cytoscape-dagre": "^2.5.0",
     "gray-matter": "^4.0.3",
+    "js-yaml": "^5.4.1",
     "katex": "^0.18.7",
     "mermaid": "^11.4.1",
     "react": "^18.3.1",

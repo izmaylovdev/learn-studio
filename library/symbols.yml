@@ -1,0 +1,293 @@
+# The lexicon. One entry per symbol; `formula` blocks in concepts reference these ids.
+#
+# kind: set | function | variable | constant | operator | differential
+#   set          a collection of things
+#   function     a machine: something goes in, something comes out
+#   variable     a value that moves, or gets counted over
+#   constant     a value pinned down before you start — often a boundary
+#   operator     something that acts on whatever follows it
+#   differential the marker of one infinitesimal slice
+#
+# glyph  what the reader sees.
+# tex    the LaTeX that produces it, when different from the glyph. The indexer
+#        checks this actually occurs in any formula that lists the symbol.
+# match  the concatenated text of the rendered leaves, when different from the
+#        glyph — e.g. \frac{1}{2} renders as "1" then "2".
+# say    how to pronounce it out loud.
+# def    what it is in general. A formula can override this locally via `notes:`.
+
+integral:
+  glyph: "∫"
+  tex: "\\int"
+  kind: operator
+  name: Integral sign
+  say: "“the integral of”"
+  def: >-
+    An elongated S, for sum. It says everything to its right is chopped into
+    slices and added up, in the limit as the slices shrink to nothing.
+  eg: >-
+    It is not an instruction to antidifferentiate — that is only how you
+    usually evaluate it.
+
+sigma-sum:
+  glyph: "∑"
+  tex: "\\sum"
+  kind: operator
+  name: Summation sign
+  say: "“the sum of”"
+  def: >-
+    Capital Greek sigma, for sum. Add one copy of what follows for every value
+    of the index between the bottom and top limits.
+  eg: "∑ from i=1 to n adds n terms. The ∫ is what this becomes in the limit."
+
+limit:
+  glyph: "lim"
+  tex: "\\lim"
+  kind: operator
+  name: Limit
+  say: "“the limit as”"
+  def: >-
+    The value being approached, not necessarily reached. Everything that makes
+    calculus different from algebra is hiding in this word.
+  eg: "lim as n→∞ means: take n bigger and bigger, and see what the answer settles on."
+
+radical:
+  glyph: "√"
+  tex: "\\sqrt"
+  sel: ".sqrt .hide-tail"
+  kind: operator
+  name: Square root
+  say: "“the square root of”"
+  def: The non-negative number whose square is what sits under the bar.
+  eg: >-
+    Under an integral it is usually bad news — √(1+f′²) is what makes most
+    arc-length integrals impossible in closed form.
+
+factorial:
+  glyph: "!"
+  kind: operator
+  name: Factorial
+  say: "“factorial”"
+  def: "n! = n × (n−1) × … × 2 × 1. Grows faster than any exponential."
+  eg: >-
+    In a Taylor series it cancels the n! that differentiating xⁿ produces; in an
+    error bound it is the term that makes adding more terms pay off.
+
+prime:
+  glyph: "′"
+  tex: "'"
+  kind: operator
+  name: Derivative mark
+  say: "“prime”"
+  def: One derivative per tick. f′ is the rate of change of f.
+  eg: "f⁽ⁿ⁾ with a bracketed number is the same idea once the ticks get unwieldy."
+
+equals:
+  glyph: "="
+  kind: operator
+  name: Equals
+  say: "“equals”"
+  def: >-
+    A claim that both sides are the same object. Worth pausing on — in a
+    definition it introduces notation, in a theorem it is the thing being proved.
+  eg: >-
+    The equals in the definition of ∫ is a definition; the one in the
+    Fundamental Theorem had to be earned.
+
+infinity:
+  glyph: "∞"
+  tex: "\\infty"
+  kind: constant
+  name: Infinity
+  say: "“infinity”"
+  def: >-
+    Not a number — a direction. It only ever appears underneath a limit, which
+    is what gives it meaning.
+  eg: >-
+    An integral to ∞ is shorthand for a limit, which is exactly why improper
+    integrals need one.
+
+bound-a:
+  glyph: "a"
+  kind: constant
+  name: Lower limit
+  say: "“ay”"
+  def: >-
+    Where the accumulation starts. In a Taylor series the same letter is the
+    centre — the point everything is measured from.
+  eg: "Swap a and b and the integral changes sign. Orientation is part of the definition."
+
+bound-b:
+  glyph: "b"
+  kind: constant
+  name: Upper limit
+  say: "“bee”"
+  def: Where the accumulation stops.
+  eg: "∫ from a to b, then F(b) − F(a): the upper limit is the one you evaluate first."
+
+alpha-bound:
+  glyph: "α"
+  tex: "\\alpha"
+  kind: constant
+  name: Starting angle
+  say: "“alpha”"
+  def: The angle where the sweep begins.
+  eg: >-
+    Choosing α and β so the region is traced exactly once is the whole difficulty
+    of a polar area problem.
+
+beta-bound:
+  glyph: "β"
+  tex: "\\beta"
+  kind: constant
+  name: Ending angle
+  say: "“beta”"
+  def: The angle where the sweep stops.
+  eg: "Reaching for 0 to 2π out of habit is how regions get counted twice."
+
+half:
+  glyph: "½"
+  tex: "\\frac"
+  sel: ".mfrac"
+  kind: constant
+  name: The one-half
+  say: "“a half”"
+  def: >-
+    Not a fudge factor. A sector of angle dθ is the fraction dθ/2π of a full
+    circle of area πr², and the 2π cancels down to ½.
+  eg: "Its presence is the tell that you are adding sectors, not rectangles."
+
+c-mean:
+  glyph: "c"
+  kind: constant
+  name: The unknown interior point
+  say: "“see”"
+  def: >-
+    Some point between the centre and x. The theorem guarantees it exists but
+    never tells you where, which is why the formula gets used as a bound.
+  eg: >-
+    Replace f⁽ᴺ⁺¹⁾(c) by its maximum over the interval and the equality becomes
+    a usable inequality.
+
+f-fn:
+  glyph: "f"
+  kind: function
+  name: The function
+  say: "“eff”"
+  def: >-
+    The thing being integrated, differentiated or approximated. Feed it a number,
+    get a number back.
+  eg: "In ∫f(x)dx, f supplies the height of every slice."
+
+F-antideriv:
+  glyph: "F"
+  kind: function
+  name: An antiderivative
+  say: "“capital eff”"
+  def: >-
+    Any function whose derivative is f. Capitalization is the convention that
+    signals the relationship.
+  eg: >-
+    “Any” is exact: antiderivatives differ by a constant, and that constant
+    cancels in F(b) − F(a).
+
+r-fn:
+  glyph: "r"
+  kind: function
+  name: The radius function
+  say: "“arr”"
+  def: >-
+    Distance from the origin at a given angle. In polar work r is a function of
+    θ, not an independent variable.
+  eg: "Where r = 0, one loop of the curve closes and the next opens."
+
+remainder:
+  glyph: "R"
+  kind: function
+  name: The remainder
+  say: "“arr sub en”"
+  def: >-
+    Exactly what the truncated polynomial got wrong — f minus its own Taylor
+    polynomial. Not an estimate: an identity.
+  eg: "The series equals the function precisely when R_N → 0."
+
+x-var:
+  glyph: "x"
+  kind: variable
+  name: The variable
+  say: "“ex”"
+  def: >-
+    What varies. Inside a definite integral it is a dummy: it is consumed by the
+    integration and does not appear in the answer.
+  eg: "∫f(x)dx and ∫f(t)dt are the same number. Renaming a dummy changes nothing."
+
+n-index:
+  glyph: "n"
+  kind: variable
+  name: Number of pieces
+  say: "“en”"
+  def: How many slices, terms or steps. Always a positive integer, always headed for ∞.
+  eg: "Doubling n halves Δx. The two always move together."
+
+i-index:
+  glyph: "i"
+  kind: variable
+  name: The counter
+  say: "“eye”"
+  def: >-
+    Which term you are on. It exists only between the limits of the ∑ and is
+    invisible outside it.
+  eg: "A subscript i is a counter, never a power."
+
+sample-point:
+  glyph: "xᵢ*"
+  tex: "x_i^*"
+  match: "xi∗"
+  kind: variable
+  name: Sample point
+  say: "“ex sub eye star”"
+  def: >-
+    Where inside slice i you measure the height. The star flags that the choice
+    is yours — left edge, right edge, midpoint, anywhere.
+  eg: >-
+    For a continuous f every choice gives the same limit, which is why the
+    definition can say “pick any”.
+
+theta-var:
+  glyph: "θ"
+  tex: "\\theta"
+  kind: variable
+  name: The angle
+  say: "“theta”"
+  def: Direction from the origin, measured counterclockwise from the positive x-axis.
+  eg: "In polar coordinates θ is the parameter you sweep, and r is what responds."
+
+dx:
+  glyph: "dx"
+  kind: differential
+  name: The differential
+  say: "“dee ex”"
+  def: >-
+    The width of one infinitesimal slice, and the marker saying which variable is
+    being swept. It closes the ∫ the way a bracket closes a group.
+  eg: >-
+    f(x)·dx is height × width — the area of one slice. Change it to dθ and you
+    are sweeping a different axis entirely.
+
+delta-x:
+  glyph: "Δx"
+  tex: "\\Delta x"
+  kind: differential
+  name: Slice width
+  say: "“delta ex”"
+  def: "The width of one slice while it is still finite: (b − a)/n."
+  eg: "Δx is what dx is before the limit is taken. Same quantity, different stage."
+
+d-theta:
+  glyph: "dθ"
+  tex: "d\\theta"
+  kind: differential
+  name: Angle element
+  say: "“dee theta”"
+  def: The infinitesimal wedge of angle swept by one polar slice.
+  eg: "Paired with ½r², because the slice is a circular sector and not a rectangle."
