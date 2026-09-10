@@ -34,12 +34,6 @@ $$
 ds = \sqrt{1 + \left(\frac{dy}{dx}\right)^2}\,dx \qquad\text{or}\qquad ds = \sqrt{\left(\frac{dx}{dy}\right)^2 + 1}\,dy
 $$
 
-$$
-L = \int_a^b\sqrt{1 + f'(x)^2}\,dx
-$$
-
-**That is the Pythagorean theorem and nothing else.** Deriving it takes ten seconds, which is a better use of memory than storing the formula.
-
 ```formula
 title: Arc length of a graph
 tex: "L = \\int_a^b \\sqrt{1 + f'(x)^2} \\, dx"
@@ -64,6 +58,8 @@ why: >-
   √(1+f′²) ≥ 1 always, so arc length can never come out shorter than the
   horizontal span** — as it must not.
 ```
+
+**That is the Pythagorean theorem and nothing else.** Deriving it takes ten seconds, which is a better use of memory than storing the formula.
 
 
 Two sanity checks worth doing once: a straight line $f'=m$ gives $L = \sqrt{1+m^2}\,(b-a)$, correct. And $\sqrt{1+f'^2}\ge 1$ always, so arc length is never shorter than the horizontal span — as it must be.

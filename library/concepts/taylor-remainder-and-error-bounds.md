@@ -38,12 +38,6 @@ Then $f(x) = \sum \frac{f^{(n)}(a)}{n!}(x-a)^n$ holds **exactly when $R_N(x)\to 
 
 ## Lagrange's form
 
-$$
-R_N(x) = \frac{f^{(N+1)}(c)}{(N+1)!}(x-a)^{N+1} \qquad \text{for some } c \text{ between } a \text{ and } x
-$$
-
-Look at its shape: it is **the next term of the series**, with the derivative evaluated at some unknown interior point $c$ rather than at $a$. That's an appealingly tidy statement.
-
 ```formula
 title: The Lagrange form of the remainder
 tex: "R_N(x) = \\frac{f^{(N+1)}(c)}{(N+1)!}(x-a)^{N+1}"
@@ -67,6 +61,8 @@ why: >-
   makes the formula hard to misremember: it is the next term of the series with
   the derivative evaluated somewhere you do not know.
 ```
+
+Look at its shape: it is **the next term of the series**, with the derivative evaluated at some unknown interior point $c$ rather than at $a$. That's an appealingly tidy statement.
 
 
 Check $N=0$:

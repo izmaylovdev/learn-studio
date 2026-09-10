@@ -103,6 +103,14 @@ Body is markdown. Available in the renderer:
 
   Quote the `tex:` in single quotes; YAML then leaves backslashes alone.
 
+  The block **replaces** the equation it explains — do not leave a `$$…$$` copy
+  above it. It renders the formula itself, larger, so a plain display version
+  next to it is the same equation twice.
+
+  Two YAML traps, both caught by `npm run check`: a value containing `": "` parses
+  as a nested mapping, and a value opening with `*` is an alias node. Use a
+  folded scalar (`key: >-`) rather than rewording around either.
+
 - **` ```viz `** — an interactive figure. Body is `key: value`; only `type` is
   read today:
 

@@ -40,6 +40,11 @@ Here is the one genuinely new idea. In Cartesian coordinates you slice into rect
 
 A full circle of radius $r$ has area $\pi r^2$. A sector is the fraction $\frac{d\theta}{2\pi}$ of it:
 
+
+$$
+dA = \frac{d\theta}{2\pi}\cdot\pi r^2 = \frac{1}{2}r^2\,d\theta
+$$
+
 ```formula
 title: Area swept in polar coordinates
 tex: 'A = \frac{1}{2} \int_{\alpha}^{\beta} r(\theta)^2 \, d\theta'
@@ -63,15 +68,6 @@ why: >-
   the slice were a rectangle, is the standard error** — and it is dimensionally
   wrong, which is the fastest way to catch it.
 ```
-
-
-$$
-dA = \frac{d\theta}{2\pi}\cdot\pi r^2 = \frac{1}{2}r^2\,d\theta
-$$
-
-$$
-\boxed{A = \frac12\int_{\alpha}^{\beta}r(\theta)^2\,d\theta}
-$$
 
 **The $r^2$ is not decoration and the $\frac12$ is not a fudge.** Both come from the sector's geometry: a slice at larger $r$ subtends more area for the same $d\theta$, because the arc at its far end is longer. Writing $\int r\,d\theta$ — as if the slice were a rectangle — is the standard error, and it is dimensionally wrong.
 

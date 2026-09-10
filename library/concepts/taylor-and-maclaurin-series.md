@@ -41,12 +41,6 @@ $$
 f^{(n)}(a) = n!\,c_n \qquad\Longrightarrow\qquad \boxed{c_n = \frac{f^{(n)}(a)}{n!}}
 $$
 
-$$
-f(x) = \sum_{n=0}^{\infty}\frac{f^{(n)}(a)}{n!}(x-a)^n
-$$
-
-The **$n!$ is there to cancel the $n!$ that differentiation produces** from $(x-a)^n$ — not an arbitrary normalization.
-
 ```formula
 title: The Taylor series of f about a
 tex: 'f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!} (x-a)^n'
@@ -71,6 +65,8 @@ why: >-
   across an interval**, which is a statement about how rigid smooth functions
   are, not about the algebra.
 ```
+
+The **$n!$ is there to cancel the $n!$ that differentiation produces** from $(x-a)^n$ — not an arbitrary normalization.
 
 
 Centered at $a=0$ it's called a **Maclaurin series**, which is the case you'll use nine times out of ten.

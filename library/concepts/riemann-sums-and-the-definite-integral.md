@@ -27,12 +27,6 @@ Most people leave Calculus 1 believing an integral is an antiderivative. That be
 
 Chop $[a,b]$ into $n$ pieces of width $\Delta x = \frac{b-a}{n}$, pick a sample point $x_i^*$ in each, and add up rectangles:
 
-$$
-\int_a^b f(x)\,dx = \lim_{n \to \infty} \sum_{i=1}^{n} f(x_i^*)\,\Delta x
-$$
-
-Read the notation as a sentence. The $\sum$ became $\int$ (an elongated S, for *sum*). The $\Delta x$ became $dx$ — a width that has shrunk to nothing. The $f(x_i^*)$ became $f(x)$ — a height.
-
 ```formula
 title: The definition of the definite integral
 tex: '\int_a^b f(x)\,dx = \lim_{n \to \infty} \sum_{i=1}^{n} f(x_i^*)\, \Delta x'
@@ -55,6 +49,8 @@ why: >-
   and f(xᵢ*) became f(x) (a height). **Every application in this course is built
   by choosing a different slice and running this same machine.**
 ```
+
+Read the notation as a sentence. The $\sum$ became $\int$ (an elongated S, for *sum*). The $\Delta x$ became $dx$ — a width that has shrunk to nothing. The $f(x_i^*)$ became $f(x)$ — a height.
 
 
 $$

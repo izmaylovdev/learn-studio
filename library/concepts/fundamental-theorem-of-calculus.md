@@ -59,12 +59,6 @@ $$
 
 If $F$ is **any** antiderivative of $f$ on $[a,b]$, then
 
-$$
-\int_a^b f(x)\,dx = F(b) - F(a)
-$$
-
-This is the workhorse. It turns "compute a limit of sums" into "find an antiderivative and subtract."
-
 ```formula
 title: The evaluation theorem
 tex: '\int_a^b f(x)\,dx = F(b) - F(a)'
@@ -88,6 +82,8 @@ why: >-
   continuous on the whole of [a, b], or the right-hand side computes something
   that is not the integral.
 ```
+
+This is the workhorse. It turns "compute a limit of sums" into "find an antiderivative and subtract."
 
 
 Two details worth pinning down:
