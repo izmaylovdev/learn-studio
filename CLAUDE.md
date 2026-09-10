@@ -53,10 +53,13 @@ checks:                             # answers for the :::check blocks, in order
 ---
 ```
 
-`field` groups concepts into collapsible sections in the sidebar. Pick the area
-of mathematics, at a granularity that makes the list navigable — the existing
-ones are "Integration Techniques", "Sequences and Series" and so on, not
-"Calculus 2". A concept without one is filed under **Unfiled** and warned about.
+`field` groups concepts into collapsible sections in the sidebar, which nests
+**track → field → concept**. Pick the area of mathematics, at a granularity that
+makes the list navigable — the existing ones are "Integration Techniques",
+"Sequences and Series" and so on, not "Calculus 2", because the track above them
+already says that. A concept without a field is filed under **Unfiled** and
+warned about; a concept in no track appears under a trailing **Not in a track**
+heading, which is the fastest way to spot one you forgot to add to a stage.
 
 Fields and the concepts inside them are **ordered by the tracks**, not
 alphabetically: a concept sorts by where it first appears in any track's stages,

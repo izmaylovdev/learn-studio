@@ -36,7 +36,7 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 button { font: inherit; cursor: pointer; }
 
-.layout { display: grid; grid-template-columns: 248px 1fr; height: 100%; }
+.layout { display: grid; grid-template-columns: 268px 1fr; height: 100%; }
 
 /* ---------- sidebar ---------- */
 .sidebar {
@@ -59,6 +59,34 @@ button { font: inherit; cursor: pointer; }
   text-transform: uppercase; color: var(--faint); font-weight: 600; }
 .fields { flex: 1; overflow-y: auto; padding-bottom: 16px; }
 .field + .field { margin-top: 2px; }
+.track-group + .track-group { margin-top: 6px; }
+
+.track-head {
+  display: flex; align-items: center; gap: 2px;
+  margin: 0 8px; padding: 4px 10px 4px 2px; border-radius: 7px;
+}
+.track-head:hover { background: var(--panel); }
+.track-head.on { background: var(--panel); }
+.track-head a {
+  flex: 1; min-width: 0; padding: 3px 0;
+  color: var(--text); font-size: 13.5px; font-weight: 600;
+}
+.track-head a:hover { text-decoration: none; }
+.track-head .count { color: var(--faint); font-size: 12px; font-variant-numeric: tabular-nums; }
+.twist {
+  display: flex; padding: 4px; background: none; border: 0;
+  color: var(--faint); border-radius: 5px; flex: none;
+}
+.twist:hover { color: var(--text); }
+.twist:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+.twist .chev { transition: transform .15s ease; }
+.twist.open .chev { transform: rotate(90deg); }
+
+/* one guide rail per track, so three levels stay readable in a narrow column */
+.track-group .field { margin-left: 19px; border-left: 1px solid var(--line); }
+.track-group .field-head { padding-left: 11px; }
+.track-group .concept-list { padding-left: 9px; }
+
 .field-head {
   width: 100%; display: flex; align-items: center; gap: 7px;
   padding: 6px 18px 6px 12px; background: none; border: 0;

@@ -51,49 +51,80 @@ export function App() {
     [graph]
   );
 
-  // Collapsed fields, not open ones — a field added later should show up rather
-  // than hide itself because nobody has opened it yet.
+  // Collapsed sections, not open ones — a track or field added later should show
+  // up rather than hide itself because nobody has opened it yet. Keys are
+  // `t:<trackId>` and `f:<trackId>:<field>`, so the same field under two tracks
+  // collapses independently.
   const [closed, setClosed] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('fields:closed') ?? '[]')); }
+    try { return new Set(JSON.parse(localStorage.getItem('sidebar:closed') ?? '[]')); }
     catch { return new Set(); }
   });
   useEffect(() => {
-    localStorage.setItem('fields:closed', JSON.stringify([...closed]));
+    localStorage.setItem('sidebar:closed', JSON.stringify([...closed]));
   }, [closed]);
+  const toggle = (key: string) => setClosed((prev) => {
+    const next = new Set(prev);
+    next.has(key) ? next.delete(key) : next.add(key);
+    return next;
+  });
 
-  const grouped = useMemo(() => {
-    const by = new Map<string, ConceptMeta[]>();
-    for (const c of graph?.concepts ?? []) {
-      const list = by.get(c.field);
-      if (list) list.push(c); else by.set(c.field, [c]);
-    }
-    for (const list of by.values()) {
-      list.sort((a, b) => (a.order - b.order) || a.title.localeCompare(b.title));
-    }
-    const order = graph?.fields ?? [];
-    const rank = (f: string) => (order.indexOf(f) + 1 || Number.MAX_SAFE_INTEGER);
-    return [...by.entries()].sort((a, b) => rank(a[0]) - rank(b[0]));
+  const tree = useMemo(() => {
+    const byId = new Map((graph?.concepts ?? []).map((c) => [c.id, c]));
+    const fieldRank = (f: string) => ((graph?.fields ?? []).indexOf(f) + 1 || Number.MAX_SAFE_INTEGER);
+
+    const intoFields = (items: ConceptMeta[]): [string, ConceptMeta[]][] => {
+      const by = new Map<string, ConceptMeta[]>();
+      for (const c of items) {
+        const list = by.get(c.field);
+        if (list) list.push(c); else by.set(c.field, [c]);
+      }
+      for (const list of by.values()) {
+        list.sort((a, b) => (a.order - b.order) || a.title.localeCompare(b.title));
+      }
+      return [...by.entries()].sort((a, b) => fieldRank(a[0]) - fieldRank(b[0]));
+    };
+
+    const tracks = (graph?.tracks ?? []).map((t) => ({
+      id: t.id,
+      title: t.title,
+      pct: Math.round((graph?.trackProgress?.[t.id]?.completion ?? 0) * 100),
+      fields: intoFields(
+        [...new Set(t.conceptIds)].map((id) => byId.get(id)).filter(Boolean) as ConceptMeta[]
+      ),
+    }));
+
+    const tracked = new Set((graph?.tracks ?? []).flatMap((t) => t.conceptIds));
+    const loose = intoFields((graph?.concepts ?? []).filter((c) => !tracked.has(c.id)));
+    return { tracks, loose };
   }, [graph]);
 
-  const fieldOf = useMemo(
-    () => new Map((graph?.concepts ?? []).map((c) => [c.id, c.field])),
-    [graph]
-  );
+  /** every section key that has to be open for a concept to be visible */
+  const pathTo = useMemo(() => {
+    const m = new Map<string, string[]>();
+    const add = (id: string, ...keys: string[]) => m.set(id, [...(m.get(id) ?? []), ...keys]);
+    for (const t of tree.tracks) {
+      for (const [field, items] of t.fields) {
+        for (const c of items) add(c.id, `t:${t.id}`, `f:${t.id}:${field}`);
+      }
+    }
+    for (const [field, items] of tree.loose) for (const c of items) add(c.id, `f::${field}`);
+    return m;
+  }, [tree]);
 
-  // Following a link into a collapsed field should reveal it. Deliberately not
-  // keyed on `closed`, so collapsing the field you are currently reading sticks.
+  // Following a link into a collapsed section should reveal it. Deliberately not
+  // keyed on `closed`, so collapsing the section you are reading sticks.
   const activeConcept = route.name === 'concept' ? route.id : null;
   useEffect(() => {
     if (!activeConcept) return;
-    const field = fieldOf.get(activeConcept);
-    if (!field) return;
+    const keys = pathTo.get(activeConcept);
+    if (!keys?.length) return;
     setClosed((prev) => {
-      if (!prev.has(field)) return prev;
+      if (!keys.some((k) => prev.has(k))) return prev;
       const next = new Set(prev);
-      next.delete(field);
+      for (const k of keys) next.delete(k);
       return next;
     });
-  }, [activeConcept, fieldOf]);
+  }, [activeConcept, pathTo]);
 
   if (error) {
     return (
@@ -111,6 +142,35 @@ export function App() {
   if (!graph) return <div className="page"><p className="empty">Loading library…</p></div>;
 
   const statusOf = (id: string): Status => graph.progress[id]?.status ?? 'unseen';
+
+  const renderField = (key: string, field: string, items: ConceptMeta[]) => {
+    const open = !closed.has(key);
+    const here = items.some((c) => c.id === activeConcept);
+    return (
+      <section className="field" key={key}>
+        <button
+          className={`field-head${open ? ' open' : ''}${here ? ' here' : ''}`}
+          aria-expanded={open}
+          onClick={() => toggle(key)}
+        >
+          <Chevron />
+          <span className="field-name">{field}</span>
+          <span className="count">{items.length}</span>
+        </button>
+        {open && (
+          <div className="concept-list">
+            {items.map((c) => (
+              <a key={c.id} href={`#/c/${c.id}`}
+                 className={c.id === activeConcept ? 'on' : ''}>
+                <span className={`dot ${statusOf(c.id)}`} />
+                {c.title}
+              </a>
+            ))}
+          </div>
+        )}
+      </section>
+    );
+  };
 
   return (
     <div className="layout">
@@ -132,56 +192,36 @@ export function App() {
         </nav>
 
         <div className="side-section">Tracks</div>
-        <nav className="nav">
-          {graph.tracks.map((t) => {
-            const stat = graph.trackProgress[t.id];
+        <div className="fields">
+          {tree.tracks.map((t) => {
+            const key = `t:${t.id}`;
+            const open = !closed.has(key);
             return (
-              <a key={t.id} href={`#/t/${t.id}`}
-                 className={route.name === 'track' && route.id === t.id ? 'on' : ''}>
-                {t.title}
-                <span className="count">{Math.round((stat?.completion ?? 0) * 100)}%</span>
-              </a>
+              <section className="track-group" key={t.id}>
+                <div className={`track-head${route.name === 'track' && route.id === t.id ? ' on' : ''}`}>
+                  <button
+                    className={`twist${open ? ' open' : ''}`}
+                    aria-expanded={open}
+                    aria-label={`${open ? 'Collapse' : 'Expand'} ${t.title}`}
+                    onClick={() => toggle(key)}
+                  >
+                    <Chevron />
+                  </button>
+                  <a href={`#/t/${t.id}`}>{t.title}</a>
+                  <span className="count">{t.pct}%</span>
+                </div>
+                {open && t.fields.map(([field, items]) =>
+                  renderField(`f:${t.id}:${field}`, field, items))}
+              </section>
             );
           })}
-        </nav>
 
-        <div className="side-section">Concepts</div>
-        <div className="fields">
-        {grouped.map(([field, items]) => {
-          const open = !closed.has(field);
-          const here = items.some((c) => route.name === 'concept' && route.id === c.id);
-          return (
-            <section className="field" key={field}>
-              <button
-                className={`field-head${open ? ' open' : ''}${here ? ' here' : ''}`}
-                aria-expanded={open}
-                onClick={() => setClosed((prev) => {
-                  const next = new Set(prev);
-                  next.has(field) ? next.delete(field) : next.add(field);
-                  return next;
-                })}
-              >
-                <svg className="chev" viewBox="0 0 12 12" width="9" height="9" aria-hidden="true">
-                  <path d="M4 2.5 8 6l-4 3.5" fill="none" stroke="currentColor"
-                        strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span className="field-name">{field}</span>
-                <span className="count">{items.length}</span>
-              </button>
-              {open && (
-                <div className="concept-list">
-                  {items.map((c) => (
-                    <a key={c.id} href={`#/c/${c.id}`}
-                       className={route.name === 'concept' && route.id === c.id ? 'on' : ''}>
-                      <span className={`dot ${statusOf(c.id)}`} />
-                      {c.title}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </section>
-          );
-        })}
+          {tree.loose.length > 0 && (
+            <>
+              <div className="side-section">Not in a track</div>
+              {tree.loose.map(([field, items]) => renderField(`f::${field}`, field, items))}
+            </>
+          )}
         </div>
 
         <button className="theme-toggle" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
@@ -199,5 +239,14 @@ export function App() {
         )}
       </main>
     </div>
+  );
+}
+
+function Chevron() {
+  return (
+    <svg className="chev" viewBox="0 0 12 12" width="9" height="9" aria-hidden="true">
+      <path d="M4 2.5 8 6l-4 3.5" fill="none" stroke="currentColor"
+            strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
