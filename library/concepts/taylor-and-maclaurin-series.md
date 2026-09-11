@@ -84,6 +84,16 @@ $$
 
 **A Taylor series is the limit of getting the tangent line's idea exactly right.** Matching every derivative at a single point pins down the function on a whole interval — which is a genuinely surprising fact about how rigid smooth functions are.
 
+Watch it happen one term at a time — and watch what it still costs at the edges.
+
+```viz
+type: scene
+name: taylor-build
+```
+
+Then take the controls yourself. The scene only shows sin&nbsp;x; the cases with a *finite* radius are
+the ones worth poking at.
+
 ```viz
 type: taylor
 ```
@@ -160,6 +170,8 @@ $$
 Every derivative at 0 is zero — the function flattens against the axis faster than any polynomial. So its Maclaurin series is $0+0x+0x^2+\cdots = 0$, which converges everywhere and equals $f$ only at $x=0$.
 
 The function is smooth but not **analytic**. Proving the series actually equals the function requires showing the remainder goes to zero, which is [[taylor-remainder-and-error-bounds]].
+
+Outside calculus, this series is why the Poisson probabilities sum to 1 — the normalising constant $e^{-\lambda}$ is cancelled exactly by the Maclaurin series for $e^{\lambda}$. See [[poisson-and-rare-events]].
 
 :::check
 Where does the coefficient formula $c_n = f^{(n)}(a)/n!$ come from?

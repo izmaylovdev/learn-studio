@@ -850,3 +850,367 @@ abs-bars:
     Here it is what makes a test about *size* rather than sign, which is why the
     ratio and root tests prove absolute convergence and get alternating series
     for free.
+
+# ---------- probability ----------
+
+omega-space:
+  glyph: "Ω"
+  tex: "\\Omega"
+  kind: set
+  name: The sample space
+  say: "“omega”"
+  def: >-
+    Every outcome the experiment could produce, listed once each and never
+    overlapping. Fix this before anything else — probability is attached to
+    subsets of it, so getting Ω wrong makes every later number wrong.
+  eg: >-
+    For two dice, Ω is the 36 ordered pairs, not the 11 possible totals. The
+    totals are not equally likely; the pairs are, and that is the whole reason
+    to prefer them.
+
+event-A:
+  glyph: "A"
+  kind: set
+  name: An event
+  say: "“ay”"
+  def: >-
+    A subset of the sample space — a collection of outcomes you have decided to
+    care about. "The die shows even" is the set {2, 4, 6}.
+  eg: >-
+    Events are sets, so the language of sets is the language of probability:
+    "and" is intersection, "or" is union, "not" is complement.
+
+event-B:
+  glyph: "B"
+  kind: set
+  name: The other event
+  say: "“bee”"
+  def: >-
+    A second subset of the same sample space. Two events can overlap, exclude
+    each other, or be unrelated — and those are three genuinely different things.
+  eg: >-
+    Mutually exclusive is not the same as independent. Disjoint events are about
+    as *dependent* as it gets: if one happens, the other definitely did not.
+
+prob-P:
+  glyph: "P"
+  tex: "P"
+  kind: function
+  name: The probability measure
+  say: "“the probability of”"
+  def: >-
+    A function that eats a *set* and returns a number in [0, 1]. It is not
+    defined on outcomes but on events — which is why P(A) makes sense and
+    "the probability of 3" needs the event {3}.
+  eg: >-
+    Everything follows from three rules: it is never negative, the whole space
+    has probability 1, and disjoint pieces add. There is nothing else.
+
+given:
+  glyph: "|"
+  tex: "\\mid"
+  match: "∣"
+  kind: operator
+  name: The conditioning bar
+  say: "“given”"
+  def: >-
+    Everything to its right is now assumed true. It does not change the world —
+    it changes the sample space you are measuring against.
+  eg: >-
+    P(A|B) and P(B|A) are different numbers and confusing them is the single
+    most consequential error in the subject. "Positive test given ill" is not
+    "ill given positive test".
+
+cap:
+  glyph: "∩"
+  tex: "\\cap"
+  kind: operator
+  name: Intersection
+  say: "“and”"
+  def: >-
+    The outcomes in both events at once. Every "and" in a probability word
+    problem is this symbol.
+  eg: >-
+    P(A ∩ B) = P(A)P(B) is the *definition* of independence, not a general rule.
+    Applying it to dependent events is where most wrong answers come from.
+
+cup:
+  glyph: "∪"
+  tex: "\\cup"
+  kind: operator
+  name: Union
+  say: "“or”"
+  def: >-
+    The outcomes in either event, or both. Probability's "or" is inclusive.
+  eg: >-
+    P(A ∪ B) is not P(A) + P(B) unless the events are disjoint — otherwise the
+    overlap gets counted twice and has to be subtracted back off.
+
+card-bars:
+  glyph: "| |"
+  tex: "|"
+  match: "∣"
+  kind: operator
+  name: How many are in it
+  say: "“the size of”"
+  def: >-
+    The number of outcomes in a set. Only useful when outcomes are equally
+    likely, which is a modelling assumption rather than a fact.
+  eg: >-
+    Counting only works if you count the right things. The classic failure is
+    counting unequally likely outcomes as if they were equally likely.
+
+rv-X:
+  glyph: "X"
+  kind: function
+  name: A random variable
+  say: "“ex”"
+  def: >-
+    Not a variable at all — a *function* from outcomes to numbers. It attaches a
+    number to each thing that could happen, so you can average it.
+  eg: >-
+    That definition is the point of the whole apparatus. Once outcomes have
+    numbers you can add them, and adding is what makes limit theorems possible.
+
+rv-Y:
+  glyph: "Y"
+  kind: function
+  name: A second random variable
+  say: "“why”"
+  def: >-
+    Another function on the *same* sample space — which is what lets you ask
+    how the two move together.
+  eg: >-
+    Two random variables defined on different experiments have no joint
+    distribution, and asking about their correlation is meaningless.
+
+expect-E:
+  glyph: "E"
+  tex: "E"
+  kind: operator
+  name: Expectation
+  say: "“the expected value of”"
+  def: >-
+    The long-run average value, weighted by probability. An operator on random
+    variables, not a number you plug into.
+  eg: >-
+    It is linear even when the variables are dependent — E[X+Y] = E[X]+E[Y]
+    always. That is unreasonably useful and has no analogue for variance.
+
+var-op:
+  glyph: "Var"
+  tex: "Var"
+  kind: operator
+  name: Variance
+  say: "“the variance of”"
+  def: >-
+    The expected squared distance from the mean. Squared, so it does not cancel;
+    which also means its units are the square of X's.
+  eg: >-
+    Var(X+Y) = Var(X)+Var(Y) requires independence. Expectation needs no such
+    condition, and forgetting the difference is a standard error.
+
+cov-op:
+  glyph: "Cov"
+  tex: "Cov"
+  kind: operator
+  name: Covariance
+  say: "“the covariance of”"
+  def: >-
+    Whether two variables tend to be above their means together. Positive if
+    they move together, negative if they oppose, zero if neither.
+  eg: >-
+    Zero covariance does not mean independent. X and X² on a symmetric range
+    have zero covariance and one determines the other completely.
+
+mu-mean:
+  glyph: "μ"
+  tex: "\\mu"
+  kind: constant
+  name: The mean
+  say: "“mew”"
+  def: >-
+    The centre of the distribution — the expected value, written as a fixed
+    number because it is a property of the distribution, not of a sample.
+  eg: >-
+    μ is what you are trying to learn; the sample mean is your estimate of it.
+    Keeping the two apart is most of what statistics is careful about.
+
+sigma-sd:
+  glyph: "σ"
+  tex: "\\sigma"
+  kind: constant
+  name: The standard deviation
+  say: "“sigma”"
+  def: >-
+    The square root of the variance, which puts the spread back into the same
+    units as X so it can be compared to the mean.
+  eg: >-
+    It is the natural ruler for distance from the mean. "Three sigma" means
+    something across every distribution; "three units" means nothing.
+
+lambda-rate:
+  glyph: "λ"
+  tex: "\\lambda"
+  kind: constant
+  name: The rate
+  say: "“lambda”"
+  def: >-
+    Events per unit of time or space. It is both the mean and the variance of a
+    Poisson count, which is a strong and testable claim about real data.
+  eg: >-
+    If your data's variance far exceeds its mean, it is not Poisson —
+    overdispersion is usually clustering the model does not allow for.
+
+binom-coef:
+  glyph: "(n k)"
+  tex: "\\binom"
+  match: ["nk", "kn"]
+  kind: constant
+  name: The binomial coefficient
+  say: "“n choose k”"
+  def: >-
+    How many ways to pick k things out of n when order does not matter. It is a
+    *count*, not a probability.
+  eg: >-
+    It is exactly what turns "one particular sequence of successes" into "any
+    sequence with that many successes" — the reason the binomial formula has
+    three factors instead of two.
+
+p-prob:
+  glyph: "p"
+  kind: constant
+  name: The success probability
+  say: "“pee”"
+  def: >-
+    The chance of success on one trial, assumed the same every time and
+    unaffected by the other trials.
+  eg: >-
+    Both assumptions fail constantly in practice. Drawing without replacement
+    breaks them, which is why that case needs a different distribution.
+
+n-trials:
+  glyph: "n"
+  kind: constant
+  name: The number of trials
+  say: "“en”"
+  def: >-
+    How many times the experiment is repeated. Fixed in advance — that is what
+    separates the binomial from waiting-time distributions.
+  eg: >-
+    If you stop when you *feel like it*, n is not fixed and the binomial does
+    not apply. Optional stopping quietly invalidates the model.
+
+k-count:
+  glyph: "k"
+  kind: variable
+  name: The number of successes
+  say: "“kay”"
+  def: >-
+    The value being asked about — how many of the n trials succeeded. This is
+    what the random variable equals.
+  eg: >-
+    k runs from 0 to n, and the probabilities over that whole range must sum to
+    1. That is a free correctness check on any answer.
+
+e-const:
+  glyph: "e"
+  tex: "e"
+  kind: constant
+  name: Euler's number
+  say: "“ee”"
+  def: >-
+    About 2.718. It appears wherever something compounds continuously, which is
+    why it shows up in every waiting-time and limiting-count formula.
+  eg: >-
+    In the Poisson it is what is left of (1 − λ/n)ⁿ as n runs to infinity —
+    the fingerprint of a limit having been taken.
+
+density-f:
+  glyph: "f"
+  kind: function
+  name: The probability density
+  say: "“eff of ex”"
+  def: >-
+    Probability per unit length, not probability. It can exceed 1, and f(x) on
+    its own is not the chance of anything.
+  eg: >-
+    For a continuous variable P(X = x) = 0 for every single x. Only intervals
+    carry probability, which is why the density has to be integrated.
+
+cdf-F:
+  glyph: "F"
+  kind: function
+  name: The cumulative distribution function
+  say: "“big eff of ex”"
+  def: >-
+    The probability of landing at or below x. It accumulates the density, so it
+    is exactly its integral — same relationship as in the fundamental theorem.
+  eg: >-
+    Unlike a density it always means a probability, always runs from 0 to 1, and
+    exists for discrete and continuous variables alike.
+
+xbar:
+  glyph: "X̄"
+  tex: "\\bar"
+  match: "X"
+  kind: variable
+  name: The sample mean
+  say: "“ex bar”"
+  def: >-
+    The average of n observations. It is itself random — a different sample
+    gives a different value — which is the fact the limit theorems are about.
+  eg: >-
+    Its mean is μ no matter what n is; what shrinks with n is its spread. That
+    distinction is the whole content of the law of large numbers.
+
+sim-dist:
+  glyph: "∼"
+  tex: "\\sim"
+  kind: operator
+  name: Is distributed as
+  say: "“is distributed as”"
+  def: >-
+    Names which distribution a random variable follows. Not equality — it says
+    how the values are spread, not what any one of them is.
+  eg: >-
+    X ∼ N(0,1) tells you nothing about the value X takes on any given draw, only
+    about the pattern over many.
+
+normal-N:
+  glyph: "N"
+  tex: "N"
+  kind: function
+  name: The normal distribution
+  say: "“normal”"
+  def: >-
+    The bell curve, pinned down entirely by its mean and variance. Two numbers
+    determine the whole shape.
+  eg: >-
+    Its importance is not that data is often normal — it frequently is not — but
+    that *averages* are, almost regardless of what they average.
+
+to-arrow:
+  glyph: "→"
+  tex: "\\to"
+  kind: operator
+  name: Converges to
+  say: "“tends to”"
+  def: >-
+    The left side gets and stays arbitrarily close to the right as the index
+    grows. A limit, with all the usual caveats about what is approaching what.
+  eg: >-
+    In probability there are several non-equivalent kinds of convergence hiding
+    behind this one arrow, and the limit theorems pick different ones.
+
+ge:
+  glyph: "≥"
+  tex: "\\ge"
+  kind: operator
+  name: Greater than or equal
+  say: "“is at least”"
+  def: >-
+    A bound the left side may attain.
+  eg: >-
+    In a tail bound the direction matters enormously — you are asking how much
+    probability sits *out past* a threshold, not at it.

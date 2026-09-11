@@ -47,13 +47,18 @@ export function samplePath(
 }
 
 export function Plot({
-  xDomain, yDomain, height = 230, children, xLabel, yLabel,
+  xDomain, yDomain, height = 230, children, xLabel, yLabel, xTicks = true,
 }: {
   xDomain: [number, number];
   yDomain: [number, number];
   height?: number;
   xLabel?: string;
   yLabel?: string;
+  /** Hide the x tick labels — for the upper panel of a stacked pair, where one
+   *  shared axis underneath reads as a single figure and two reads as two.
+   *  Only the labels go: the padding stays, so stacked panels keep their x
+   *  pixels aligned. */
+  xTicks?: boolean;
   children: (s: Scales) => ReactNode;
 }) {
   const W = 560;
@@ -90,14 +95,14 @@ export function Plot({
       <line className="plot-axis" x1={PAD.l} x2={PAD.l + w} y1={axisY} y2={axisY} />
       <line className="plot-axis" x1={axisX} x2={axisX} y1={PAD.t} y2={PAD.t + h} />
 
-      {xt.map((t) => (
+      {xTicks && xt.map((t) => (
         <text key={`tx${t}`} className="plot-tick" x={s.sx(t)} y={PAD.t + h + 15} textAnchor="middle">{t}</text>
       ))}
       {yt.map((t) => (
         <text key={`ty${t}`} className="plot-tick" x={PAD.l - 6} y={s.sy(t) + 3.5} textAnchor="end">{t}</text>
       ))}
 
-      {xLabel && <text className="plot-label" x={PAD.l + w} y={PAD.t + h + 15} textAnchor="end">{xLabel}</text>}
+      {xTicks && xLabel && <text className="plot-label" x={PAD.l + w} y={PAD.t + h + 15} textAnchor="end">{xLabel}</text>}
       {yLabel && <text className="plot-label" x={PAD.l - 4} y={PAD.t - 2} textAnchor="end">{yLabel}</text>}
 
       {children(s)}

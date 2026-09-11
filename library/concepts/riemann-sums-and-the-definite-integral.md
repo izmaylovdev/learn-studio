@@ -117,6 +117,8 @@ And the orientation convention $\int_b^a f = -\int_a^b f$, which is what makes t
 
 There is deliberately **no** product rule and **no** quotient rule here. $\int fg \ne \int f \int g$. The absence of those is precisely why techniques like [[integration-by-parts]] and [[partial-fractions]] have to exist at all — integration has no algebra that mirrors the product and quotient rules for derivatives.
 
+The same slice-and-add reasoning is what defines [[expectation]] in probability — there the slice is value × probability-of-this-slice, and the total is an average rather than an area.
+
 :::check
 What does each of $dx$, $f(x)$, and the integral sign contribute to the meaning of the definition?
 :::

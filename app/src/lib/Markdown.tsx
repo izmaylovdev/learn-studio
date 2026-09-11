@@ -37,6 +37,25 @@ function segment(body: string): Segment[] {
  * a whole line of `$$…$$` parses as *inline* math and renders cramped. Accept
  * both spellings so authoring style can't silently degrade an equation.
  */
+/** A whole fenced block, opening line to closing line. */
+const FENCE = /^```[\s\S]*?^```[ \t]*$/gm;
+
+/**
+ * Run a text rewrite on prose only. Fenced blocks are source, not markdown:
+ * rewriting a `[[wikilink]]` inside one corrupts a code sample, and for a
+ * `formula` block it also changes the text the parsed spec is keyed by, which
+ * silently detaches the spec from its block.
+ */
+function outsideFences(text: string, fn: (s: string) => string) {
+  let out = '';
+  let last = 0;
+  for (const m of text.matchAll(FENCE)) {
+    out += fn(text.slice(last, m.index)) + m[0];
+    last = m.index! + m[0].length;
+  }
+  return out + fn(text.slice(last));
+}
+
 function fenceDisplayMath(text: string) {
   return text.replace(INLINE_DISPLAY_MATH, (_all, body: string) => `$$\n${body.trim()}\n$$`);
 }
@@ -125,7 +144,7 @@ export function Markdown({
               },
             }}
           >
-            {fenceDisplayMath(linkify(seg.text, titles))}
+            {outsideFences(seg.text, (t) => fenceDisplayMath(linkify(t, titles)))}
           </ReactMarkdown>
         );
       })}

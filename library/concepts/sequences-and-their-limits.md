@@ -108,6 +108,8 @@ This is the standard tool for recursively defined sequences like $a_{n+1} = \sqr
 
 Getting the value requires knowing the limit exists first. Solving $L=\sqrt{2+L}$ for a divergent sequence would produce a confident, meaningless answer.
 
+The limit $(1 + x/n)^n \to e^x$ above is not a curiosity — it is precisely the step that turns a binomial into a Poisson when the trials become many and each becomes unlikely. See [[poisson-and-rare-events]].
+
 :::check
 What does it mean for a sequence to converge, and what are the three possible behaviours otherwise?
 :::

@@ -126,8 +126,8 @@ Body is markdown. Available in the renderer:
   as a nested mapping, and a value opening with `*` is an alias node. Use a
   folded scalar (`key: >-`) rather than rewording around either.
 
-- **` ```viz `** — an interactive figure. Body is `key: value`; only `type` is
-  read today:
+- **` ```viz `** — an interactive figure. Body is `key: value` lines; `type`
+  selects the figure, and `name` selects which one when `type` is `scene`:
 
   ````
   ```viz
@@ -143,11 +143,47 @@ Body is markdown. Available in the renderer:
   | `solid` | washer vs shell, slice position — the slice and the total volume |
   | `polar` | curve, θ swept — the trace and the ½r²dθ sector accumulating |
   | `parametric` | curve, t — position, velocity vector, accumulated arc length |
+  | `bayes` / `clt` / `distribution` | the probability figures |
 
   Each figure is self-contained and carries its own caption explaining what to
   look for. Add a new one in `app/src/lib/viz/` and register it in that
   directory's `index.tsx`; an unknown `type` renders as a visible error rather
   than failing silently.
+
+  **Scenes** are the other half of `viz`. Where the figures above are things the
+  reader *operates*, a scene *plays*: a sequence of keyframes the engine morphs
+  between on a clock, one caption per beat, with play/pause, a scrub bar and a
+  chapter strip. It starts itself when it scrolls into view, and honours
+  `prefers-reduced-motion` by waiting to be asked.
+
+  ````
+  ```viz
+  type: scene
+  name: taylor-build
+  ```
+  ````
+
+  | `name` | The argument it makes |
+  |---|---|
+  | `taylor-build` | sin x gains one term at a time, agreement creeping outward — then the camera pulls back and T₁₃ runs away |
+  | `clt-emerge` | a lopsided source averaged into a bell, the normal laid over it, then Cauchy refusing to converge |
+  | `ftc-accumulate` | Part 1 as two stacked panels — x sweeps, area fills above, F traces below, and F's turning points land on f's zeros |
+  | `ftc-telescope` | Part 2's mechanism — ΔF's chaining to F(b) − F(a) exactly at every n, with the rectangles converging separately |
+
+  Reach for a scene when the point is a **transformation** ("watch this become
+  that") and a figure when the point is a **relationship** worth poking at. They
+  compose in that order — the scene makes the argument, the figure then hands
+  over the controls — which is how both concepts above use them.
+
+  Scenes live in `app/src/lib/viz/scenes/` and register in the same `index.tsx`.
+  State is numbers only and every number is interpolated, so anything that should
+  fade or move is derived from one; see the header comment on `Scene.tsx`. The
+  camera is state too — feed interpolated bounds to `Plot` and the axes rescale
+  smoothly, which is how both `-build`/`-emerge` scenes land their last beat.
+
+  For a stacked pair of panels, render two `Plot`s with the same `xDomain` and
+  pass `xTicks={false}` to the upper one; the padding is identical either way, so
+  their x pixels line up and a sweep line at the same x reads as one figure.
 - **`:::check` … `:::`** — a recall prompt. The reader hides it behind a reveal,
   then offers self-grading which feeds the scheduler.
 
@@ -189,21 +225,47 @@ material, because it takes up a slot in the graph.
    probabilities" is a definition. "Softmax saturates once logit gaps exceed ~10,
    which kills the gradient, which is why attention scales by √d_k" is a
    mechanism. Write the second kind.
-2. **Every concept must connect.** If a new concept has no `prereqs`, no
+2. **Write in discovery order, not logical order.** A textbook states a
+   definition, states a theorem, then interprets it — the intuition arrives last,
+   as a gloss on formalism the reader has already been made to swallow. Invert it:
+   pose a question the reader can feel, take their likely wrong guess seriously,
+   derive the answer, and *name it afterwards*. The name is a label for something
+   they already understand, not a prerequisite for understanding it.
+
+   Concretely, and all four are cheap:
+
+   - **Open on the reader's wrong model, not on a definition.** "Most people leave
+     Calculus 1 believing an integral is an antiderivative" earns the next
+     paragraph. "If f is continuous on [a,b], define…" does not.
+   - **Do not let the heading spoil the punchline.** "Part 1 — differentiation
+     undoes accumulation" answers the question before asking it. "Part 1 — let the
+     endpoint move" makes the reader want the answer.
+   - **Invite the guess.** "It is worth guessing before reading on — F is built out
+     of an integral, so you might reasonably expect its derivative to be another
+     integral." A wrong guess taken seriously is worth a page of assertion.
+   - **Say where the hypothesis bites.** Not "f must be continuous" as a
+     disclaimer, but the sentence that shows what breaks without it.
+
+   This applies to the **opening and the derivations**. Reference sections —
+   tables of series, the technique list, the failure-mode catalogue — stay dense
+   and scannable, because these pages are re-read on a review schedule and a
+   discovery arc is an obstacle the fifth time through. The first screen does the
+   persuading; the rest stays a reference.
+3. **Every concept must connect.** If a new concept has no `prereqs`, no
    `related`, and no `[[links]]`, either it's genuinely foundational or it isn't
    thought through. Also add the reverse link from concepts that should point *to*
    it — cross-references only pay off when they're bidirectional in practice.
-3. **Checks test recall of the mechanism**, not recognition of a term. "What is
+4. **Checks test recall of the mechanism**, not recognition of a term. "What is
    layer norm?" is worthless. "Why is layer norm preferred over batch norm for
    autoregressive generation specifically?" is a real check.
-4. **Include the failure modes.** What breaks, what people get wrong, what the
+5. **Include the failure modes.** What breaks, what people get wrong, what the
    thing costs. That's the part that isn't in the textbook.
-5. **A figure must show a mechanism, not decorate one.** Add a `viz` block only
+6. **A figure must show a mechanism, not decorate one.** Add a `viz` block only
    where manipulating something teaches what prose can't — watching midpoint
    Riemann sums beat left sums at the same n, or a Taylor polynomial failing
    outside its radius. A figure the reader can't learn anything from by dragging
    is worse than the paragraph it displaced.
-6. **Keep the summary honest.** It's what the dashboard shows when deciding what
+7. **Keep the summary honest.** It's what the dashboard shows when deciding what
    to study next.
 
 ## The symbol lexicon

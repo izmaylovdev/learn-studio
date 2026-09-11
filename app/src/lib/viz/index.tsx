@@ -4,6 +4,13 @@ import { SeriesViz } from './SeriesViz';
 import { PolarViz } from './PolarViz';
 import { SolidViz } from './SolidViz';
 import { ParametricViz } from './ParametricViz';
+import { BayesViz } from './BayesViz';
+import { CLTViz } from './CLTViz';
+import { DistributionViz } from './DistributionViz';
+import { TaylorScene } from './scenes/TaylorScene';
+import { CLTScene } from './scenes/CLTScene';
+import { FTCAccumulateScene } from './scenes/FTCAccumulateScene';
+import { FTCTelescopeScene } from './scenes/FTCTelescopeScene';
 
 const REGISTRY = {
   riemann: RiemannViz,
@@ -12,12 +19,29 @@ const REGISTRY = {
   polar: PolarViz,
   solid: SolidViz,
   parametric: ParametricViz,
+  bayes: BayesViz,
+  clt: CLTViz,
+  distribution: DistributionViz,
+} as const;
+
+/**
+ * Scenes live in their own namespace behind `type: scene`, because they are a
+ * different contract with the reader: the figures above are things you operate,
+ * a scene is something that plays and makes an argument.
+ */
+const SCENES = {
+  'taylor-build': TaylorScene,
+  'clt-emerge': CLTScene,
+  'ftc-accumulate': FTCAccumulateScene,
+  'ftc-telescope': FTCTelescopeScene,
 } as const;
 
 export type VizType = keyof typeof REGISTRY;
 export const VIZ_TYPES = Object.keys(REGISTRY) as VizType[];
+export type SceneName = keyof typeof SCENES;
+export const SCENE_NAMES = Object.keys(SCENES) as SceneName[];
 
-/** Body of a ```viz fence is `key: value` lines; only `type` is required today. */
+/** Body of a ```viz fence is `key: value` lines; `type` is required, `name` selects a scene. */
 function parse(source: string): Record<string, string> {
   return Object.fromEntries(
     source.split('\n').map((l) => l.trim()).filter(Boolean).map((l) => {
@@ -27,17 +51,24 @@ function parse(source: string): Record<string, string> {
   );
 }
 
-export function Viz({ source }: { source: string }) {
-  const { type } = parse(source);
-  const Component = REGISTRY[type as VizType];
+function Unknown({ what, given, options }: { what: string; given: string; options: string[] }) {
+  return (
+    <div className="viz viz-error">
+      <b>Unknown {what} <code>{given || '(none)'}</code></b>
+      <p>Available: {options.map((t) => <code key={t}>{t}</code>).reduce((a, b) => <>{a}, {b}</>)}</p>
+    </div>
+  );
+}
 
-  if (!Component) {
-    return (
-      <div className="viz viz-error">
-        <b>Unknown visualization <code>{type || '(none)'}</code></b>
-        <p>Available: {VIZ_TYPES.map((t) => <code key={t}>{t}</code>).reduce((a, b) => <>{a}, {b}</>)}</p>
-      </div>
-    );
+export function Viz({ source }: { source: string }) {
+  const { type, name } = parse(source);
+
+  if (type === 'scene') {
+    const S = SCENES[name as SceneName];
+    return S ? <S /> : <Unknown what="scene" given={name} options={SCENE_NAMES} />;
   }
+
+  const Component = REGISTRY[type as VizType];
+  if (!Component) return <Unknown what="visualization" given={type} options={[...VIZ_TYPES, 'scene']} />;
   return <Component />;
 }

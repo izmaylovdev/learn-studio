@@ -627,3 +627,62 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
   .fx-split.two { grid-template-columns: 1fr; }
   .fx-pane + .fx-pane { border-left: 0; border-top: 1px solid var(--line); }
 }
+
+.viz-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 2px 2px;
+  font-size: 11.5px; color: var(--muted);
+}
+.viz-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.viz-legend i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+
+/* ---------- scenes (choreographed figures) ---------- */
+.scene { padding-bottom: 14px; }
+
+.scene-caption {
+  min-height: 3.2em; margin: 14px 2px 4px;
+  font-size: 14px; line-height: 1.55; color: var(--text);
+  animation: scene-cap .45s ease both;
+}
+@keyframes scene-cap {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.scene-transport { display: flex; align-items: center; gap: 11px; margin-top: 4px; }
+.scene-play {
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--panel); border: 1px solid var(--line); color: var(--accent);
+  font-size: 11px; line-height: 1; display: grid; place-items: center;
+}
+.scene-play:hover { border-color: var(--accent); }
+.scene-scrub { flex: 1; accent-color: var(--accent); height: 3px; }
+.scene-time {
+  font-family: var(--mono); font-size: 11px; color: var(--faint);
+  font-variant-numeric: tabular-nums; min-width: 34px; text-align: right;
+}
+
+.scene-chapters { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+.scene-chapters button {
+  padding: 3px 9px; border-radius: 999px; font-size: 11.5px;
+  background: transparent; border: 1px solid var(--line); color: var(--faint);
+}
+.scene-chapters button:hover { color: var(--text); border-color: var(--muted); }
+.scene-chapters button.on { color: var(--accent); border-color: var(--accent); background: var(--bg-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-caption { animation: none; }
+}
+
+/* stacked-panel scenes */
+.scene-panel {
+  font-size: 11px; color: var(--faint); letter-spacing: .04em;
+  margin: 10px 0 -2px 38px;
+}
+.scene-panel:first-child { margin-top: 0; }
+
+.viz-area-pos { fill: var(--accent); fill-opacity: .2; stroke: none; }
+.viz-area-neg { fill: var(--danger); fill-opacity: .2; stroke: none; }
+.viz-sweep { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; }
+.viz-tangent { stroke: var(--mastered); stroke-width: 2.2; stroke-linecap: round; }
+.viz-rise { stroke: var(--mastered); stroke-width: 2.4; stroke-linecap: round; }
+.viz-stair { fill: none; stroke: var(--muted); stroke-width: 1.2; opacity: .55; }

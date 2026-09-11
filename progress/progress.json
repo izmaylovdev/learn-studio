@@ -1,8 +1,77 @@
 {
   "version": 1,
-  "concepts": {},
-  "tracks": {
-    "calculus-2": { "active": true, "started": "2026-09-10T00:00:00.000Z" }
+  "concepts": {
+    "riemann-sums-and-the-definite-integral": {
+      "status": "mastered",
+      "reps": 0,
+      "ease": 2.5,
+      "intervalDays": 0,
+      "lastReviewed": null,
+      "nextReview": null,
+      "notes": ""
+    },
+    "fundamental-theorem-of-calculus": {
+      "status": "learning",
+      "reps": 0,
+      "ease": 2.5,
+      "intervalDays": 0,
+      "lastReviewed": null,
+      "nextReview": "2026-09-11",
+      "notes": ""
+    },
+    "sample-spaces-and-events": {
+      "status": "review",
+      "reps": 1,
+      "ease": 2.6,
+      "intervalDays": 1,
+      "lastReviewed": "2026-09-10",
+      "nextReview": "2026-09-11",
+      "notes": ""
+    }
   },
-  "log": []
+  "tracks": {
+    "calculus-2": {
+      "active": true,
+      "started": "2026-09-10T00:00:00.000Z"
+    }
+  },
+  "log": [
+    {
+      "ts": "2026-09-10T14:40:46.801Z",
+      "concept": "riemann-sums-and-the-definite-integral",
+      "event": "status",
+      "status": "review"
+    },
+    {
+      "ts": "2026-09-10T14:40:53.922Z",
+      "concept": "riemann-sums-and-the-definite-integral",
+      "event": "status",
+      "status": "mastered"
+    },
+    {
+      "ts": "2026-09-10T14:40:55.106Z",
+      "concept": "riemann-sums-and-the-definite-integral",
+      "event": "status",
+      "status": "review"
+    },
+    {
+      "ts": "2026-09-10T14:40:57.035Z",
+      "concept": "riemann-sums-and-the-definite-integral",
+      "event": "status",
+      "status": "mastered"
+    },
+    {
+      "ts": "2026-09-10T15:44:50.521Z",
+      "concept": "fundamental-theorem-of-calculus",
+      "event": "status",
+      "status": "learning"
+    },
+    {
+      "ts": "2026-09-10T17:20:42.402Z",
+      "concept": "sample-spaces-and-events",
+      "event": "review",
+      "grade": 5,
+      "status": "review"
+    }
+  ]
 }

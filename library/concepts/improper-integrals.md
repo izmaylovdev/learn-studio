@@ -110,6 +110,8 @@ $e^{-x^2}$ has no elementary antiderivative at all, yet convergence is settled i
 
 An improper integral asks: do infinitely many shrinking contributions add up to something finite? A series asks the same question with a sum instead of an integral. The integral test makes the correspondence exact. Everything you learn here about *how fast is fast enough* transfers directly.
 
+Every probability density integrates to 1 over an infinite range, so the convergence question here is not an edge case there — it is the normalisation condition. See [[random-variables-and-distributions]], and [[the-normal-distribution]] for the one whose integral cannot be done by antidifferentiation at all.
+
 :::check
 What are the two kinds of improper integral, and how is each one defined?
 :::

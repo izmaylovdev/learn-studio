@@ -111,6 +111,8 @@ Substitution rarely finishes a hard problem by itself, but it is the last step o
 
 If substitution is shaky, everything downstream is shaky. It is worth being fluent rather than merely capable.
 
+The impossible case above has a famous relative. $\int e^{-x^2}dx$ also has no elementary antiderivative, which is why normal-distribution probabilities are read from tables rather than computed — see [[the-normal-distribution]].
+
 :::check
 What structural feature must an integrand have for u-substitution to work, and why?
 :::
