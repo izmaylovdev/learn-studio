@@ -109,6 +109,10 @@ $$
 
 Long, but every term in it is something the problem gave you. If you find yourself missing $P(B)$, you are not missing information — you have not expanded it yet.
 
+## Applying it over and over
+
+Nothing says the evidence has to arrive all at once. Yesterday's posterior is today's prior, and the theorem can be run again on each new observation — which is *recursive* Bayes, and the reason a belief can be kept up to date without ever storing the data that produced it. For one particular choice of distribution the repeated application collapses into arithmetic on two numbers: [[the-kalman-filter-loop]] is this page applied once per measurement, for Gaussians, with the integral already evaluated.
+
 :::check
 Derive Bayes' theorem in two lines from the definition of conditional probability.
 :::

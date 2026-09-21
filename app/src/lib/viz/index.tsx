@@ -7,6 +7,11 @@ import { ParametricViz } from './ParametricViz';
 import { BayesViz } from './BayesViz';
 import { CLTViz } from './CLTViz';
 import { DistributionViz } from './DistributionViz';
+import { CovarianceViz } from './CovarianceViz';
+import { FuseViz } from './FuseViz';
+import { KalmanViz } from './KalmanViz';
+import { AreaBetweenViz } from './AreaBetweenViz';
+import { SliceOrientationViz } from './SliceOrientationViz';
 import { TaylorScene } from './scenes/TaylorScene';
 import { CLTScene } from './scenes/CLTScene';
 import { FTCAccumulateScene } from './scenes/FTCAccumulateScene';
@@ -22,6 +27,11 @@ const REGISTRY = {
   bayes: BayesViz,
   clt: CLTViz,
   distribution: DistributionViz,
+  covariance: CovarianceViz,
+  fuse: FuseViz,
+  kalman: KalmanViz,
+  'area-between': AreaBetweenViz,
+  'slice-orientation': SliceOrientationViz,
 } as const;
 
 /**

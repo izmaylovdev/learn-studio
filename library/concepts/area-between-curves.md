@@ -72,6 +72,10 @@ $$
 
 Writing $\int|f-g|$ is correct but doesn't save you: to evaluate it you still have to find where the sign flips. **Always find all intersections in the interval, not just the outermost two.**
 
+```viz
+type: area-between
+```
+
 ## Integrating in y
 
 Sometimes horizontal slices are far cleaner. A slice of height $dy$ has width (right curve minus left curve), both expressed as functions of $y$:
@@ -83,6 +87,10 @@ $$
 The classic case is a region bounded by $y^2 = x$ and a line. In $x$ you must split the parabola into two branches $y = \pm\sqrt{x}$ and integrate twice; in $y$ it is a single integral.
 
 **Choose the variable that produces fewer cases**, not the one that feels familiar. Deciding this before setting up is often the whole difficulty of the problem.
+
+```viz
+type: slice-orientation
+```
 
 ## What "area" means here
 

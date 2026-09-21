@@ -12,7 +12,23 @@
 # tex    the LaTeX that produces it, when different from the glyph. The indexer
 #        checks this actually occurs in any formula that lists the symbol.
 # match  the concatenated text of the rendered leaves, when different from the
-#        glyph — e.g. \frac{1}{2} renders as "1" then "2".
+#        glyph — e.g. \frac{1}{2} renders as "1" then "2". May be a list of
+#        alternatives, tried in order.
+# sel    a CSS selector into the rendered KaTeX, for marks that are not text at
+#        all (a radical is an SVG). `swallow: true` with it means the mark owns
+#        whatever text sits inside — without it, the pieces KaTeX assembles a ≠
+#        from get tagged separately and clicking it reports "equals". Keep it
+#        narrow: a selector cannot see text, so `.delimsizing` would claim a
+#        tall bracket as readily as a tall bar.
+# cls    a KaTeX class the matched leaf must carry, or must not when prefixed
+#        with `!`. The only thing separating `\mid` from `|` in the output is
+#        that one is a relation and the other is not.
+# where  the tracks or fields this *sense* belongs to. The reader annotates
+#        every formula against the whole lexicon, so `c` has to choose between
+#        the mean-value c and the complement superscript; a sense at home wins,
+#        and the same sense elsewhere loses to any local competitor.
+# alt    other LaTeX spellings of the same mark (\tfrac for \frac). Only the
+#        indexer reads these; the rendered output is identical either way.
 # say    how to pronounce it out loud.
 # def    what it is in general. A formula can override this locally via `notes:`.
 
@@ -148,6 +164,7 @@ beta-bound:
 half:
   glyph: "½"
   tex: "\\frac"
+  alt: ["\\tfrac", "\\dfrac"]
   sel: ".mfrac"
   kind: constant
   name: The one-half
@@ -159,6 +176,7 @@ half:
 
 c-mean:
   glyph: "c"
+  where: [calculus-2]
   kind: constant
   name: The unknown interior point
   say: "“see”"
@@ -203,6 +221,7 @@ r-fn:
 
 remainder:
   glyph: "R"
+  match: ["RN", "R"]
   kind: function
   name: The remainder
   say: "“arr sub en”"
@@ -453,6 +472,8 @@ b-root:
 implies:
   glyph: "⇒"
   tex: "\\Rightarrow"
+  alt: ["\\Longrightarrow"]
+  match: ["⇒", "⟹"]
   kind: operator
   name: Implies
   say: "“therefore”, “which gives”"
@@ -489,6 +510,7 @@ one-const:
 frac-bar:
   glyph: "⁄"
   tex: "\\frac"
+  alt: ["\\tfrac", "\\dfrac"]
   sel: ".mfrac"
   kind: operator
   name: Fraction bar
@@ -586,6 +608,7 @@ pi-const:
 
 R-outer:
   glyph: "R"
+  match: ["R", "ro"]
   kind: function
   name: Outer radius
   say: "“big are of ex”"
@@ -599,6 +622,7 @@ R-outer:
 
 r-inner:
   glyph: "r"
+  match: ["ri", "r"]
   kind: function
   name: Inner radius
   say: "“little are of ex”"
@@ -688,6 +712,7 @@ a-term:
   glyph: "aₙ"
   tex: "a_n"
   match: "an"
+  where: [Sequences and Series]
   kind: variable
   name: The nth term
   say: "“ay sub en”"
@@ -702,6 +727,7 @@ b-term:
   glyph: "bₙ"
   tex: "b"
   match: ["bn", "bN"]
+  where: [Sequences and Series]
   kind: variable
   name: The comparison term
   say: "“bee sub en”"
@@ -716,6 +742,7 @@ S-partial:
   glyph: "S_N"
   tex: "S_N"
   match: "SN"
+  where: [Sequences and Series]
   kind: variable
   name: The Nth partial sum
   say: "“ess sub en”"
@@ -729,6 +756,7 @@ S-partial:
 S-sum:
   glyph: "S"
   tex: "S"
+  where: [Sequences and Series]
   kind: variable
   name: The sum of the series
   say: "“ess”"
@@ -840,7 +868,14 @@ le:
 abs-bars:
   glyph: "| |"
   tex: "|"
-  sel: ".delimsizing"
+  match: ["∣"]
+  cls: "!mrel"
+  # A bar tall enough to be stretched is drawn as an SVG with no text in it, so
+  # it can only be found by selector. KaTeX assembles brackets from sized
+  # glyphs and only bars this way, which is what makes the selector safe.
+  # A bracket assembled for a matrix is also `.delimsizing.mult`; only the
+  # viewBox width tells a stretched bar (333) from a bracket (667).
+  sel: '.delimsizing.mult:has(svg[viewBox^="0 0 333"])'
   kind: operator
   name: Absolute value
   say: "“the size of”"
@@ -910,6 +945,8 @@ given:
   glyph: "|"
   tex: "\\mid"
   match: "∣"
+  cls: mrel
+  where: [probability-theory, kalman-filtering]
   kind: operator
   name: The conditioning bar
   say: "“given”"
@@ -937,6 +974,8 @@ cap:
 cup:
   glyph: "∪"
   tex: "\\cup"
+  alt: ["\\bigcup"]
+  match: ["∪", "⋃"]
   kind: operator
   name: Union
   say: "“or”"
@@ -950,6 +989,11 @@ card-bars:
   glyph: "| |"
   tex: "|"
   match: "∣"
+  cls: "!mrel"
+  # A bracket assembled for a matrix is also `.delimsizing.mult`; only the
+  # viewBox width tells a stretched bar (333) from a bracket (667).
+  sel: '.delimsizing.mult:has(svg[viewBox^="0 0 333"])'
+  where: [Probability Foundations]
   kind: operator
   name: How many are in it
   say: "“the size of”"
@@ -1079,6 +1123,7 @@ binom-coef:
 
 p-prob:
   glyph: "p"
+  where: [probability-theory]
   kind: constant
   name: The success probability
   say: "“pee”"
@@ -1180,6 +1225,7 @@ sim-dist:
 normal-N:
   glyph: "N"
   tex: "N"
+  where: [probability-theory, kalman-filtering]
   kind: function
   name: The normal distribution
   say: "“normal”"
@@ -1193,6 +1239,8 @@ normal-N:
 to-arrow:
   glyph: "→"
   tex: "\\to"
+  alt: ["\\longrightarrow"]
+  match: ["→", "⟶"]
   kind: operator
   name: Converges to
   say: "“tends to”"
@@ -1214,3 +1262,1149 @@ ge:
   eg: >-
     In a tail bound the direction matters enormously — you are asking how much
     probability sits *out past* a threshold, not at it.
+
+# ---------- marks that appear everywhere ----------
+# The entries above were written for the `formula` blocks, which name their
+# symbols by hand. Everything below exists because the reader now annotates
+# *every* formula on a page against this file: a mark with no entry here is a
+# glyph the reader cannot ask about. Run `npm run index` — it reports the marks
+# still missing, counted by how often they occur.
+
+greater-than:
+  glyph: ">"
+  kind: operator
+  name: Greater than
+  say: "“is more than”"
+  def: >-
+    A strict inequality: the left side exceeds the right, and equality is
+    excluded. Which side is bigger is usually the whole content of a theorem.
+  eg: >-
+    Convergence proofs live on strict inequalities — "for every ε > 0" would be
+    vacuous if ε could be zero.
+
+ne:
+  glyph: "≠"
+  tex: "\\ne"
+  alt: ["\\neq"]
+  sel: ".mrel:has(> .mrel .rlap)"
+  swallow: true
+  kind: operator
+  name: Not equal
+  say: "“is not”"
+  def: >-
+    Denies sameness, and nothing more — it does not say which side is larger,
+    or by how much.
+  eg: >-
+    P(A ∩ B) ≠ P(A)P(B) is the definition of dependence: it says the product
+    rule fails, without saying which way the events pull.
+
+approx:
+  glyph: "≈"
+  tex: "\\approx"
+  kind: operator
+  name: Approximately equal
+  say: "“is about”"
+  def: >-
+    The two sides are close, with the size of the gap left unstated. It is an
+    honest symbol only when something else pins the error down.
+  eg: >-
+    Every ≈ in this library has a companion bound somewhere — a remainder term,
+    a radius, a tail estimate. Without one it is a hope, not a statement.
+
+much-less:
+  glyph: "≪"
+  tex: "\\ll"
+  kind: operator
+  name: Much less than
+  say: "“is much smaller than”"
+  def: >-
+    Smaller by enough that the difference changes the conclusion — a statement
+    about scale, not a precise ordering.
+  eg: >-
+    Used when a term is about to be dropped. The claim being made is that
+    keeping it would not move the answer.
+
+propto:
+  glyph: "∝"
+  tex: "\\propto"
+  kind: operator
+  name: Proportional to
+  say: "“is proportional to”"
+  def: >-
+    Equal up to a constant factor that has been deliberately left out, usually
+    because it will be recovered later by normalising.
+  eg: >-
+    The posterior ∝ likelihood × prior: the missing constant is the evidence,
+    and you can always get it back by making the total come to 1.
+
+iff:
+  glyph: "⟺"
+  tex: "\\iff"
+  alt: ["\\Longleftrightarrow"]
+  kind: operator
+  name: If and only if
+  say: "“exactly when”"
+  def: >-
+    Both directions hold, so the two sides are interchangeable. Strictly
+    stronger than ⇒, and much harder to earn.
+  eg: >-
+    Most convergence tests give you one direction only. When a test is an ⟺ it
+    can also prove divergence, which is why those are the valuable ones.
+
+cdot:
+  glyph: "⋅"
+  tex: "\\cdot"
+  kind: operator
+  name: Multiplication dot
+  say: "“times”"
+  def: >-
+    Ordinary multiplication, written with a dot where juxtaposition would be
+    ambiguous — between two named quantities, or after a closing bracket.
+  eg: "P(A) · P(B) puts a visible gap between two probabilities that are not one symbol."
+
+times-op:
+  glyph: "×"
+  tex: "\\times"
+  kind: operator
+  name: Multiplication sign
+  say: "“times”"
+  def: >-
+    The same product as ·, kept for places where the factors are themselves
+    expressions and the eye needs a bigger separator.
+  eg: "Also the Cartesian product when it sits between two sets rather than two numbers."
+
+pm:
+  glyph: "±"
+  tex: "\\pm"
+  kind: operator
+  name: Plus or minus
+  say: "“plus or minus”"
+  def: >-
+    Two statements written as one — take it once with each sign. In an error
+    bar it means a symmetric interval around the value.
+  eg: "μ ± 2σ is an interval, not a number, and only means 95% for a normal."
+
+in-member:
+  glyph: "∈"
+  tex: "\\in"
+  kind: operator
+  name: Is an element of
+  say: "“in”"
+  def: >-
+    Membership: the thing on the left is one of the things the set on the right
+    contains. Notice it relates an element to a set, never a set to a set.
+  eg: "ω ∈ A is what \"the event happened\" actually means."
+
+subseteq:
+  glyph: "⊆"
+  tex: "\\subseteq"
+  kind: operator
+  name: Is a subset of
+  say: "“is contained in”"
+  def: >-
+    Every element of the left is also in the right. Unlike ∈ this relates two
+    sets, and it is what makes probability monotone.
+  eg: "A ⊆ B forces P(A) ≤ P(B) — a smaller event cannot be more likely."
+
+setminus:
+  glyph: "∖"
+  tex: "\\setminus"
+  kind: operator
+  name: Set difference
+  say: "“minus”"
+  def: >-
+    What is left of the first set once everything in the second is removed.
+    Order matters: it is not symmetric.
+  eg: "Ω ∖ A is the complement — everything that counts as A not happening."
+
+empty-set:
+  glyph: "∅"
+  tex: "\\varnothing"
+  kind: set
+  name: The empty set
+  say: "“empty set”"
+  def: >-
+    The set with nothing in it — the event that cannot occur. There is only
+    one, which is why "disjoint" can be written as an equation.
+  eg: "A ∩ B = ∅ says the two events cannot both happen, which is what lets their probabilities add."
+
+ellipsis:
+  glyph: "⋯"
+  tex: "\\cdots"
+  alt: ["\\ldots", "\\dots", "\\vdots", "\\ddots"]
+  match: ["⋯", "…", "⋮"]
+  kind: operator
+  name: And so on
+  say: "“dot dot dot”"
+  def: >-
+    A claim that the pattern continues in the obvious way. It is the one mark
+    here with no formal content — whatever it hides has to be stated elsewhere.
+  eg: >-
+    In a series it hides the whole question: a + a + ⋯ is only meaningful once
+    the limit of the partial sums is defined.
+
+zero-const:
+  glyph: "0"
+  kind: constant
+  name: Zero
+  say: "“zero”"
+  def: >-
+    The additive identity, and in this library usually a boundary: the value a
+    limit approaches, a probability that cannot happen, the point where a
+    derivative changes a function's direction.
+  eg: >-
+    Probability zero is not the same as impossible once the outcomes are
+    continuous — every single point has it.
+
+delta-change:
+  glyph: "Δ"
+  tex: "\\Delta"
+  kind: operator
+  name: Change in
+  say: "“delta”"
+  def: >-
+    A finite difference: the later value minus the earlier one. It is the thing
+    that becomes a differential once you take the limit.
+  eg: "Δ is measurable; d is the idealisation you get by shrinking Δ to nothing."
+
+d-deriv:
+  glyph: "d"
+  where: [Foundations of the Integral, Integration Techniques, Parametric and Polar,
+          Sequences and Series, Power and Taylor Series]
+  kind: operator
+  name: The derivative operator
+  say: "“dee”"
+  def: >-
+    Alone above a fraction bar, d is not a quantity — d/dx is one symbol meaning
+    "the rate of change with respect to x of whatever follows".
+  eg: >-
+    You cannot cancel the d's in dy/dx as if they were factors. That the
+    notation makes it look like you can is why the chain rule feels obvious.
+
+dy:
+  glyph: "dy"
+  kind: differential
+  name: An infinitesimal step in y
+  say: "“dee why”"
+  def: >-
+    A vanishing change in the output — the vertical side of the triangle whose
+    slope is the derivative.
+  eg: "dy = f′(x) dx is the statement that near a point, a curve is its tangent line."
+
+ds:
+  glyph: "ds"
+  kind: differential
+  name: An infinitesimal piece of arc
+  say: "“dee ess”"
+  def: >-
+    A vanishing step measured *along* a curve rather than along an axis, which
+    is why it shows up as √(dx² + dy²).
+  eg: "Arc length and surface area are both integrals of something against ds."
+
+ln-fn:
+  glyph: "ln"
+  tex: "\\ln"
+  kind: function
+  name: Natural logarithm
+  say: "“ell en”"
+  def: >-
+    The inverse of e^x: ln y is the exponent that e must be raised to in order
+    to give y. It turns products into sums, which is most of what it is for.
+  eg: >-
+    It grows without bound but slower than any positive power of x — the reason
+    ∑1/n diverges while ∑1/n^1.01 does not.
+
+tan-fn:
+  glyph: "tan"
+  tex: "\\tan"
+  kind: function
+  name: Tangent
+  say: "“tan”"
+  def: >-
+    sin over cos — the slope of the ray at angle θ. It blows up wherever cos
+    is zero, which is why its integrals need care at ±π/2.
+  eg: "In a trig substitution, x = a tan θ is chosen precisely because 1 + tan² = sec²."
+
+sec-fn:
+  glyph: "sec"
+  tex: "\\sec"
+  kind: function
+  name: Secant
+  say: "“seek”"
+  def: >-
+    One over cosine. It exists as its own name mostly because its derivative and
+    its square appear constantly in integration.
+  eg: "sec² is the derivative of tan, which is what makes the tangent substitution close."
+
+csc-fn:
+  glyph: "csc"
+  tex: "\\csc"
+  kind: function
+  name: Cosecant
+  say: "“co-seek”"
+  def: One over sine — the partner of sec, with the roles of sin and cos swapped.
+  eg: "Every identity involving sec and tan has a mirror image in csc and cot."
+
+cot-fn:
+  glyph: "cot"
+  tex: "\\cot"
+  kind: function
+  name: Cotangent
+  say: "“co-tan”"
+  def: cos over sin. Zero where tan blows up, and vice versa.
+  eg: "Appears when a substitution is done in terms of the complementary angle."
+
+arcsin-fn:
+  glyph: "arcsin"
+  tex: "\\arcsin"
+  kind: function
+  name: Inverse sine
+  say: "“arc sine”"
+  def: >-
+    The angle whose sine is the input. Only a function once the output is
+    restricted to [−π/2, π/2] — sine is not one-to-one without that.
+  eg: "The restriction is why a trig substitution has to check which branch it lands on."
+
+arctan-fn:
+  glyph: "arctan"
+  tex: "\\arctan"
+  kind: function
+  name: Inverse tangent
+  say: "“arc tan”"
+  def: >-
+    The angle whose tangent is the input, taken in (−π/2, π/2). Bounded, which
+    makes it the natural antiderivative of something that decays.
+  eg: "∫dx/(1+x²) = arctan x + C — the bounded answer is why that integral converges."
+
+Phi-cdf:
+  glyph: "Φ"
+  tex: "\\Phi"
+  kind: function
+  name: The standard normal CDF
+  say: "“big phi”"
+  def: >-
+    The probability that a standard normal lands at or below z. It has no
+    elementary formula, which is why it is tabulated rather than evaluated.
+  eg: "Every normal question becomes a Φ question after standardising to Z."
+
+max-op:
+  glyph: "max"
+  tex: "\\max"
+  kind: operator
+  name: Maximum
+  say: "“the largest”"
+  def: >-
+    The largest value in a collection, when one exists. On an open interval it
+    may not — which is exactly the gap a supremum fills.
+  eg: >-
+    In an error bound, a max over an interval is what turns an unknown
+    derivative into a number you can actually use.
+
+T-taylor:
+  glyph: "T"
+  kind: function
+  name: Taylor polynomial
+  say: "“tee sub en”"
+  def: >-
+    The degree-N truncation of a Taylor series — a polynomial, always finite,
+    always defined, whether or not the series it comes from converges.
+  eg: "f = T_N + R_N is an identity, not an approximation. All the doubt lives in R_N."
+
+Z-score:
+  glyph: "Z"
+  kind: variable
+  name: A standardised variable
+  say: "“zee”"
+  def: >-
+    What is left after subtracting the mean and dividing by the standard
+    deviation: a quantity measured in standard deviations rather than in units.
+  eg: "Standardising is what makes one normal table serve every normal distribution."
+
+C-const:
+  glyph: "C"
+  where: [calculus-2]
+  kind: constant
+  name: Constant of integration
+  say: "“see”"
+  def: >-
+    The information an indefinite integral cannot recover. Differentiation
+    destroys constants, so antidifferentiation can only return a whole family.
+  eg: >-
+    It vanishes in a definite integral because F(b) − F(a) subtracts it — which
+    is why the Fundamental Theorem does not care which antiderivative you pick.
+
+M-bound:
+  glyph: "M"
+  kind: constant
+  name: A bound
+  say: "“em”"
+  def: >-
+    A number chosen to be at least as large as something you cannot compute
+    exactly — typically the size of a derivative on an interval.
+  eg: "Any valid M gives a valid error bound; a smaller M gives a more useful one."
+
+h-step:
+  glyph: "h"
+  kind: variable
+  name: A small step
+  say: "“aitch”"
+  def: >-
+    A displacement that is about to be sent to zero, or the thickness of one
+    slice in a sum that is about to become an integral.
+  eg: "The whole of differential calculus is one limit as h → 0."
+
+s-arc:
+  glyph: "s"
+  kind: variable
+  name: Distance along a curve
+  say: "“ess”"
+  def: >-
+    Position measured by how far you have travelled along the curve, not by
+    where you are in the plane. Independent of how fast the parameter runs.
+  eg: >-
+    Two parametrisations of the same curve disagree about t everywhere and
+    agree about s — which is why arc length is a property of the curve.
+
+w-width:
+  glyph: "w"
+  kind: function
+  name: Width of a slice
+  say: "“double you”"
+  def: >-
+    How wide the cross-section is at a given height — the factor that turns a
+    slice's thickness into its area.
+  eg: "In a force-on-a-dam problem, w(y) is where the shape of the dam enters."
+
+I-value:
+  glyph: "I"
+  kind: variable
+  name: The integral being computed
+  say: "“eye”"
+  def: >-
+    A name for the unknown value of an integral, so that it can be treated as
+    an algebraic quantity and solved for.
+  eg: >-
+    The trick behind integrating e^x sin x: integrate by parts twice, land back
+    on I, and solve the equation instead of the integral.
+
+epsilon-small:
+  glyph: "ε"
+  tex: "\\varepsilon"
+  kind: constant
+  name: An arbitrarily small tolerance
+  say: "“epsilon”"
+  def: >-
+    A positive number the *reader* is allowed to choose, however small. The
+    claim is that the statement holds no matter how mean the choice.
+  eg: >-
+    "For every ε > 0" is what converts a vague "gets close" into something you
+    can actually prove or refute.
+
+rho-corr:
+  glyph: "ρ"
+  tex: "\\rho"
+  where: [probability-theory]
+  kind: constant
+  name: Correlation coefficient
+  say: "“row”"
+  def: >-
+    Covariance divided by both standard deviations, which forces it into
+    [−1, 1] and makes it unitless — a measure of *linear* association only.
+  eg: "ρ = 0 does not mean independent: y = x² over a symmetric range has ρ = 0."
+
+omega-outcome:
+  glyph: "ω"
+  tex: "\\omega"
+  where: [probability-theory]
+  kind: variable
+  name: A single outcome
+  say: "“little omega”"
+  def: >-
+    One complete result of the experiment — a point of Ω, not a subset of it.
+    Events are sets of these.
+  eg: "A random variable is a function of ω: X(ω) turns an outcome into a number."
+
+reals:
+  glyph: "ℝ"
+  tex: "\\mathbb"
+  sel: ".mathbb"
+  swallow: true
+  kind: set
+  name: The real numbers
+  say: "“the reals”"
+  def: >-
+    Every point on the number line, gaps included — the rationals plus all the
+    limits they approach. Completeness is the property calculus actually uses.
+  eg: >-
+    "Defined on all of ℝ" is a strong claim: it rules out the punctures where
+    a denominator vanishes, which is where partial fractions live.
+
+set-braces:
+  glyph: "{ }"
+  tex: "\\{"
+  alt: ["\\}"]
+  match: ["{", "}"]
+  kind: set
+  name: Set braces
+  say: "“the set of”"
+  def: >-
+    A set listed by its members. Braces carry no order and no repetition — the
+    same list written differently is the same set.
+  eg: >-
+    {HH, HT, TH, TT} has four members; {H, T} has two. Which one is the sample
+    space depends on how many coins you agreed to throw.
+
+z-value:
+  glyph: "z"
+  kind: constant
+  name: A standardised value
+  say: "“zee”"
+  def: >-
+    A particular number of standard deviations from the mean — the point a
+    normal probability is evaluated at, once units have been divided out.
+  eg: "z = 1.96 is the 97.5th percentile, which is where the 95% interval comes from."
+
+event-C:
+  glyph: "C"
+  where: [probability-theory]
+  kind: set
+  name: A third event
+  say: "“see”"
+  def: >-
+    Another subset of Ω. Three events is the smallest case where pairwise
+    independence and mutual independence come apart.
+  eg: >-
+    A, B and C can be independent in every pair and still be determined by each
+    other jointly — which is why the definition has to check all subsets.
+
+event-D:
+  glyph: "D"
+  where: [probability-theory]
+  kind: set
+  name: A named event
+  say: "“dee”"
+  def: >-
+    A letter chosen to stand for what the event *is* rather than for its place
+    in a list — D for defective, R for rain.
+  eg: "Naming the event after the thing makes the conditioning direction harder to get backwards."
+
+from-arrow:
+  glyph: "←"
+  tex: "\\leftarrow"
+  kind: operator
+  name: Follows from
+  say: "“is inherited from”"
+  def: >-
+    Read right to left: the statement on the left is a consequence of the one
+    on the right. It marks a result being imported, not derived here.
+  eg: >-
+    A sequence limit inherited from a function limit only runs this way. The
+    function can settle the sequence; the sequence cannot settle the function.
+
+complement:
+  glyph: "ᶜ"
+  tex: "^c"
+  match: ["c"]
+  where: [probability-theory]
+  kind: operator
+  name: Complement
+  say: "“not”"
+  def: >-
+    Everything in Ω that is not in the event — written as a superscript, which
+    is easy to lose when reading quickly.
+  eg: >-
+    P(A) + P(Aᶜ) = 1 is the most useful line in probability: the hard event is
+    often the complement of an easy one.
+
+r-ratio:
+  glyph: "r"
+  where: [Sequences and Series]
+  kind: constant
+  name: Common ratio
+  say: "“are”"
+  def: >-
+    The factor each term of a geometric series is multiplied by to get the
+    next. Everything about the series' fate is in whether |r| < 1.
+  eg: >-
+    At |r| < 1 the sum is a/(1−r); at |r| ≥ 1 the terms do not even go to zero.
+    There is no borderline case to argue about.
+
+rho-density:
+  glyph: "ρ"
+  tex: "\\rho"
+  where: [Applications of Integration]
+  kind: constant
+  name: Density
+  say: "“row”"
+  def: >-
+    Mass per unit volume, assumed constant unless the problem says otherwise.
+    It is what converts a geometric volume into a weight.
+  eg: "ρg is weight per unit volume — the factor that turns a slab's volume into the force on it."
+
+S-surface:
+  glyph: "S"
+  where: [Applications of Integration, Parametric and Polar]
+  kind: variable
+  name: Surface area
+  say: "“ess”"
+  def: >-
+    The area swept by a curve revolved about an axis: circumference times arc
+    length, accumulated.
+  eg: >-
+    The 2πr in the integrand is a circumference, and the ds is a slant length —
+    using dx instead is the classic way to get this wrong.
+
+d-distance:
+  glyph: "d"
+  where: [Applications of Integration]
+  kind: variable
+  name: Distance
+  say: "“dee”"
+  def: >-
+    How far something moves. In a work problem it is the *travel* of one slice,
+    which generally depends on where that slice started.
+  eg: >-
+    W = F·d only when the force is constant and every part moves the same
+    distance; the integral exists because usually neither holds.
+
+# ---------- estimation and filtering ----------
+
+hat-est:
+  glyph: "x̂"
+  tex: "\\hat"
+  match: "^"
+  kind: operator
+  name: The estimate hat
+  say: "“hat”"
+  def: >-
+    A hat means "our best guess at", not "the thing itself". x is where the
+    system actually is; x̂ is what the filter believes, and the difference
+    between them is the quantity nobody ever gets to observe.
+  eg: >-
+    Every hatted quantity carries a covariance beside it saying how much to
+    trust it. A hat without a covariance is an estimate you cannot use.
+
+transpose:
+  glyph: "⊤"
+  tex: "\\top"
+  alt: ["^T"]
+  kind: operator
+  name: Transpose
+  say: "“transpose”"
+  def: >-
+    Flip a matrix across its diagonal — row i becomes column i. It turns a
+    column vector into a row, and reverses the order of a product.
+  eg: >-
+    It appears in pairs, as AΣAᵀ, because covariance is a *quadratic* thing.
+    A lone transpose in a covariance formula is almost always a typo.
+
+x-state:
+  glyph: "x"
+  where: [kalman-filtering]
+  kind: variable
+  name: The state
+  say: "“ex”"
+  def: >-
+    The shortest list of numbers that, together with the model, determines the
+    system's future. Position and velocity, not position alone — because
+    position alone does not tell you where the thing goes next.
+  eg: >-
+    Choosing the state is the one modelling decision the filter cannot fix for
+    you. Leave a quantity out and the filter will blame its effects on noise.
+
+P-cov:
+  glyph: "P"
+  where: [kalman-filtering]
+  kind: variable
+  name: The estimate covariance
+  say: "“pee”"
+  def: >-
+    The filter's own claim about how wrong its estimate is: a symmetric matrix
+    whose diagonal holds the variance of each state component and whose
+    off-diagonal entries say how their errors move together.
+  eg: >-
+    P is a belief, not a measurement. A filter with a small P and a large error
+    is not doing well — it is lying, and that is the failure to watch for.
+
+F-transition:
+  glyph: "F"
+  where: [kalman-filtering]
+  kind: function
+  name: The state transition matrix
+  say: "“eff”"
+  def: >-
+    The physics, written as a matrix: where the state goes in one time step if
+    nothing disturbs it. For constant velocity it is the matrix that adds
+    v·Δt to position and leaves v alone.
+  eg: >-
+    Every zero in F is a claim that one state component does not affect
+    another. Those claims are the model, and they are what fails first.
+
+H-observation:
+  glyph: "H"
+  where: [kalman-filtering]
+  kind: function
+  name: The observation matrix
+  say: "“aitch”"
+  def: >-
+    What the sensor would read if the state were exactly x and the sensor were
+    perfect. It maps the state into measurement space, which is usually a
+    projection onto fewer dimensions.
+  eg: >-
+    H is normally not square and never inverted. The filter never asks "which
+    state produced this reading" — it asks "what would this state have read".
+
+K-gain:
+  glyph: "K"
+  where: [kalman-filtering]
+  kind: variable
+  name: The Kalman gain
+  say: "“kay”"
+  def: >-
+    How much of the surprise to believe. Near zero it ignores the sensor and
+    coasts on the model; near one it throws the prediction away and follows the
+    measurement.
+  eg: >-
+    It is recomputed every step from the two covariances, which is the whole
+    trick — the filter retunes its own trust as conditions change.
+
+Q-proc-noise:
+  glyph: "Q"
+  where: [kalman-filtering]
+  kind: constant
+  name: The process noise covariance
+  say: "“cue”"
+  def: >-
+    How wrong the model F is per step, expressed as covariance added at every
+    prediction. It is the filter's budget for everything the physics leaves out.
+  eg: >-
+    Q is the honesty term. Set it to zero and the filter eventually becomes so
+    confident that no measurement can move it — which is how filters diverge.
+
+R-meas-noise:
+  glyph: "R"
+  where: [kalman-filtering]
+  kind: constant
+  name: The measurement noise covariance
+  say: "“arr”"
+  def: >-
+    How noisy the sensor is. Unlike Q it is often knowable — from a datasheet,
+    or by leaving the sensor still and measuring the variance of its output.
+  eg: >-
+    R is the easy one to get right, which is why a badly behaved filter is
+    usually a Q problem or a model problem wearing an R costume.
+
+z-meas:
+  glyph: "z"
+  where: [kalman-filtering]
+  kind: variable
+  name: The measurement
+  say: "“zed”"
+  def: >-
+    What the sensor actually reported. The only thing in the whole filter that
+    comes from outside — everything else is a belief or a modelling choice.
+  eg: >-
+    z lives in measurement space, not state space. Comparing it to x directly
+    is a dimension error; it is compared to Hx̂, which is the point of H.
+
+y-innov:
+  glyph: "y"
+  where: [kalman-filtering]
+  kind: variable
+  name: The innovation
+  say: "“the innovation”"
+  def: >-
+    The surprise: what the sensor said minus what the filter expected it to
+    say. It is the only new information any step contains, which is where the
+    name comes from.
+  eg: >-
+    A healthy filter's innovations look like white noise. If they drift or
+    autocorrelate, the model is wrong in a way the covariance is hiding.
+
+S-innov-cov:
+  glyph: "S"
+  where: [kalman-filtering]
+  kind: variable
+  name: The innovation covariance
+  say: "“ess”"
+  def: >-
+    How surprised the filter expected to be — the predicted spread of the
+    innovation, combining the uncertainty it projected forward with the
+    sensor's own noise.
+  eg: >-
+    Dividing the innovation by S is how you test a filter without knowing the
+    truth: the result should behave like a standard normal, and usually doesn't.
+
+I-identity:
+  glyph: "I"
+  where: [kalman-filtering]
+  kind: constant
+  name: The identity matrix
+  say: "“the identity”"
+  def: >-
+    Ones down the diagonal, zeros everywhere else. Multiplying by it changes
+    nothing, which makes it the matrix version of the number 1.
+  eg: >-
+    In the covariance update, I − KH is the fraction of the prior uncertainty
+    that survives the measurement. K = 0 leaves I, and nothing is learned.
+
+Sigma-cov:
+  glyph: "Σ"
+  tex: "\\Sigma"
+  kind: variable
+  name: A covariance matrix
+  say: "“sigma”"
+  def: >-
+    The multi-dimensional replacement for σ². Entry (i,j) is the covariance of
+    components i and j, so the diagonal holds variances and the rest holds how
+    the components lean on each other.
+  eg: >-
+    It is symmetric and positive semi-definite, always. Those two properties
+    are what let it be drawn as an ellipse, and what break under bad arithmetic.
+
+w-proc-noise:
+  glyph: "w"
+  where: [kalman-filtering]
+  kind: variable
+  name: The process noise
+  say: "“double-you”"
+  def: >-
+    The random kick the world gives the system between one step and the next —
+    the wind, the bump, the unmodelled acceleration. Its covariance is Q.
+  eg: >-
+    It is never observed and never computed. Only its covariance enters the
+    filter, which is why you tune Q rather than estimate w.
+
+v-meas-noise:
+  glyph: "v"
+  kind: variable
+  name: The measurement noise
+  say: "“vee”"
+  def: >-
+    The error in one sensor reading. Assumed zero-mean, independent from step
+    to step, and independent of the process noise — three assumptions that are
+    each worth checking.
+  eg: >-
+    A sensor with a bias violates the zero-mean assumption, and the fix is to
+    put the bias in the state and let the filter estimate it.
+
+k-step:
+  glyph: "k"
+  where: [kalman-filtering]
+  kind: variable
+  name: The time step
+  say: "“kay”"
+  def: >-
+    Which discrete instant we are at. The filter never sees continuous time —
+    it sees a sequence of steps, spaced Δt apart.
+  eg: >-
+    A subscript of k|k−1 reads "at step k, given everything up to step k−1".
+    That bar really is the conditioning bar, and the notation means it.
+
+u-control:
+  glyph: "u"
+  where: [kalman-filtering]
+  kind: variable
+  name: The control input
+  say: "“you”"
+  def: >-
+    What you deliberately did to the system — the throttle you opened, the
+    voltage you applied. Known exactly, so it shifts the prediction without
+    adding any uncertainty.
+  eg: >-
+    Feeding a known input through B is free accuracy. Leaving it out forces Q
+    to absorb it, and Q then has to be large enough to cover your own actions.
+
+B-control:
+  glyph: "B"
+  where: [kalman-filtering]
+  kind: function
+  name: The control matrix
+  say: "“bee”"
+  def: >-
+    How a control input moves the state in one step. For an acceleration
+    command on a position-velocity state it is the column (½Δt², Δt).
+  eg: >-
+    B and F are the same kind of object — one acts on what you chose, the other
+    on where you already were.
+
+A-matrix:
+  glyph: "A"
+  where: [kalman-filtering]
+  kind: function
+  name: A matrix
+  say: "“ay”"
+  def: >-
+    A linear map: it takes a vector in and gives a vector out, and it does so
+    by scaling and adding, never by bending. That restriction is exactly what
+    keeps Gaussians Gaussian.
+  eg: >-
+    Ax is a *recipe*, not a multiplication of numbers. Reading the columns of A
+    as "where each input basis vector lands" makes most matrix identities obvious.
+
+lambda-eigen:
+  glyph: "λ"
+  tex: "\\lambda"
+  where: [kalman-filtering]
+  kind: constant
+  name: An eigenvalue
+  say: "“lambda”"
+  def: >-
+    A stretch factor along a direction the matrix does not rotate. For a
+    covariance matrix the eigenvalues are the variances along its principal
+    axes, and their square roots are the ellipse's semi-axis lengths.
+  eg: >-
+    A covariance with a near-zero eigenvalue is nearly singular — the filter is
+    claiming it knows one combination of states exactly, which it rarely does.
+
+trace-op:
+  glyph: "tr"
+  tex: "tr"
+  kind: operator
+  name: Trace
+  say: "“the trace of”"
+  def: >-
+    The sum of the diagonal entries. For a covariance matrix that is the total
+    variance across all state components — one number for "how uncertain".
+  eg: >-
+    The gain that minimises the trace of P is the Kalman gain. That is one of
+    the two routes to it, and it needs no Gaussian assumption at all.
+
+det-op:
+  glyph: "det"
+  tex: "\\det"
+  kind: operator
+  name: Determinant
+  say: "“the determinant of”"
+  def: >-
+    The factor by which a map scales volume. For a covariance matrix it
+    measures the volume of the uncertainty ellipsoid — how much room the
+    estimate leaves for the truth.
+  eg: >-
+    It appears under a square root in the Gaussian density because that is what
+    normalises the bump to integrate to 1 in n dimensions.
+
+partial-d:
+  glyph: "∂"
+  tex: "\\partial"
+  kind: differential
+  name: Partial derivative
+  say: "“partial”"
+  def: >-
+    The rate of change with respect to one variable while the others are held
+    fixed. Stacked into a grid it becomes a Jacobian — the best linear
+    approximation of a nonlinear map at a point.
+  eg: >-
+    The extended Kalman filter is entirely this symbol: replace F and H by
+    Jacobians evaluated at the current estimate and run the linear filter anyway.
+
+h-meas-fn:
+  glyph: "h"
+  where: [kalman-filtering]
+  kind: function
+  name: A nonlinear measurement model
+  say: "“aitch”"
+  def: >-
+    What the sensor reads as a function of the state, when that function is not
+    a matrix — a range is a square root, a bearing is an arctangent.
+  eg: >-
+    Predict with h itself, not with its Jacobian. Using the linearisation to
+    predict the measurement throws away accuracy for nothing.
+
+chi-sq:
+  glyph: "χ²"
+  tex: "\\chi"
+  kind: variable
+  name: Chi-squared
+  say: "“kai squared”"
+  def: >-
+    The distribution of a sum of squared standard normals. Its mean equals the
+    number of terms, which is what makes it a ready-made test statistic.
+  eg: >-
+    A consistent filter's normalised innovation squared is χ² with as many
+    degrees of freedom as the measurement has components. Averaging far above
+    that means the filter is over-confident.
+
+rank-op:
+  glyph: "rank"
+  tex: "rank"
+  kind: operator
+  name: Rank
+  say: "“the rank of”"
+  def: >-
+    How many independent directions a matrix actually reaches. A stack of rows
+    can be tall and still have low rank, which means the extra rows repeat
+    information the earlier ones already carried.
+  eg: >-
+    Full rank in the observability test means every state component eventually
+    leaves a trace in the measurements. Anything short of it names a
+    combination of states the filter can never learn.
+
+j-index:
+  glyph: "j"
+  kind: variable
+  name: The second counter
+  say: "“jay”"
+  def: >-
+    A second index, brought in when one is not enough. In a covariance matrix
+    the pair (i, j) names a cell: how component i and component j vary together.
+  eg: >-
+    The diagonal is where i equals j, which is why the diagonal of a covariance
+    matrix holds ordinary variances rather than anything new.
+
+gamma-gate:
+  glyph: "γ"
+  tex: "\\gamma"
+  where: [kalman-filtering]
+  kind: constant
+  name: The gate threshold
+  say: "“gamma”"
+  def: >-
+    The largest normalised surprise a filter will still accept. A measurement
+    whose innovation exceeds it is treated as an outlier and discarded rather
+    than applied.
+  eg: >-
+    Read it off the chi-squared distribution — about 9 for a scalar measurement
+    if you want a three-sigma gate. Too tight and a diverged filter rejects
+    every reading that could rescue it.
+
+tau-time:
+  glyph: "τ"
+  tex: "\\tau"
+  where: [kalman-filtering]
+  kind: constant
+  name: The filter time constant
+  say: "“tau”"
+  def: >-
+    How long the filter's memory is — roughly how many seconds of past
+    measurements still influence the current estimate. It is set entirely by
+    the ratio of process noise to measurement noise.
+  eg: >-
+    A long τ smooths well and lags badly. The steady-state lag behind a constant
+    acceleration grows as τ², so doubling the smoothing quadruples the bias.
+
+much-greater:
+  glyph: "≫"
+  tex: "\\gg"
+  kind: operator
+  name: Much greater than
+  say: "“is much bigger than”"
+  def: >-
+    Bigger by enough that the smaller side stops mattering — a claim about
+    scale rather than a precise ordering.
+  eg: >-
+    In a gain, P ≫ R means the prediction is so much vaguer than the sensor
+    that the filter may as well follow the measurement outright.
+
+sigma-pos:
+  glyph: "σₚ"
+  tex: "\\sigma_p"
+  match: "σp"
+  where: [kalman-filtering]
+  kind: constant
+  name: Position uncertainty
+  say: "“sigma pee”"
+  def: >-
+    The standard deviation of the position estimate — the square root of the
+    top-left entry of P, and the number a filter usually reports as its accuracy.
+  eg: >-
+    It is a claim, not a measurement. Comparing it against the actual error is
+    the consistency check, and the two part company more often than not.
+
+sigma-vel:
+  glyph: "σᵥ"
+  tex: "\\sigma_v"
+  match: "σv"
+  where: [kalman-filtering]
+  kind: constant
+  name: Velocity uncertainty
+  say: "“sigma vee”"
+  def: >-
+    The standard deviation of the velocity estimate. In a position-only tracker
+    nothing measures it directly, so it shrinks entirely through the
+    correlation that prediction creates.
+  eg: >-
+    Coasting converts it into position uncertainty at a rate of Δt per step,
+    which is why dead reckoning degrades faster the longer it runs.
+
+sigma-acc:
+  glyph: "σₐ"
+  tex: "\\sigma_a"
+  match: "σa"
+  where: [kalman-filtering]
+  kind: constant
+  name: Process noise strength
+  say: "“sigma ay”"
+  def: >-
+    How hard the world is allowed to accelerate the system in ways the model
+    does not know about. It is the single scalar that scales the whole of Q for
+    a constant-velocity model.
+  eg: >-
+    Pick it by answering a question about the system, not by staring at a plot —
+    a pedestrian is about 1 m/s², a car 3, a quadrotor dodging 10.
+
+p-position:
+  glyph: "p"
+  where: [kalman-filtering]
+  kind: variable
+  name: Position
+  say: "“pee”"
+  def: >-
+    Where the thing is — the component of the state you usually care about, and
+    the only one a simple sensor tends to see.
+  eg: >-
+    It is rarely the whole state. A filter that estimates position alone cannot
+    predict, because position now says nothing about position next.
+
+v-velocity:
+  glyph: "v"
+  where: [Vectors and Covariance]
+  kind: variable
+  name: Velocity
+  say: "“vee”"
+  def: >-
+    The rate the position is changing. It earns its place in the state not
+    because anyone wants it, but because without it the future stops depending
+    on the present alone.
+  eg: >-
+    Usually unmeasured. It is learned through the correlation with position that
+    the prediction step manufactures, and nowhere else.
+
+m-meas-dim:
+  glyph: "m"
+  where: [kalman-filtering]
+  kind: constant
+  name: The measurement dimension
+  say: "“em”"
+  def: >-
+    How many numbers one measurement carries. It sets the size of R and S, and
+    the degrees of freedom of the consistency test.
+  eg: >-
+    Almost always far smaller than the state dimension, which is why the only
+    matrix a filter inverts is the cheap one.
+
+a-direction:
+  glyph: "a"
+  where: [Vectors and Covariance]
+  kind: variable
+  name: An arbitrary direction
+  say: "“ay”"
+  def: >-
+    A list of weights, one per state component, naming a direction to ask about.
+    aᵀx is the system measured along it — so much position plus so much velocity.
+  eg: >-
+    Quantifying over every a is how a statement about one matrix becomes a
+    statement about every question you could put to it.
+
+c-scale:
+  glyph: "c"
+  where: [Filters in Practice]
+  kind: constant
+  name: A common scale factor
+  say: "“see”"
+  def: >-
+    A single positive number multiplying several quantities at once, used to ask
+    what an expression depends on and what it merely reports.
+  eg: >-
+    Scale Q and R together by c and the gain is unchanged while P scales by c —
+    which is the proof that tuning a filter is a one-dimensional problem.

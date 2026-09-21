@@ -11,7 +11,7 @@
       "notes": ""
     },
     "fundamental-theorem-of-calculus": {
-      "status": "learning",
+      "status": "mastered",
       "reps": 0,
       "ease": 2.5,
       "intervalDays": 0,
@@ -20,12 +20,21 @@
       "notes": ""
     },
     "sample-spaces-and-events": {
-      "status": "review",
+      "status": "mastered",
       "reps": 1,
       "ease": 2.6,
       "intervalDays": 1,
       "lastReviewed": "2026-09-10",
       "nextReview": "2026-09-11",
+      "notes": ""
+    },
+    "probability-axioms": {
+      "status": "mastered",
+      "reps": 0,
+      "ease": 2.5,
+      "intervalDays": 0,
+      "lastReviewed": null,
+      "nextReview": null,
       "notes": ""
     }
   },
@@ -72,6 +81,24 @@
       "event": "review",
       "grade": 5,
       "status": "review"
+    },
+    {
+      "ts": "2026-09-14T03:19:09.107Z",
+      "concept": "fundamental-theorem-of-calculus",
+      "event": "status",
+      "status": "mastered"
+    },
+    {
+      "ts": "2026-09-14T05:20:19.533Z",
+      "concept": "sample-spaces-and-events",
+      "event": "status",
+      "status": "mastered"
+    },
+    {
+      "ts": "2026-09-14T13:35:11.846Z",
+      "concept": "probability-axioms",
+      "event": "status",
+      "status": "mastered"
     }
   ]
 }

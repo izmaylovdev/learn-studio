@@ -75,11 +75,11 @@ That table is worth more than it looks. Translating a word problem into set oper
 
 ## Where sample spaces go wrong
 
-**Counting things that are not interchangeable.** A family has two children; at least one is a girl. Probability both are girls? The naive answer is 1/2. But the sample space is $\{GG, GB, BG, BB\}$, "at least one girl" removes $BB$, and $GG$ is one of the three remaining — so 1/3. The pairs are equally likely; "number of girls" is not.
+**Counting things that are not interchangeable.** A family has two children; at least one is a girl. Probability both are girls? The naive answer is 1/2. But the sample space is $\{\text{GG}, \text{GB}, \text{BG}, \text{BB}\}$, "at least one girl" removes $\text{BB}$, and $\text{GG}$ is one of the three remaining — so 1/3. The pairs are equally likely; "number of girls" is not.
 
-**Forgetting that order was part of the outcome.** $GB$ and $BG$ are two outcomes, not one. Collapsing them halves a count you needed.
+**Forgetting that order was part of the outcome.** $\text{GB}$ and $\text{BG}$ are two outcomes, not one. Collapsing them halves a count you needed.
 
-**A sample space that cannot support the question.** If you model a coin as $\{H, T\}$ you cannot ask about the second flip. The space has to be rich enough to express every event you intend to name.
+**A sample space that cannot support the question.** If you model a coin as $\{\text{H}, \text{T}\}$ you cannot ask about the second flip. The space has to be rich enough to express every event you intend to name.
 
 The habit worth building: **write $\Omega$ down explicitly before computing anything**, even when it feels obvious. Most of the difficulty in an introductory problem is already resolved once you have.
 

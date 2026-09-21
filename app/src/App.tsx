@@ -7,6 +7,7 @@ import { GraphView } from './views/GraphView';
 import { Lexicon } from './views/Lexicon';
 import { Reader } from './views/Reader';
 import { TrackView } from './views/TrackView';
+import { ExplainProvider } from './lib/formula/MathExplain';
 
 export type Theme = 'dark' | 'light';
 
@@ -173,6 +174,9 @@ export function App() {
   };
 
   return (
+    // Any formula anywhere can be taken apart; the concept being read decides
+    // which sense of a reused glyph the drawer offers first.
+    <ExplainProvider graph={graph} scope={activeConcept}>
     <div className="layout">
       <aside className="sidebar">
         <div className="brand">
@@ -239,6 +243,7 @@ export function App() {
         )}
       </main>
     </div>
+    </ExplainProvider>
   );
 }
 

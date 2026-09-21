@@ -1,14 +1,15 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import katex from 'katex';
-import type { Formula, FormulaSymbol, SymbolKind } from '../../types';
+import type { Formula, SymbolKind } from '../../types';
 import { KIND_GLOSS, KIND_NAME, KIND_ORDER } from './kinds';
 import { annotate, paint } from './annotate';
+import { SymbolCard } from './SymbolCard';
+import { useMaybeExplain } from './MathExplain';
 
 export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | null; reason?: 'parse' | 'unmatched' }) {
   const box = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [isolated, setIsolated] = useState<Set<SymbolKind>>(new Set());
-  const [coloured, setColoured] = useState(true);
   const [missing, setMissing] = useState<string[]>([]);
   const [order, setOrder] = useState<string[]>([]);
   // Collapsed by default: the prose is a fallback for when the formula alone
@@ -18,6 +19,23 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
     try { return localStorage.getItem('fx:reading') === '1'; } catch { return false; }
   });
   const paneId = useId();
+  // Colour is one preference across every formula on the page, so turning it
+  // off here also calms the equations in the prose.
+  const explain = useMaybeExplain();
+  const [localColour, setLocalColour] = useState(true);
+  const coloured = explain?.coloured ?? localColour;
+  const setColoured = explain?.setColoured ?? setLocalColour;
+
+  // The author's list decides what this formula's symbols *mean here*, and it
+  // comes first so its senses win. The rest of the lexicon follows as a
+  // fallback: a glyph nobody listed is still a glyph a reader can ask about,
+  // and leaving it dead in the one block built for asking would be perverse.
+  const symbols = useMemo(() => {
+    const listed = (spec?.symbols ?? []).map((s) => ({ ...s, listed: true }));
+    const seen = new Set(listed.map((s) => s.id));
+    const rest = (explain?.senses.ordered ?? []).filter((s) => !seen.has(s.id));
+    return [...listed, ...rest.map((s) => ({ ...s, note: '' }))];
+  }, [spec, explain?.senses]);
 
   useEffect(() => {
     try { localStorage.setItem('fx:reading', showReading ? '1' : '0'); } catch { /* private mode */ }
@@ -34,11 +52,17 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
 
   useLayoutEffect(() => {
     if (!box.current || !spec) return;
-    const { found, missing } = annotate(box.current, spec.symbols);
+    // Annotation mutates the rendered output, so start from clean KaTeX —
+    // the lexicon arrives after the first paint and would otherwise be laid
+    // on top of tags that are already there.
+    box.current.innerHTML = html;
+    const { found } = annotate(box.current, symbols);
     setOrder(found);
-    setMissing(missing);
+    // Only the author's own list can be "missing" — the lexicon fallback is
+    // expected not to appear, that is what makes it a fallback.
+    setMissing(spec.symbols.filter((s) => !found.includes(s.id)).map((s) => s.id));
     setSelected(null);
-  }, [html, spec]);
+  }, [html, spec, symbols]);
 
   useEffect(() => {
     if (box.current) paint(box.current, selected, isolated as Set<string>);
@@ -62,10 +86,11 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
     );
   }
 
-  const byId = new Map(spec.symbols.map((s) => [s.id, s]));
+  const byId = new Map(symbols.map((s) => [s.id, s]));
   const active = selected ? byId.get(selected) ?? null : null;
-  const kindsPresent = KIND_ORDER.filter((k) => spec.symbols.some((s) => s.kind === k && !missing.includes(s.id)));
+  const kindsPresent = KIND_ORDER.filter((k) => order.some((id) => byId.get(id)?.kind === k));
   const hasReading = Boolean(spec.reading || spec.why || spec.steps.length);
+  const readingOpen = hasReading && showReading;
 
   const step = (dir: 1 | -1) => {
     if (!order.length) return;
@@ -141,32 +166,38 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
         )}
       </div>
 
-      <div className={`fx-split${showReading && hasReading ? ' two' : ''}`}>
-        {hasReading && showReading && (
-          <div className="fx-pane" id={paneId}>
-            <h5>How to read it</h5>
-            {spec.reading && <p className="fx-reading">{spec.reading}</p>}
-            {spec.steps.length > 0 && (
-              <ol className="fx-steps">
-                {spec.steps.map((s, i) => (
-                  <li key={i}><span className="fx-n">{i + 1}</span><span>{s}</span></li>
-                ))}
-              </ol>
-            )}
-            {spec.why && <p className="fx-why" dangerouslySetInnerHTML={{ __html: bold(spec.why) }} />}
-          </div>
-        )}
+      {(readingOpen || active) && (
+        <div className={`fx-split${readingOpen && active ? ' two' : ''}`}>
+          {readingOpen && (
+            <div className="fx-pane" id={paneId}>
+              <h5>How to read it</h5>
+              {spec.reading && <p className="fx-reading">{spec.reading}</p>}
+              {spec.steps.length > 0 && (
+                <ol className="fx-steps">
+                  {spec.steps.map((s, i) => (
+                    <li key={i}><span className="fx-n">{i + 1}</span><span>{s}</span></li>
+                  ))}
+                </ol>
+              )}
+              {spec.why && <p className="fx-why" dangerouslySetInnerHTML={{ __html: bold(spec.why) }} />}
+            </div>
+          )}
 
-        <div className="fx-pane fx-insp">
-          <h5>{active ? 'This symbol, here' : 'Symbol'}</h5>
-          {active ? <SymbolCard sym={active} /> : (
-            <p className="fx-empty">
-              Nothing selected. Click a symbol in the formula to see what it is and what it is doing
-              <em> in this line</em> — the same glyph often means different things elsewhere.
-            </p>
+          {/* No empty state: the hint above already says to click a symbol, and a
+              pane explaining that it has nothing to explain is just a held slot. */}
+          {active && (
+            <div className="fx-pane fx-insp">
+              <h5>This symbol, here</h5>
+              <SymbolCard
+                sym={active}
+                note={active.note}
+                siblings={explain?.senses.siblings.get(active.id) ?? []}
+                onPickSibling={setSelected}
+              />
+            </div>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -190,34 +221,6 @@ function BookIcon({ open }: { open: boolean }) {
         </>
       )}
     </svg>
-  );
-}
-
-function SymbolCard({ sym }: { sym: FormulaSymbol }) {
-  return (
-    <>
-      <div className="fx-glyphrow">
-        <span className="fx-glyph" data-kind={sym.kind}>{sym.glyph}</span>
-        <div>
-          <div className="fx-gname">{sym.name}</div>
-          {sym.say && <div className="fx-gsay">{sym.say}</div>}
-        </div>
-      </div>
-      <div className="fx-kindline">
-        <span className="fx-kindtag" data-kind={sym.kind}>{KIND_NAME[sym.kind]}</span>
-        <span className="fx-gsay">{KIND_GLOSS[sym.kind]}</span>
-      </div>
-      <dl className="fx-dl">
-        {sym.note && (
-          <div><dt>In this formula</dt><dd className="fx-local">{sym.note}</dd></div>
-        )}
-        <div><dt>What it is</dt><dd>{sym.def}</dd></div>
-        {sym.eg && <div><dt>Worth knowing</dt><dd>{sym.eg}</dd></div>}
-      </dl>
-      <a className="fx-more" href={`#/lexicon?q=${encodeURIComponent(sym.name)}`}>
-        See every formula that uses it →
-      </a>
-    </>
   );
 }
 

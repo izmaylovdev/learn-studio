@@ -132,6 +132,8 @@ Redo the example: the next term after $T_3$ for sine is $\frac{x^5}{5!}$, so $|R
 
 **Check for alternation first.** Reach for Lagrange only when the series doesn't alternate (like $e^x$) or when you need a bound valid across a whole interval.
 
+The same bound turns up far from any exam. An extended Kalman filter replaces a curved model by its first-order Taylor expansion at the current estimate, so the error it commits is exactly $R_1$ — second derivative times squared displacement from the linearisation point. Since that displacement is of order the filter's own uncertainty, the bound reads as *curvature × covariance*, and it predicts precisely when the approximation stops being safe. See [[extended-and-unscented-kalman-filters]].
+
 ## Which N do I need?
 
 The usual exam question inverts the bound: given a target accuracy, find $N$.

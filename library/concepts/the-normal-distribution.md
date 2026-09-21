@@ -94,6 +94,8 @@ Two limits on that, both practical:
 - **Finite variance is required.** Cauchy-distributed data has none, and averaging it never becomes normal — the average of $n$ Cauchy variables is Cauchy again, however large $n$ gets.
 - **Tails converge slowest.** The approximation is good near the centre long before it is good four sigma out. Using it to price rare catastrophic events is exactly where it is least trustworthy.
 
+There is a third reason, structural rather than statistical, that matters wherever estimates are combined: the normal is the one family closed under both linear maps and conditioning. Push it through a matrix and you get a normal; slice it on an observed value and you get a normal. [[gaussian-random-vectors]] is the multi-dimensional version, and those two closure properties are the entire reason a Kalman filter can summarise an unbounded history in a mean and a covariance.
+
 :::check
 Why does the normal density have no elementary antiderivative, and what is done instead?
 :::

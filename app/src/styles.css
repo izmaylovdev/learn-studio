@@ -386,6 +386,9 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
 .viz-curve { fill: none; stroke: var(--text); stroke-width: 2; stroke-linejoin: round; }
 .viz-approx { fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linejoin: round; }
 .viz-ghost { fill: none; stroke: var(--line); stroke-width: 1.6; }
+/* The "before" shape in a before/after pair — dashed so it reads as a reference
+   outline rather than a second series competing with the one that matters. */
+.viz-prior { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: .85; }
 .viz-bar { fill: var(--accent); fill-opacity: .22; stroke: var(--accent); stroke-opacity: .55; stroke-width: 1; }
 .viz-region { fill: var(--accent); fill-opacity: .12; stroke: none; }
 .viz-sector { fill: var(--accent); fill-opacity: .18; stroke: none; }
@@ -509,12 +512,18 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
 }
 .fx-tok.dim { opacity: .2; }
 
-.fx-explorer.coloured .fx-tok[data-kind='operator'] { color: var(--k-operator); }
-.fx-explorer.coloured .fx-tok[data-kind='function'] { color: var(--k-function); }
-.fx-explorer.coloured .fx-tok[data-kind='variable'] { color: var(--k-variable); }
-.fx-explorer.coloured .fx-tok[data-kind='constant'] { color: var(--k-constant); }
-.fx-explorer.coloured .fx-tok[data-kind='differential'] { color: var(--k-differential); }
-.fx-explorer.coloured .fx-tok[data-kind='set'] { color: var(--k-set); }
+/* Each tagged leaf carries its kind's colour, but only spends it where the
+   surface has colour switched on — one preference, three surfaces. */
+.fx-tok[data-kind='operator'] { --k: var(--k-operator); }
+.fx-tok[data-kind='function'] { --k: var(--k-function); }
+.fx-tok[data-kind='variable'] { --k: var(--k-variable); }
+.fx-tok[data-kind='constant'] { --k: var(--k-constant); }
+.fx-tok[data-kind='differential'] { --k: var(--k-differential); }
+.fx-tok[data-kind='set'] { --k: var(--k-set); }
+
+.fx-explorer.coloured .fx-tok,
+.mx-drawer.coloured .fx-tok,
+:root.maths-coloured .prose .math-display .fx-tok { color: var(--k); }
 
 .fx-hint {
   padding: 0 18px 12px; font-size: 11.5px; color: var(--faint);
@@ -553,8 +562,6 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
 }
 .fx-why b { color: var(--text); font-weight: 600; }
 
-.fx-empty { color: var(--faint); font-size: 12.8px; line-height: 1.6; margin: 0; }
-.fx-empty em { color: var(--muted); }
 .fx-glyphrow { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
 .fx-glyph { font-size: 38px; line-height: 1; font-family: 'KaTeX_Math', Georgia, serif; }
 .fx-glyph[data-kind='operator'] { color: var(--k-operator); }
@@ -682,7 +689,141 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
 
 .viz-area-pos { fill: var(--accent); fill-opacity: .2; stroke: none; }
 .viz-area-neg { fill: var(--danger); fill-opacity: .2; stroke: none; }
+.viz-cut { stroke: var(--accent); stroke-width: 1.4; stroke-opacity: .5; stroke-linecap: round; }
+.viz-cut.two { stroke: var(--learning); }
+.viz-cut.wide { stroke-width: 3.5; stroke-opacity: 1; }
 .viz-sweep { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; }
 .viz-tangent { stroke: var(--mastered); stroke-width: 2.2; stroke-linecap: round; }
 .viz-rise { stroke: var(--mastered); stroke-width: 2.4; stroke-linecap: round; }
 .viz-stair { fill: none; stroke: var(--muted); stroke-width: 1.2; opacity: .55; }
+
+/* ============ every other formula on the page ============
+   A `formula` block is the authored deep-dive. Display equations and the
+   maths inside a sentence get the same lexicon, reached through a drawer, so
+   no formula on a page is inert — which is the difference between a symbol
+   you can ask about and one you have to already know. */
+
+.prose .math-live { cursor: pointer; }
+.prose .math-inline {
+  border-radius: 4px;
+  padding: 0 1px;
+  transition: background-color .12s, box-shadow .12s;
+}
+.prose .math-inline:hover {
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.prose .math-live:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px;
+}
+/* Display equations say so on hover rather than carrying permanent chrome.
+   A `formula` block has its own hint under the stage and does not need it. */
+.prose .katex-display { position: relative; }
+.prose .fx-stage .katex-display::after { content: none; }
+.prose .katex-display::after {
+  content: 'click a symbol';
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font: 10.5px/1 var(--mono); letter-spacing: .04em; color: var(--faint);
+  opacity: 0; transition: opacity .15s; pointer-events: none;
+}
+.prose .katex-display:hover::after { opacity: 1; }
+
+/* ---------- the drawer ---------- */
+.mx-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(400px, 92vw);
+  background: var(--panel); border-left: 1px solid var(--line);
+  box-shadow: -18px 0 44px rgba(0, 0, 0, .34);
+  display: flex; flex-direction: column; z-index: 50;
+  animation: mx-in .18s ease-out;
+}
+:root[data-theme='light'] .mx-drawer { box-shadow: -18px 0 44px rgba(20, 30, 50, .13); }
+@keyframes mx-in { from { transform: translateX(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mx-drawer { animation: none; } }
+
+.mx-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 14px 13px 18px; border-bottom: 1px solid var(--line);
+}
+.mx-eyebrow {
+  font: 9.5px/1.4 var(--mono); letter-spacing: .11em; text-transform: uppercase;
+  color: var(--faint);
+}
+.mx-title { font-size: 13.5px; font-weight: 600; margin-top: 2px; }
+.mx-head .fx-toggle { margin-left: auto; }
+.mx-close {
+  flex: none; width: 26px; height: 26px; border-radius: 6px; line-height: 1;
+  background: none; border: 1px solid var(--line); color: var(--muted); font-size: 11px;
+}
+.mx-close:hover { color: var(--text); border-color: var(--muted); }
+
+.mx-stage {
+  padding: 22px 18px 18px; overflow-x: auto; border-bottom: 1px solid var(--line);
+  background: var(--bg-soft);
+}
+.mx-stage .katex-display { margin: 0; padding: 0; background: none; border: none; }
+.mx-stage .katex-display > .katex { font-size: 1.32em; }
+.mx-stage .katex-display::after { content: none; }
+
+.mx-strip {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  padding: 10px 16px; border-bottom: 1px solid var(--line);
+}
+.mx-pip {
+  min-width: 26px; height: 26px; padding: 0 6px; border-radius: 6px;
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+  font-family: 'KaTeX_Math', Georgia, serif; font-size: 15px; line-height: 1;
+}
+.mx-pip:hover { border-color: var(--muted); color: var(--text); }
+.mx-drawer.coloured .mx-pip[data-kind='operator'] { color: var(--k-operator); }
+.mx-drawer.coloured .mx-pip[data-kind='function'] { color: var(--k-function); }
+.mx-drawer.coloured .mx-pip[data-kind='variable'] { color: var(--k-variable); }
+.mx-drawer.coloured .mx-pip[data-kind='constant'] { color: var(--k-constant); }
+.mx-drawer.coloured .mx-pip[data-kind='differential'] { color: var(--k-differential); }
+.mx-drawer.coloured .mx-pip[data-kind='set'] { color: var(--k-set); }
+.mx-pip.on { border-color: currentColor; background: var(--bg-soft); }
+
+.mx-scroll { flex: 1; overflow-y: auto; padding: 16px 18px 20px; }
+.mx-empty p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.mx-empty b { color: var(--text); }
+.mx-aside { margin: 12px 0 0; font-size: 11.5px; line-height: 1.55; color: var(--faint); }
+.mx-legend { display: flex; flex-wrap: wrap; gap: 6px 13px; margin-top: 14px; font-size: 11.5px; color: var(--muted); }
+.mx-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.mx-legend i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.mx-legend span[data-kind='operator'] i { color: var(--k-operator); }
+.mx-legend span[data-kind='function'] i { color: var(--k-function); }
+.mx-legend span[data-kind='variable'] i { color: var(--k-variable); }
+.mx-legend span[data-kind='constant'] i { color: var(--k-constant); }
+.mx-legend span[data-kind='differential'] i { color: var(--k-differential); }
+.mx-legend span[data-kind='set'] i { color: var(--k-set); }
+
+.mx-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 18px; border-top: 1px solid var(--line);
+  font-size: 11.5px; color: var(--faint);
+}
+.mx-foot kbd {
+  font-family: var(--mono); font-size: 10px; border: 1px solid var(--line);
+  border-radius: 4px; padding: 0 4px;
+}
+.mx-foot a { font-size: 11.5px; }
+
+/* ---------- the other readings of one glyph ---------- */
+.fx-senses { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.fx-senses dt {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--faint); margin-bottom: 7px;
+}
+.fx-senserow { display: flex; flex-wrap: wrap; gap: 5px; }
+.fx-sense {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px; font-size: 11.5px;
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+}
+.fx-sense:hover { color: var(--text); border-color: var(--muted); }
+.fx-sense[data-kind='operator'] .fx-dot { color: var(--k-operator); }
+.fx-sense[data-kind='function'] .fx-dot { color: var(--k-function); }
+.fx-sense[data-kind='variable'] .fx-dot { color: var(--k-variable); }
+.fx-sense[data-kind='constant'] .fx-dot { color: var(--k-constant); }
+.fx-sense[data-kind='differential'] .fx-dot { color: var(--k-differential); }
+.fx-sense[data-kind='set'] .fx-dot { color: var(--k-set); }
+.fx-sensenote { margin: 8px 0 0; font-size: 11.5px; line-height: 1.55; color: var(--faint); }

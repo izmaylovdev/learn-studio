@@ -84,12 +84,24 @@ Body is markdown. Available in the renderer:
   A whole line of `$$...$$` is parsed by remark-math as *inline* math and renders
   cramped and left-aligned. The reader repairs that spelling automatically, but
   write the fenced form so the files render correctly in other markdown tools too.
+
+  **Every formula is explainable, not just the `formula` blocks.** The reader
+  annotates all rendered maths against `library/symbols.yml`: a display equation
+  gets its symbols coloured and clickable where it stands, and maths inside a
+  sentence gets a hover tint and opens as a whole. Either one opens a **drawer
+  from the right** holding the line at display size, a strip of the marks in it,
+  and the same symbol card the `formula` block shows — so no equation on a page
+  is a wall of white text. Nothing to author: write ordinary `$…$`, and the only
+  thing that can leave a mark dead is the lexicon not having an entry for it,
+  which `npm run index` reports.
 - **` ```mermaid `** — rendered diagrams.
 - **` ```python `** (or any language) — syntax-highlighted code with a language
   badge. Untagged fences render plain.
-- **` ```formula `** — a formula you can take apart symbol by symbol. Every
-  symbol becomes clickable, colour-coded by kind, with a plain-English reading,
-  numbered steps, and a card explaining what that symbol means *in this line*:
+- **` ```formula `** — the authored deep dive on one formula: a plain-English
+  reading, numbered steps, and a card explaining what each symbol means *in this
+  line*, in a panel next to the equation rather than in the drawer. Use it for
+  the line a concept is *about*; every other equation on the page is already
+  clickable without it.
 
   ````
   ```formula
@@ -108,6 +120,12 @@ Body is markdown. Available in the renderer:
   Symbol ids come from `library/symbols.yml`. `npm run check` fails on an unknown
   id and warns when a listed symbol's LaTeX does not occur in the `tex:` — which
   is the difference between a real bug and a formula that just fails to light up.
+
+  The list is not a whitelist: symbols you leave out are still matched from the
+  lexicon, so nothing in the equation goes dead. What listing a symbol buys is
+  *authority* — its sense wins over any competing reading of the same glyph, it
+  can carry a `notes:` entry, and a numeral you name is read as a number rather
+  than dismissed as an index.
 
   `reading:`, `steps:` and `why:` are the "How to read it" pane, which is
   **collapsed by default** behind a book icon in the formula's toolbar — the
@@ -140,10 +158,15 @@ Body is markdown. Available in the renderer:
   | `riemann` | n, sample rule, function — sum vs exact integral and the error |
   | `taylor` | function, degree N — f against T_N, with the radius band drawn |
   | `series` | series choice, N — partial sums approaching a limit, or not |
+  | `area-between` | curve pair, sweep — the slice, and the signed integral coming apart from the true area at a crossing |
+  | `slice-orientation` | dx vs dy on one region — where the vertical slice's floor changes formula, and why the horizontal one needs no cases |
   | `solid` | washer vs shell, slice position — the slice and the total volume |
   | `polar` | curve, θ swept — the trace and the ½r²dθ sector accumulating |
   | `parametric` | curve, t — position, velocity vector, accumulated arc length |
   | `bayes` / `clt` / `distribution` | the probability figures |
+  | `fuse` | two Gaussian opinions and their combination — the gain, and why the result beats both |
+  | `covariance` | Δt, σᵥ, σₐ — an uncertainty ellipse pushed through a step, and the tilt it acquires |
+  | `kalman` | what the filter is *told* about Q and R — the error against its own ±σ band, and the NIS |
 
   Each figure is self-contained and carries its own caption explaining what to
   look for. Add a new one in `app/src/lib/viz/` and register it in that
@@ -275,24 +298,65 @@ material, because it takes up a slot in the graph.
 `constant`, `operator`, `differential`; they drive the colour coding and the
 filter chips, and the Lexicon page lists everything with an "appears in" index.
 
-Three fields exist because KaTeX output is not plain text:
+The lexicon is no longer only for `formula` blocks — every equation in the
+library is matched against it, so an entry missing here is a mark the reader
+cannot ask about. `npm run index` prints the coverage and names the marks that
+have none; keep that list empty.
+
+Some fields exist because KaTeX output is not plain text:
 
 - **`tex`** — the LaTeX that produces the glyph, when different (`\int` for `∫`).
   Used by the indexer to verify the symbol belongs to the formula. Keep it to the
   part that is stable: `b-term` uses `"b"`, not `"b_n"`, because it also has to
   match `b_{N+1}`.
+- **`alt`** — other LaTeX spellings of the same mark (`\tfrac` for `\frac`,
+  `\ldots` for `\cdots`). Only the indexer reads them; the rendered output is
+  identical either way, so the reader never needs to know.
 - **`match`** — the concatenated text of the rendered leaves, when that differs
-  from the glyph. May be a list of alternatives, tried in order: `b_n` renders as
-  `bn` but `b_{N+1}` renders as `bN`, so `match: ["bn", "bN"]`.
+  from the glyph. May be a list of alternatives: `b_n` renders as `bn` but
+  `b_{N+1}` renders as `bN`, so `match: ["bn", "bN"]`.
+- **`cls`** — a KaTeX class the matched leaf must carry, or must *not* when
+  written `!mrel`. `\mid` renders as a relation and a plain `|` does not, and
+  that is the only thing in the output separating "given" from "the size of".
 - **`sel`** — a CSS selector into the rendered KaTeX, for marks that are not text
   at all. A radical is drawn as an SVG (`sel: ".sqrt .hide-tail"`), a fraction
-  emits its leaves denominator-first (`sel: ".mfrac"`), and stretchy delimiters
-  are assembled from glyph fragments the text walker deliberately skips
-  (`sel: ".delimsizing"`). None can be found by matching characters.
+  emits its leaves denominator-first (`sel: ".mfrac"`), and a stretched bar is an
+  SVG path. Keep a selector narrow: it cannot see text, so `.delimsizing.mult`
+  alone claims a matrix's tall bracket as readily as a tall bar — the two are
+  told apart only by the SVG they draw, which is why the absolute-value entries
+  carry `:has(svg[viewBox^="0 0 333"])` (a bar is 333 wide, a bracket 667).
+  `swallow: true` beside it means the mark owns whatever text sits inside —
+  without it the pieces KaTeX assembles a `≠` from get tagged separately and
+  clicking it reports "equals".
 
-Matching is longest-first and claims **per character**, so a symbol may span
-several leaves (`Δx`) and a leaf may hold several symbols — KaTeX merges runs of
-same-font characters, so `uv` arrives as one span and gets split back apart.
+Matching is longest-needle-first and claims **per character**, so a symbol may
+span several leaves (`Δx`) and a leaf may hold several symbols — KaTeX merges
+runs of same-font characters, so `uv` arrives as one span and gets split back
+apart. Two heuristics keep whole-library matching honest: a numeral attached to a
+symbol is read as an index and skipped (the 1 of `A₁`) unless it hangs off an
+operator (the 0 and 1 of `∫₀¹`) or an author listed it, and anything in `\text{}`
+is a word rather than a run of variables.
+
+### Which sense of a glyph wins
+
+`a` is a limit of integration, a substitution parameter and a Taylor centre; `P`
+is a probability and a polynomial. With every formula annotated, something has to
+choose, and the reader chooses by **where you are**: a sense used by the
+concept's own `formula` block wins, then one used elsewhere in the same field,
+then the same track, then anywhere at all. The losing senses are offered in the
+card as other readings, one click away — which is honest about the ambiguity
+rather than hiding it.
+
+- **`where`** — the tracks or fields a sense belongs to (`where: [probability-theory]`,
+  `where: [Sequences and Series]`). A sense at home beats a local competitor; the
+  same sense away from home loses to one. This is the only way a mark that no
+  `formula` block has ever listed can win anywhere — the `c` of a complement has
+  no authored usage and would otherwise lose every page to the `c` of the Mean
+  Value Theorem.
+
+Reach for `where` only when a glyph genuinely has two readings in this library.
+Usage already resolves most of them, and a `where` on a sense with no rival just
+demotes it for no reason.
 
 A symbol's entry is its *general* meaning. What it does in one particular formula
 belongs in that formula's `notes:` — the same glyph legitimately means different
@@ -316,5 +380,7 @@ API.
 1. Write the file. Wire `prereqs` and `related` to real ids.
 2. Add `[[links]]` from *existing* concepts to the new one where they'd genuinely
    help — a new node nothing points at is orphaned.
-3. `npm run check`.
+3. `npm run check`. Read the `math` line as well as the errors: a mark it reports
+   as having no lexicon entry is an equation the reader cannot ask about, and the
+   fix is an entry in `library/symbols.yml`, not a change to the prose.
 4. If it belongs to a track, add it to the right stage.

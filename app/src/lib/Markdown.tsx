@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -7,6 +7,9 @@ import rehypeHighlight from 'rehype-highlight';
 import { Mermaid } from './Mermaid';
 import { Viz } from './viz';
 import { FormulaExplorer } from './formula/FormulaExplorer';
+import { useMaybeExplain } from './formula/MathExplain';
+import { useLiveMath } from './formula/liveMath';
+import { buildSenses } from './formula/senses';
 import { Boundary } from './Boundary';
 import type { Formula } from '../types';
 import type { Check } from '../types';
@@ -82,6 +85,20 @@ export function Markdown({
   const segments = useMemo(() => segment(body), [body]);
   let checkIndex = 0;
 
+  // Every formula on the page is clickable, not just the `formula` blocks:
+  // display equations get their symbols annotated in place, maths in a sentence
+  // opens the same drawer as a whole. Without a provider (a preview, a test)
+  // the prose simply renders inert.
+  const explain = useMaybeExplain();
+  const fallback = useMemo(() => buildSenses(null), []);
+  const host = useRef<HTMLDivElement>(null);
+  useLiveMath(host, explain?.senses ?? fallback, explain?.open ?? noop);
+
+  // KaTeX output is annotated by mutating it, so a body change has to bring a
+  // fresh subtree rather than a patched one — React must not try to reconcile
+  // nodes that have had spans spliced into them.
+  const generation = useMemo(() => hash(body), [body]);
+
   // Formula specs are parsed server-side and arrive in document order. Pair them
   // to blocks by the fence's own text rather than a render-time counter — the
   // counter is only correct if every block renders exactly once, in order, which
@@ -94,15 +111,15 @@ export function Markdown({
   }, [body]);
 
   return (
-    <div className="prose">
+    <div className="prose" ref={host}>
       {segments.map((seg, i) => {
         if (seg.kind === 'check') {
           const answer = answers[checkIndex++]?.a ?? '';
-          return <CheckCard key={i} question={seg.question} answer={answer} onGrade={onGrade} />;
+          return <CheckCard key={`${generation}:${i}`} question={seg.question} answer={answer} onGrade={onGrade} />;
         }
         return (
           <ReactMarkdown
-            key={i}
+            key={`${generation}:${i}`}
             remarkPlugins={[remarkGfm, remarkMath]}
             rehypePlugins={[rehypeKatex, [rehypeHighlight, { ignoreMissing: true, detect: false }]]}
             components={{
@@ -150,6 +167,15 @@ export function Markdown({
       })}
     </div>
   );
+}
+
+function noop() { /* no provider: formulas render, they just do not open */ }
+
+/** Cheap content fingerprint, used only to force a remount when the body changes. */
+function hash(text: string) {
+  let h = 0;
+  for (let i = 0; i < text.length; i++) h = (Math.imul(31, h) + text.charCodeAt(i)) | 0;
+  return h.toString(36);
 }
 
 /** Check questions carry inline code and math, so they get the full pipeline too. */

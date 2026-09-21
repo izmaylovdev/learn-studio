@@ -35,8 +35,25 @@ export function loadSymbols(issues = []) {
       id,
       glyph: String(v.glyph ?? id),
       tex: v.tex ? String(v.tex) : String(v.glyph ?? id),
+      // Other LaTeX spellings of the same mark (\tfrac for \frac). The reader
+      // matches rendered output, which is identical either way; these exist so
+      // the indexer does not report a spelling it has simply never heard of.
+      alt: asArray(v.alt),
+      // Which track or field this *sense* of the glyph belongs to. The reader
+      // annotates every formula against the whole lexicon, so `c` has to pick
+      // between the mean-value c and the complement superscript; this is how a
+      // sense that nothing has authored a formula for can still win at home.
+      where: asArray(v.where),
+      // A KaTeX class the matched leaf must carry. `\mid` renders as a
+      // relation and a bare `|` as an ordinary symbol, and that is the only
+      // difference between "given" and "the size of" in the output.
+      cls: v.cls ? String(v.cls) : '',
       match: asArray(v.match ?? v.glyph ?? id),
       sel: v.sel ? String(v.sel) : '',
+      // A selector-bound mark that KaTeX assembles out of pieces (the struck
+      // `=` of a ≠) owns the text inside it; without this the matcher tags the
+      // pieces separately and clicking ≠ reports "equals".
+      swallow: Boolean(v.swallow),
       kind: String(v.kind ?? 'operator'),
       name: String(v.name ?? id),
       say: String(v.say ?? ''),
@@ -74,7 +91,7 @@ function parseFormulas(content, file, symbols, issues) {
     for (const id of ids) {
       if (!symbols[id]) {
         issues.push({ level: 'error', where: file, message: `formula lists unknown symbol \`${id}\` — add it to library/symbols.yml` });
-      } else if (!tex.includes(symbols[id].tex)) {
+      } else if (![symbols[id].tex, ...symbols[id].alt].some((spelling) => tex.includes(spelling))) {
         // Catches a symbol listed for the wrong formula, which would otherwise
         // just fail to highlight and look like a rendering bug.
         issues.push({ level: 'warn', where: file, message: `formula lists \`${id}\` but its LaTeX \`${symbols[id].tex}\` does not occur in the \`tex:\`` });
@@ -355,5 +372,100 @@ export function summarize(lib, progress) {
     symbols: lib.symbols,
     symbolUsage: lib.usage,
     progress,
+  };
+}
+
+/* ---------- math coverage ----------
+ * Every formula on a page is annotated against the lexicon, so a mark with no
+ * entry in symbols.yml is a symbol the reader cannot click. This finds them.
+ */
+
+const MATH_FENCE = /^```[\s\S]*?^```[ \t]*$/gm;
+// Words set in text mode are labels, not marks — the reader skips them too.
+const TEXT_ARG = /\\(?:text|textbf|textit|textrm|operatorname|mathrm|label|tag)\s*\{[^{}]*\}/g;
+// Layout, sizing and grouping. These are how a formula is built, not marks a
+// reader would ask the meaning of, so they are not lexicon gaps.
+const STRUCTURAL = new Set([
+  '\\left', '\\right', '\\big', '\\Big', '\\bigg', '\\Bigg', '\\bigl', '\\bigr',
+  '\\quad', '\\qquad', '\\,', '\\;', '\\!', '\\:', '\\ ', '\\\\',
+  '\\text', '\\textbf', '\\textit', '\\textrm', '\\operatorname', '\\mathrm', '\\mathbb',
+  '\\begin', '\\end', '\\array', '\\cases', '\\aligned', '\\boxed', '\\underbrace',
+  '\\overbrace', '\\stackrel', '\\substack', '\\displaystyle', '\\limits', '\\nolimits',
+  '\\checkmark', '\\phantom', '\\hspace', '\\vphantom', '\\color',
+  '(', ')', '[', ']', '.', ',', ';', ':', '&', '?', '/', '*', '—', '"', "“", "”",
+]);
+// Digits other than 0 and 1 are quantities, not marks with a meaning to look up.
+const IGNORED_TOKEN = /^[2-9]$/;
+
+/** The `$…$` and `$$…$$` spans of a body, with fenced blocks removed. */
+export function mathSpansIn(body) {
+  let prose = '';
+  let last = 0;
+  for (const m of body.matchAll(MATH_FENCE)) { prose += body.slice(last, m.index); last = m.index + m[0].length; }
+  prose += body.slice(last);
+
+  const spans = [];
+  for (const m of prose.matchAll(/\$\$([\s\S]+?)\$\$/g)) spans.push({ tex: m[1], display: true });
+  const rest = prose.replace(/\$\$[\s\S]+?\$\$/g, '');
+  for (const m of rest.matchAll(/(?<!\$)\$([^$\n]+?)\$(?!\$)/g)) spans.push({ tex: m[1], display: false });
+  return spans;
+}
+
+function marksIn(tex) {
+  return [...tex.replace(TEXT_ARG, ' ').matchAll(/\\[a-zA-Z]+|\\[{},;!]|[A-Za-z0-9]|[^\sA-Za-z0-9{}\\_^]/g)].map((m) => m[0]);
+}
+
+/**
+ * How much of the library's maths the lexicon can explain, and which marks it
+ * still cannot. `unknown` is what to write entries for next; `dark` is the
+ * worse case — a whole formula with nothing in it a reader can click.
+ */
+export function mathCoverage(lib) {
+  const known = new Set();
+  for (const s of Object.values(lib.symbols)) {
+    known.add(s.tex);
+    known.add(s.glyph);
+    for (const m of [...s.match, ...s.alt]) known.add(m);
+  }
+  const partOf = new Set();
+  for (const m of known) if (m.length > 1) for (const ch of m) partOf.add(ch);
+  const unknown = new Map();
+  const dark = [];
+  let spans = 0;
+  let display = 0;
+
+  for (const c of lib.concepts) {
+    for (const { tex, display: isDisplay } of mathSpansIn(c.body)) {
+      spans++;
+      if (isDisplay) display++;
+      let explained = 0;
+      let gaps = 0;
+      for (const mark of marksIn(tex)) {
+        // A single letter also counts as covered when it is part of a mark the
+        // lexicon does know — `o` is not an entry, but `r_o` renders as "ro",
+        // which `R-outer` matches whole.
+        if (known.has(mark) || (mark.length === 1 && partOf.has(mark))) { explained++; continue; }
+        if (STRUCTURAL.has(mark) || IGNORED_TOKEN.test(mark)) continue;
+        gaps++;
+        const hit = unknown.get(mark) ?? { count: 0, where: new Set() };
+        hit.count++;
+        hit.where.add(c.id);
+        unknown.set(mark, hit);
+      }
+      // Only worth reporting when something in the span *could* have been
+      // explained. A span holding nothing but a label or a number is dark for
+      // a reason no lexicon entry would fix.
+      if (!explained && gaps) dark.push({ concept: c.id, file: c.file, tex: tex.trim().slice(0, 60) });
+    }
+  }
+
+  return {
+    spans,
+    display,
+    inline: spans - display,
+    dark,
+    unknown: [...unknown]
+      .map(([mark, v]) => ({ mark, count: v.count, where: [...v.where] }))
+      .sort((a, b) => b.count - a.count),
   };
 }

@@ -93,6 +93,8 @@ Independence sets the cross term to zero, variances add, and averaging $n$ of th
 
 When the cross terms do not vanish, averaging helps far less than $\sqrt{n}$ suggests. Correlated observations carry less information than their count implies — which is exactly why sampling the same neighbourhood twice is not the same as sampling two neighbourhoods.
 
+Covariance is not only a nuisance term, though. Stacked into a matrix it becomes the object a state estimator carries around, and there the off-diagonal entries are what let a measurement of one quantity correct another that was never observed — see [[gaussian-random-vectors]] and [[covariance-propagation]].
+
 :::check
 Why do the marginal distributions not determine the joint distribution?
 :::

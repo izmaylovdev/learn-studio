@@ -12,7 +12,17 @@ export interface Symbol_ {
   glyph: string;
   tex: string;
   match: string[];
+  /** other LaTeX spellings of the same mark; the indexer's business, not the reader's */
+  alt: string[];
   sel: string;
+  /** a `sel` mark owns the text inside it, so its pieces are not matched separately */
+  swallow: boolean;
+  /** tracks or fields this sense belongs to; elsewhere a competing sense wins */
+  where: string[];
+  /** a KaTeX class the rendered leaf must carry — `mrel` for \mid, `!mrel` for | */
+  cls: string;
+  /** set when an author listed this symbol for the formula being annotated */
+  listed?: boolean;
   kind: SymbolKind;
   name: string;
   say: string;
@@ -23,6 +33,16 @@ export interface Symbol_ {
 /** A symbol as it appears in one particular formula, with any local override. */
 export interface FormulaSymbol extends Symbol_ {
   note: string;
+  /** named by the author for this formula, so heuristics defer to it */
+  listed?: boolean;
+}
+
+/** What a click on a piece of maths opens: the line, and which mark was hit. */
+export interface MathTarget {
+  tex: string;
+  symbol: string | null;
+  /** the authored title, when the click came from a `formula` block */
+  title?: string;
 }
 
 export interface Formula {
