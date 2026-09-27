@@ -1,4 +1,5 @@
 import type { Concept, Graph, Track } from './types';
+import type { Lang } from './lib/i18n';
 
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
@@ -12,9 +13,11 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export const getGraph = () => req<Graph>('/api/graph');
-export const getConcept = (id: string) => req<Concept>(`/api/concept/${encodeURIComponent(id)}`);
-export const getTrack = (id: string) => req<Track>(`/api/track/${encodeURIComponent(id)}`);
+export const getGraph = (lang: Lang) => req<Graph>(`/api/graph?lang=${lang}`);
+export const getConcept = (id: string, lang: Lang) =>
+  req<Concept>(`/api/concept/${encodeURIComponent(id)}?lang=${lang}`);
+export const getTrack = (id: string, lang: Lang) =>
+  req<Track>(`/api/track/${encodeURIComponent(id)}?lang=${lang}`);
 
 export const postProgress = (id: string, body: { grade?: number; status?: string; notes?: string }) =>
   req<{ state: Concept['state'] }>(`/api/progress/${encodeURIComponent(id)}`, {

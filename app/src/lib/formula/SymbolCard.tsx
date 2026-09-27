@@ -1,5 +1,6 @@
 import type { Symbol_ } from '../../types';
-import { KIND_GLOSS, KIND_NAME } from './kinds';
+import { useKinds } from './kinds';
+import { useT } from '../i18n';
 
 /**
  * One symbol, explained. Shared by the `formula` block's inspector pane and
@@ -16,6 +17,8 @@ export function SymbolCard({
   siblings?: Symbol_[];
   onPickSibling?: (id: string) => void;
 }) {
+  const t = useT();
+  const { KIND_GLOSS, KIND_NAME } = useKinds();
   return (
     <>
       <div className="fx-glyphrow">
@@ -31,15 +34,15 @@ export function SymbolCard({
       </div>
       <dl className="fx-dl">
         {note && (
-          <div><dt>In this formula</dt><dd className="fx-local">{note}</dd></div>
+          <div><dt>{t('inThisFormula')}</dt><dd className="fx-local">{note}</dd></div>
         )}
-        <div><dt>What it is</dt><dd>{sym.def}</dd></div>
-        {sym.eg && <div><dt>Worth knowing</dt><dd>{sym.eg}</dd></div>}
+        <div><dt>{t('whatItIs')}</dt><dd>{sym.def}</dd></div>
+        {sym.eg && <div><dt>{t('worthKnowing')}</dt><dd>{sym.eg}</dd></div>}
       </dl>
 
       {siblings.length > 0 && (
         <div className="fx-senses">
-          <dt>The same mark elsewhere</dt>
+          <dt>{t('sameMark')}</dt>
           <div className="fx-senserow">
             {siblings.map((o) => (
               <button
@@ -53,15 +56,12 @@ export function SymbolCard({
               </button>
             ))}
           </div>
-          <p className="fx-sensenote">
-            Which one this is was inferred from the concept you are reading. If it looks wrong,
-            the other reading is one click away.
-          </p>
+          <p className="fx-sensenote">{t('senseNote')}</p>
         </div>
       )}
 
       <a className="fx-more" href={`#/lexicon?q=${encodeURIComponent(sym.name)}`}>
-        See every formula that uses it →
+        {t('seeEvery')}
       </a>
     </>
   );

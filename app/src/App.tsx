@@ -8,10 +8,27 @@ import { Lexicon } from './views/Lexicon';
 import { Reader } from './views/Reader';
 import { TrackView } from './views/TrackView';
 import { ExplainProvider } from './lib/formula/MathExplain';
+import { LANGS, LangProvider, initialLang, useT, type Lang } from './lib/i18n';
 
 export type Theme = 'dark' | 'light';
 
 export function App() {
+  const [lang, setLang] = useState<Lang>(initialLang);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    try { localStorage.setItem('lang', lang); } catch { /* private mode */ }
+  }, [lang]);
+
+  return (
+    <LangProvider value={lang}>
+      <Studio lang={lang} setLang={setLang} />
+    </LangProvider>
+  );
+}
+
+function Studio({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
+  const t = useT();
   const route = useRoute();
   const [graph, setGraph] = useState<Graph | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,12 +38,12 @@ export function App() {
 
   const refresh = useCallback(async () => {
     try {
-      setGraph(await getGraph());
+      setGraph(await getGraph(lang));
       setError(null);
     } catch (err) {
       setError(String((err as Error).message));
     }
-  }, []);
+  }, [lang]);
 
   useEffect(() => { void refresh(); }, [refresh]);
 
@@ -130,17 +147,17 @@ export function App() {
   if (error) {
     return (
       <div className="page">
-        <h2 className="page-title">Can't reach the library</h2>
+        <h2 className="page-title">{t('cantReach')}</h2>
         <div className="error-box">
           <b>{error}</b>
           <p style={{ margin: '8px 0 0' }}>
-            The API server isn't responding. Start both processes with <code>npm run dev</code>.
+            {t('cantReachBody')} <code>npm run dev</code>.
           </p>
         </div>
       </div>
     );
   }
-  if (!graph) return <div className="page"><p className="empty">Loading library…</p></div>;
+  if (!graph) return <div className="page"><p className="empty">{t('loadingLibrary')}</p></div>;
 
   const statusOf = (id: string): Status => graph.progress[id]?.status ?? 'unseen';
 
@@ -155,7 +172,7 @@ export function App() {
           onClick={() => toggle(key)}
         >
           <Chevron />
-          <span className="field-name">{field}</span>
+          <span className="field-name">{graph.fieldLabels?.[field] ?? field}</span>
           <span className="count">{items.length}</span>
         </button>
         {open && (
@@ -181,56 +198,66 @@ export function App() {
       <aside className="sidebar">
         <div className="brand">
           <h1>learn studio</h1>
-          <p>{graph.stats.concepts} concepts · {graph.stats.edges} links</p>
+          <p>{t('brandStats', graph.stats.concepts, graph.stats.edges)}</p>
         </div>
         <nav className="nav">
           <a href="#/" className={route.name === 'dashboard' ? 'on' : ''}>
-            Dashboard
-            {graph.nextUp.due.length > 0 && <span className="count">{graph.nextUp.due.length} due</span>}
+            {t('dashboard')}
+            {graph.nextUp.due.length > 0 && <span className="count">{t('nDue', graph.nextUp.due.length)}</span>}
           </a>
-          <a href="#/graph" className={route.name === 'graph' ? 'on' : ''}>Knowledge graph</a>
+          <a href="#/graph" className={route.name === 'graph' ? 'on' : ''}>{t('graph')}</a>
           <a href="#/lexicon" className={route.name === 'lexicon' ? 'on' : ''}>
-            Lexicon
+            {t('lexicon')}
             <span className="count">{Object.keys(graph.symbols ?? {}).length}</span>
           </a>
         </nav>
 
-        <div className="side-section">Tracks</div>
+        <div className="side-section">{t('tracks')}</div>
         <div className="fields">
-          {tree.tracks.map((t) => {
-            const key = `t:${t.id}`;
+          {tree.tracks.map((tr) => {
+            const key = `t:${tr.id}`;
             const open = !closed.has(key);
             return (
-              <section className="track-group" key={t.id}>
-                <div className={`track-head${route.name === 'track' && route.id === t.id ? ' on' : ''}`}>
+              <section className="track-group" key={tr.id}>
+                <div className={`track-head${route.name === 'track' && route.id === tr.id ? ' on' : ''}`}>
                   <button
                     className={`twist${open ? ' open' : ''}`}
                     aria-expanded={open}
-                    aria-label={`${open ? 'Collapse' : 'Expand'} ${t.title}`}
+                    aria-label={t(open ? 'collapse' : 'expand', tr.title)}
                     onClick={() => toggle(key)}
                   >
                     <Chevron />
                   </button>
-                  <a href={`#/t/${t.id}`}>{t.title}</a>
-                  <span className="count">{t.pct}%</span>
+                  <a href={`#/t/${tr.id}`}>{tr.title}</a>
+                  <span className="count">{tr.pct}%</span>
                 </div>
-                {open && t.fields.map(([field, items]) =>
-                  renderField(`f:${t.id}:${field}`, field, items))}
+                {open && tr.fields.map(([field, items]) =>
+                  renderField(`f:${tr.id}:${field}`, field, items))}
               </section>
             );
           })}
 
           {tree.loose.length > 0 && (
             <>
-              <div className="side-section">Not in a track</div>
+              <div className="side-section">{t('notInTrack')}</div>
               {tree.loose.map(([field, items]) => renderField(`f::${field}`, field, items))}
             </>
           )}
         </div>
 
-        <button className="theme-toggle" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-          {theme === 'dark' ? 'Light theme' : 'Dark theme'}
-        </button>
+        <div className="side-foot">
+          <button className="theme-toggle" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+            {t(theme === 'dark' ? 'lightTheme' : 'darkTheme')}
+          </button>
+          <div className="lang-toggle" role="group" aria-label={t('language')}>
+            {LANGS.map((l) => (
+              <button key={l.id} className={lang === l.id ? 'on' : ''} title={l.name}
+                      aria-pressed={lang === l.id} onClick={() => setLang(l.id)}>
+                {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </aside>
 
       <main className="main">
@@ -239,7 +266,7 @@ export function App() {
         {route.name === 'lexicon' && <Lexicon key={route.q} graph={graph} query={route.q} />}
         {route.name === 'track' && <TrackView graph={graph} id={route.id} onChange={refresh} />}
         {route.name === 'concept' && (
-          <Reader key={route.id} id={route.id} titles={titles} theme={theme} onChange={refresh} />
+          <Reader key={`${route.id}:${lang}`} id={route.id} titles={titles} theme={theme} onChange={refresh} />
         )}
       </main>
     </div>

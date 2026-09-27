@@ -54,6 +54,9 @@ than after twelve.
 npm run check
 ```
 
-Every id in every stage must resolve. Then tell the user to open the track page
+Every id in every stage must resolve. Translate the track into each language
+under `library/i18n/` — `library/i18n/<lang>/tracks/<id>.md` with `title`,
+`goal`, the body, and one `title`/`goal` pair per stage in source order — and
+stamp it with `npm run i18n -- stamp <lang> <id>`. Then tell the user to open the track page
 and hit **Set active** — active tracks are what the dashboard prioritizes when
 choosing what to study next.

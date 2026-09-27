@@ -16,6 +16,7 @@ import { TaylorScene } from './scenes/TaylorScene';
 import { CLTScene } from './scenes/CLTScene';
 import { FTCAccumulateScene } from './scenes/FTCAccumulateScene';
 import { FTCTelescopeScene } from './scenes/FTCTelescopeScene';
+import { useT } from '../i18n';
 
 const REGISTRY = {
   riemann: RiemannViz,
@@ -61,11 +62,12 @@ function parse(source: string): Record<string, string> {
   );
 }
 
-function Unknown({ what, given, options }: { what: string; given: string; options: string[] }) {
+function Unknown({ what, given, options }: { what: 'unknownScene' | 'unknownViz'; given: string; options: string[] }) {
+  const t = useT();
   return (
     <div className="viz viz-error">
-      <b>Unknown {what} <code>{given || '(none)'}</code></b>
-      <p>Available: {options.map((t) => <code key={t}>{t}</code>).reduce((a, b) => <>{a}, {b}</>)}</p>
+      <b>{t(what)} <code>{given || '(none)'}</code></b>
+      <p>{t('available')}: {options.map((t) => <code key={t}>{t}</code>).reduce((a, b) => <>{a}, {b}</>)}</p>
     </div>
   );
 }
@@ -75,10 +77,10 @@ export function Viz({ source }: { source: string }) {
 
   if (type === 'scene') {
     const S = SCENES[name as SceneName];
-    return S ? <S /> : <Unknown what="scene" given={name} options={SCENE_NAMES} />;
+    return S ? <S /> : <Unknown what="unknownScene" given={name} options={SCENE_NAMES} />;
   }
 
   const Component = REGISTRY[type as VizType];
-  if (!Component) return <Unknown what="visualization" given={type} options={[...VIZ_TYPES, 'scene']} />;
+  if (!Component) return <Unknown what="unknownViz" given={type} options={[...VIZ_TYPES, 'scene']} />;
   return <Component />;
 }

@@ -68,6 +68,18 @@ npm run check
 Fix every error. Warnings about `[[links]]` with no file are acceptable only if
 you intend that gap as a marker for future material — say so to the user.
 
+Then translate. For each language directory under `library/i18n/`, write
+`library/i18n/<lang>/concepts/<id>.md` following the "Translations" section of
+CLAUDE.md — prose, checks and formula wording translated; `tex:`, `symbols:`,
+wikilink ids and viz blocks verbatim. Use folded scalars (`>-`) for every
+frontmatter and formula value. Stamp it with `npm run i18n -- stamp <lang> <id>`
+and re-run `npm run check`. If you edited an existing concept, its translations
+are now stale: update them the same way, then re-stamp.
+
+If the concept introduced a new `field`, add its display name to
+`library/i18n/<lang>/fields.yml`; if you added lexicon entries, add their
+wording to `library/i18n/<lang>/symbols.yml`.
+
 ## 5. Report
 
 Tell the user what you added, what it links to and from, and whether it unlocked

@@ -1,7 +1,7 @@
 // Tiny zero-dependency API over library/ and progress/. Reads the library on
 // every request so editing a .md file shows up on refresh, no restart needed.
 import { createServer } from 'node:http';
-import { loadLibrary, summarize } from './library.mjs';
+import { loadLibrary, summarize, languages, SOURCE_LANG } from './library.mjs';
 import {
   loadProgress, saveProgress, applyReview, setStatus, setNotes,
   nextUp, trackProgress, conceptState, mastery,
@@ -36,13 +36,18 @@ const readBody = (req) =>
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const path = url.pathname;
+  // Content language. Anything not translated falls back to the source, so an
+  // unknown language is served as the source rather than refused.
+  const asked = url.searchParams.get('lang') ?? SOURCE_LANG;
+  const lang = languages().includes(asked) ? asked : SOURCE_LANG;
 
   try {
     if (path === '/api/graph' && req.method === 'GET') {
-      const lib = loadLibrary();
+      const lib = loadLibrary(lang);
       const p = loadProgress();
       return json(res, 200, {
         ...summarize(lib, p.concepts),
+        languages: languages(),
         trackProgress: trackProgress(lib, p),
         nextUp: nextUp(lib, p),
         stats: {
@@ -58,7 +63,7 @@ const server = createServer(async (req, res) => {
 
     if (path.startsWith('/api/concept/') && req.method === 'GET') {
       const id = decodeURIComponent(path.slice('/api/concept/'.length));
-      const lib = loadLibrary();
+      const lib = loadLibrary(lang);
       const c = lib.byId.get(id);
       if (!c) return json(res, 404, { error: `no concept \`${id}\`` });
       const p = loadProgress();
@@ -73,7 +78,7 @@ const server = createServer(async (req, res) => {
 
     if (path.startsWith('/api/track/') && req.method === 'GET') {
       const id = decodeURIComponent(path.slice('/api/track/'.length));
-      const lib = loadLibrary();
+      const lib = loadLibrary(lang);
       const t = lib.tracks.find((x) => x.id === id);
       if (!t) return json(res, 404, { error: `no track \`${id}\`` });
       return json(res, 200, t);

@@ -1,12 +1,15 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import katex from 'katex';
 import type { Formula, SymbolKind } from '../../types';
-import { KIND_GLOSS, KIND_NAME, KIND_ORDER } from './kinds';
+import { KIND_ORDER, useKinds } from './kinds';
+import { useT } from '../i18n';
 import { annotate, paint } from './annotate';
 import { SymbolCard } from './SymbolCard';
 import { useMaybeExplain } from './MathExplain';
 
 export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | null; reason?: 'parse' | 'unmatched' }) {
+  const t = useT();
+  const { KIND_GLOSS, KIND_NAME } = useKinds();
   const box = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [isolated, setIsolated] = useState<Set<SymbolKind>>(new Set());
@@ -73,13 +76,13 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
       <div className="fx-explorer fx-broken">
         {reason === 'unmatched' ? (
           <>
-            <b>No parsed spec reached this formula block.</b>
-            <p>The block's text did not match any formula the server parsed for this concept.</p>
+            <b>{t('noSpec')}</b>
+            <p>{t('noSpecBody')}</p>
           </>
         ) : (
           <>
-            <b>This formula block could not be parsed.</b>
-            <p>Run <code>npm run check</code> — the indexer names the file and the reason.</p>
+            <b>{t('unparsed')}</b>
+            <p>{t('unparsedRun')} <code>npm run check</code> {t('unparsedBody')}</p>
           </>
         )}
       </div>
@@ -129,18 +132,18 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
           ))}
           <label className="fx-toggle">
             <input type="checkbox" checked={coloured} onChange={(e) => setColoured(e.target.checked)} />
-            colour
+            {t('colour')}
           </label>
           {hasReading && (
             <button
               className={`fx-read${showReading ? ' on' : ''}`}
               aria-expanded={showReading}
               aria-controls={paneId}
-              title={showReading ? 'Hide the plain-English reading' : 'Show the plain-English reading'}
+              title={t(showReading ? 'hideReading' : 'showReading')}
               onClick={() => setShowReading((v) => !v)}
             >
               <BookIcon open={showReading} />
-              <span>How to read it</span>
+              <span>{t('howToRead')}</span>
             </button>
           )}
         </div>
@@ -160,9 +163,9 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
       />
 
       <div className="fx-hint">
-        Click any highlighted symbol{order.length > 1 && <> · <kbd>←</kbd> <kbd>→</kbd> to step through</>}
+        {t('clickSymbol')}{order.length > 1 && <> · <kbd>←</kbd> <kbd>→</kbd> {t('toStep')}</>}
         {missing.length > 0 && (
-          <span className="fx-warn"> · {missing.length} listed symbol{missing.length > 1 ? 's' : ''} not found in the rendered formula</span>
+          <span className="fx-warn"> · {t('listedMissing', missing.length)}</span>
         )}
       </div>
 
@@ -170,7 +173,7 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
         <div className={`fx-split${readingOpen && active ? ' two' : ''}`}>
           {readingOpen && (
             <div className="fx-pane" id={paneId}>
-              <h5>How to read it</h5>
+              <h5>{t('howToRead')}</h5>
               {spec.reading && <p className="fx-reading">{spec.reading}</p>}
               {spec.steps.length > 0 && (
                 <ol className="fx-steps">
@@ -187,7 +190,7 @@ export function FormulaExplorer({ spec, reason = 'parse' }: { spec: Formula | nu
               pane explaining that it has nothing to explain is just a held slot. */}
           {active && (
             <div className="fx-pane fx-insp">
-              <h5>This symbol, here</h5>
+              <h5>{t('thisSymbolHere')}</h5>
               <SymbolCard
                 sym={active}
                 note={active.note}

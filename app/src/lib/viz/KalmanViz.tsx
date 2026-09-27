@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Plot, Slider, Choice, Readout } from './Plot';
+import { L, useTr } from '../i18n';
 
 /**
  * A constant-velocity filter run against a fixed sensor, plotted as *error*
@@ -38,6 +39,7 @@ function bandPath(band: number[], s: { sx: (v: number) => number; sy: (v: number
 }
 
 export function KalmanViz() {
+  const tr = useTr();
   const [logSa, setLogSa] = useState(-1.2);   // log₁₀ of the filter's σₐ
   const [rTold, setRTold] = useState(3);      // the σ the filter is told the sensor has
   const [scene, setScene] = useState<Scene>('manoeuvre');
@@ -111,12 +113,12 @@ export function KalmanViz() {
     <div className="viz">
       <div className="viz-controls">
         <Choice value={scene} onChange={setScene} options={[
-          { value: 'cruise', label: 'constant velocity' },
-          { value: 'manoeuvre', label: 'it brakes at t = 15' },
+          { value: 'cruise', label: tr('constant velocity', 'стала швидкість') },
+          { value: 'manoeuvre', label: tr('it brakes at t = 15', 'гальмує при t = 15') },
         ]} />
       </div>
 
-      <Plot xDomain={X} yDomain={Y} xLabel="t (s)" yLabel="position error (m)" height={250}>
+      <Plot xDomain={X} yDomain={Y} xLabel={tr('t (s)', 't (с)')} yLabel={tr('position error (m)', 'похибка положення (м)')} height={250}>
         {(s) => (
           <>
             <path className="viz-region" d={bandPath(run.band, s, t)} />
@@ -135,31 +137,45 @@ export function KalmanViz() {
       </Plot>
 
       <div className="viz-legend">
-        <span><i style={{ background: 'var(--faint)' }} /> measurement error</span>
-        <span><i style={{ background: 'var(--accent)' }} /> estimate error</span>
-        <span><i style={{ background: 'var(--accent)', opacity: 0.25 }} /> the filter's own ±σ</span>
+        <span><i style={{ background: 'var(--faint)' }} /> {tr('measurement error', 'похибка вимірювання')}</span>
+        <span><i style={{ background: 'var(--accent)' }} /> {tr('estimate error', 'похибка оцінки')}</span>
+        <span><i style={{ background: 'var(--accent)', opacity: 0.25 }} /> {tr('the filter\'s own ±σ', 'власне ±σ фільтра')}</span>
       </div>
 
-      <Slider label="σₐ told" value={logSa} min={-3} max={0.6} step={0.05} onChange={setLogSa}
+      <Slider label={tr('σₐ told', 'σₐ, яку повідомили')} value={logSa} min={-3} max={0.6} step={0.05} onChange={setLogSa}
               format={(v) => (10 ** v).toFixed(3)} />
-      <Slider label="σ sensor told" value={rTold} min={0.5} max={10} step={0.25} onChange={setRTold}
+      <Slider label={tr('σ sensor told', 'σ датчика, яку повідомили')} value={rTold} min={0.5} max={10} step={0.25} onChange={setRTold}
               format={(v) => v.toFixed(2)} />
 
       <Readout items={[
-        { label: 'RMS error (m)', value: run.rms.toFixed(2), tone: run.rms < TRUE_SIGMA ? 'good' : 'warn' },
-        { label: 'mean NIS (want 1)', value: run.meanNis.toFixed(2), tone: run.meanNis > 2 ? 'warn' : 'good' },
-        { label: 'σ it reports (m)', value: run.finalSigma.toFixed(2) },
+        { label: tr('RMS error (m)', 'СКП (м)'), value: run.rms.toFixed(2), tone: run.rms < TRUE_SIGMA ? 'good' : 'warn' },
+        { label: tr('mean NIS (want 1)', 'середній NIS (має бути 1)'), value: run.meanNis.toFixed(2), tone: run.meanNis > 2 ? 'warn' : 'good' },
+        { label: tr('σ it reports (m)', 'σ, яку він звітує (м)'), value: run.finalSigma.toFixed(2) },
       ]} />
 
       <p className="viz-note">
-        The sensor is fixed at 3 m of noise no matter what the sliders say — the sliders set what the filter is
-        <b> told</b>, which is all a tuner ever controls. Start on <b>constant velocity</b> and drag σₐ down: the
-        estimate smooths beautifully and the RMS falls well below the measurement scatter. Now switch to
-        <b> it brakes at t = 15</b> and drag σₐ down again. The estimate walks{' '}
-        <b>outside its own shaded band</b> and stays there while the band keeps shrinking — more confident and more wrong at
-        the same time. That is divergence, and the <b>mean NIS</b> readout catches it without anyone ever needing
-        the true position. Push σₐ back up and watch both the error and the NIS come back to earth, at the cost of
-        a visibly noisier estimate during the quiet stretch.
+        <L
+          en={<>
+            The sensor is fixed at 3 m of noise no matter what the sliders say — the sliders set what the filter is
+            <b> told</b>, which is all a tuner ever controls. Start on <b>constant velocity</b> and drag σₐ down: the
+            estimate smooths beautifully and the RMS falls well below the measurement scatter. Now switch to
+            <b> it brakes at t = 15</b> and drag σₐ down again. The estimate walks{' '}
+            <b>outside its own shaded band</b> and stays there while the band keeps shrinking — more confident and more wrong at
+            the same time. That is divergence, and the <b>mean NIS</b> readout catches it without anyone ever needing
+            the true position. Push σₐ back up and watch both the error and the NIS come back to earth, at the cost of
+            a visibly noisier estimate during the quiet stretch.
+          </>}
+          uk={<>
+            Шум датчика зафіксовано на 3 м, хоч би що показували повзунки, — вони задають те, що фільтру
+            <b> повідомили</b>, а це все, що будь-коли контролює той, хто налаштовує. Почніть зі <b>сталої швидкості</b>
+            й зменшуйте σₐ: оцінка стає чудово гладкою, а СКП падає значно нижче за розкид вимірювань. Тепер
+            перемкніться на <b>гальмує при t = 15</b> і знову зменшуйте σₐ. Оцінка виходить{' '}
+            <b>за межі власної затіненої смуги</b> й лишається там, поки смуга далі звужується, — водночас упевненіша й
+            хибніша. Це розбіжність, і показник <b>середнього NIS</b> ловить її, не потребуючи справжнього положення.
+            Підніміть σₐ назад і дивіться, як і похибка, і NIS повертаються до норми — ціною помітно шумнішої оцінки
+            на спокійній ділянці.
+          </>}
+        />
       </p>
     </div>
   );

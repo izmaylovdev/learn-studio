@@ -1,17 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Choice, Plot, Readout, Slider, ticks } from './Plot';
+import { L, useTr } from '../i18n';
 
 type Source = 'exponential' | 'uniform' | 'bimodal' | 'cauchy';
 
-const SOURCES: Record<Source, { label: string; draw: (u: () => number) => number; mean: number; sd: number; note: string }> = {
-  exponential: { label: 'skewed', draw: (u) => -Math.log(1 - u()), mean: 1, sd: 1,
-    note: 'heavily right-skewed, nothing like a bell' },
-  uniform: { label: 'flat', draw: (u) => u(), mean: 0.5, sd: Math.sqrt(1 / 12),
-    note: 'flat — no peak at all in the source' },
-  bimodal: { label: 'two humps', draw: (u) => (u() < 0.5 ? 0.15 : 0.85) + (u() - 0.5) * 0.2, mean: 0.5, sd: 0.36,
-    note: 'two separated humps, the least bell-like shape here' },
-  cauchy: { label: 'Cauchy', draw: (u) => Math.tan(Math.PI * (u() - 0.5)), mean: 0, sd: NaN,
-    note: 'infinite variance — the one case where the theorem does not apply' },
+const SOURCES: Record<Source, { label: ReactNode; draw: (u: () => number) => number; mean: number; sd: number; note: ReactNode }> = {
+  exponential: { label: <L en="skewed" uk="скошений" />, draw: (u) => -Math.log(1 - u()), mean: 1, sd: 1,
+    note: <L en="heavily right-skewed, nothing like a bell" uk="сильно скошений праворуч, зовсім не дзвін" /> },
+  uniform: { label: <L en="flat" uk="плаский" />, draw: (u) => u(), mean: 0.5, sd: Math.sqrt(1 / 12),
+    note: <L en="flat — no peak at all in the source" uk="плаский — у джерела взагалі немає піку" /> },
+  bimodal: { label: <L en="two humps" uk="два горби" />, draw: (u) => (u() < 0.5 ? 0.15 : 0.85) + (u() - 0.5) * 0.2, mean: 0.5, sd: 0.36,
+    note: <L en="two separated humps, the least bell-like shape here" uk="два розділені горби — найменш схожа на дзвін форма тут" /> },
+  cauchy: { label: <L en="Cauchy" uk="Коші" />, draw: (u) => Math.tan(Math.PI * (u() - 0.5)), mean: 0, sd: NaN,
+    note: <L en="infinite variance — the one case where the theorem does not apply"
+             uk="нескінченна дисперсія — єдиний випадок, коли теорема не діє" /> },
 };
 
 /** Deterministic PRNG, so dragging a slider redraws the same experiment. */
@@ -21,6 +23,7 @@ function rng(seed: number) {
 }
 
 export function CLTViz() {
+  const tr = useTr();
   const [n, setN] = useState(1);
   const [src, setSrc] = useState<Source>('exponential');
   const spec = SOURCES[src];
@@ -56,7 +59,7 @@ export function CLTViz() {
       <Choice value={src} onChange={setSrc}
               options={(Object.keys(SOURCES) as Source[]).map((k) => ({ value: k, label: SOURCES[k].label }))} />
 
-      <Plot xDomain={[lo, hi]} yDomain={[0, peak * 1.12]} xLabel="value of the sample mean" height={220}>
+      <Plot xDomain={[lo, hi]} yDomain={[0, peak * 1.12]} xLabel={tr('value of the sample mean', 'значення вибіркового середнього')} height={220}>
         {(s) => (
           <>
             {ticks(lo, hi, 5).map((t) => (
@@ -76,21 +79,33 @@ export function CLTViz() {
         )}
       </Plot>
 
-      <Slider label="n averaged" value={n} min={1} max={60} onChange={setN} />
+      <Slider label={tr('n averaged', 'усереднено n')} value={n} min={1} max={60} onChange={setN} />
 
       <Readout items={[
-        { label: 'spread of the mean', value: sampleSd.toFixed(4) },
-        { label: 'σ/√n predicts', value: Number.isNaN(spec.sd) ? 'no finite σ' : (spec.sd / Math.sqrt(n)).toFixed(4),
+        { label: tr('spread of the mean', 'розкид середнього'), value: sampleSd.toFixed(4) },
+        { label: tr('σ/√n predicts', 'σ/√n передбачає'),
+          value: Number.isNaN(spec.sd) ? tr('no finite σ', 'немає скінченного σ') : (spec.sd / Math.sqrt(n)).toFixed(4),
           tone: Number.isNaN(spec.sd) ? 'warn' : undefined },
         { label: 'n', value: String(n) },
       ]} />
 
       <p className="viz-note">
-        At <b>n = 1</b> you are looking straight at the source — {spec.note}. Drag n up and watch the shape
-        become a bell anyway. The two readouts are the measured spread and the <b>σ/√n</b> the theorem
-        predicts; they track each other closely, which is the quantitative half of the claim.
-        Then switch to <b>Cauchy</b>: it has no finite variance, and averaging never makes it converge —
-        the distribution of the mean is the same at n = 60 as at n = 1.
+        <L
+          en={<>
+            At <b>n = 1</b> you are looking straight at the source — {spec.note}. Drag n up and watch the shape
+            become a bell anyway. The two readouts are the measured spread and the <b>σ/√n</b> the theorem
+            predicts; they track each other closely, which is the quantitative half of the claim.
+            Then switch to <b>Cauchy</b>: it has no finite variance, and averaging never makes it converge —
+            the distribution of the mean is the same at n = 60 as at n = 1.
+          </>}
+          uk={<>
+            При <b>n = 1</b> ви дивитеся просто на джерело — {spec.note}. Збільшуйте n і дивіться, як форма все
+            одно стає дзвоном. Два показники — це виміряний розкид і <b>σ/√n</b>, який передбачає теорема; вони
+            тісно йдуть поруч, і це кількісна половина твердження. Потім перемкніться на <b>Коші</b>: скінченної
+            дисперсії немає, і усереднення ніколи не змусить його збігтися — розподіл середнього при n = 60 такий
+            самий, як при n = 1.
+          </>}
+        />
       </p>
     </div>
   );

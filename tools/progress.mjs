@@ -97,7 +97,7 @@ export function nextUp(lib, p, limit = 8) {
       const s = conceptState(p, c.id);
       return s.nextReview && s.nextReview <= today && s.status !== 'unseen';
     })
-    .map((c) => ({ id: c.id, reason: 'due', why: `review due ${conceptState(p, c.id).nextReview}` }));
+    .map((c) => ({ id: c.id, reason: 'due', date: conceptState(p, c.id).nextReview, why: `review due ${conceptState(p, c.id).nextReview}` }));
 
   const unlocked = lib.concepts
     .filter((c) => conceptState(p, c.id).status === 'unseen')
@@ -119,11 +119,12 @@ export function nextUp(lib, p, limit = 8) {
       const ps = c.prereqs.filter((x) => lib.byId.has(x));
       return ps.length && !ps.every(done);
     })
-    .map((c) => ({
-      id: c.id,
-      reason: 'blocked',
-      why: `needs ${c.prereqs.filter((x) => lib.byId.has(x) && !done(x)).join(', ')}`,
-    }));
+    .map((c) => {
+      // `why` is for the CLI; the viewer words it itself from `needs`, in the
+      // reader's language and with titles rather than ids.
+      const needs = c.prereqs.filter((x) => lib.byId.has(x) && !done(x));
+      return { id: c.id, reason: 'blocked', needs, why: `needs ${needs.join(', ')}` };
+    });
 
   return { due, unlocked: unlocked.slice(0, limit), blocked: blocked.slice(0, limit) };
 }

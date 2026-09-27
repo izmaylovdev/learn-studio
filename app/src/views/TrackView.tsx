@@ -1,12 +1,14 @@
 import { toggleTrack } from '../api';
 import type { Graph } from '../types';
+import { useT } from '../lib/i18n';
 
 export function TrackView({ graph, id, onChange }: { graph: Graph; id: string; onChange: () => void }) {
+  const t = useT();
   const track = graph.tracks.find((t) => t.id === id);
   const stat = graph.trackProgress[id];
   const byId = new Map(graph.concepts.map((c) => [c.id, c]));
 
-  if (!track) return <div className="page"><p className="empty">No track <code>{id}</code>.</p></div>;
+  if (!track) return <div className="page"><p className="empty">{t('noTrack')} <code>{id}</code>.</p></div>;
 
   const statusOf = (cid: string) => graph.progress[cid]?.status ?? 'unseen';
 
@@ -16,17 +18,17 @@ export function TrackView({ graph, id, onChange }: { graph: Graph; id: string; o
       <p className="lede">{track.goal}</p>
 
       <div className="stat-row">
-        <div className="stat"><div className="n">{Math.round((stat?.completion ?? 0) * 100)}%</div><div className="k">complete</div></div>
-        <div className="stat"><div className="n">{stat?.mastered ?? 0}/{stat?.total ?? 0}</div><div className="k">mastered</div></div>
-        <div className="stat"><div className="n">{stat?.touched ?? 0}</div><div className="k">started</div></div>
+        <div className="stat"><div className="n">{Math.round((stat?.completion ?? 0) * 100)}%</div><div className="k">{t('complete')}</div></div>
+        <div className="stat"><div className="n">{stat?.mastered ?? 0}/{stat?.total ?? 0}</div><div className="k">{t('statMastered')}</div></div>
+        <div className="stat"><div className="n">{stat?.touched ?? 0}</div><div className="k">{t('started')}</div></div>
         <div className="stat">
           <div className="n" style={{ fontSize: 15, paddingTop: 7 }}>
             <button className={`chip ${stat?.active ? 'on' : ''}`}
                     onClick={() => void toggleTrack(id).then(onChange)}>
-              {stat?.active ? 'Active' : 'Set active'}
+              {t(stat?.active ? 'isActive' : 'setActive')}
             </button>
           </div>
-          <div className="k" style={{ marginTop: 6 }}>prioritizes this track</div>
+          <div className="k" style={{ marginTop: 6 }}>{t('prioritizes')}</div>
         </div>
       </div>
 
@@ -44,7 +46,7 @@ export function TrackView({ graph, id, onChange }: { graph: Graph; id: string; o
                 if (!c) return (
                   <div className="card flat" key={cid}>
                     <h4><code>{cid}</code></h4>
-                    <p style={{ color: 'var(--danger)' }}>missing concept file</p>
+                    <p style={{ color: 'var(--danger)' }}>{t('missingConcept')}</p>
                   </div>
                 );
                 return (
@@ -52,9 +54,9 @@ export function TrackView({ graph, id, onChange }: { graph: Graph; id: string; o
                     <h4><span className={`dot ${statusOf(cid)}`} />{c.title}</h4>
                     <p>{c.summary}</p>
                     <div className="meta-line">
-                      <span>{c.estMinutes} min</span>
-                      <span>difficulty {c.difficulty}/5</span>
-                      <span>{statusOf(cid)}</span>
+                      <span>{t('minutes', c.estMinutes)}</span>
+                      <span>{t('difficulty', c.difficulty)}</span>
+                      <span>{t(`status.${statusOf(cid)}`)}</span>
                     </div>
                   </a>
                 );

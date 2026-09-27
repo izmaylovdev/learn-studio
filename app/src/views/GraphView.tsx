@@ -4,6 +4,7 @@ import dagre from 'cytoscape-dagre';
 import type { Core } from 'cytoscape';
 import type { EdgeKind, Graph } from '../types';
 import { go } from '../lib/router';
+import { useT } from '../lib/i18n';
 
 cytoscape.use(dagre);
 
@@ -17,6 +18,7 @@ const COLORS = {
 };
 
 export function GraphView({ graph, theme }: { graph: Graph; theme: 'dark' | 'light' }) {
+  const t = useT();
   const box = useRef<HTMLDivElement>(null);
   const cyRef = useRef<Core | null>(null);
   const [kinds, setKinds] = useState<Set<EdgeKind>>(new Set<EdgeKind>(['prereq', 'related']));
@@ -113,27 +115,27 @@ export function GraphView({ graph, theme }: { graph: Graph; theme: 'dark' | 'lig
         <div className="graph-controls">
           {KINDS.map((k) => (
             <button key={k} className={`chip ${kinds.has(k) ? 'on' : ''}`} onClick={() => toggle(k)}>
-              {k}
+              {t(`edge.${k}`)}
             </button>
           ))}
-          {graph.tracks.map((t) => (
-            <button key={t.id}
-                    className={`chip ${trackFilter === t.id ? 'on' : ''}`}
-                    onClick={() => setTrackFilter(trackFilter === t.id ? null : t.id)}>
-              {t.title}
+          {graph.tracks.map((tr) => (
+            <button key={tr.id}
+                    className={`chip ${trackFilter === tr.id ? 'on' : ''}`}
+                    onClick={() => setTrackFilter(trackFilter === tr.id ? null : tr.id)}>
+              {tr.title}
             </button>
           ))}
-          <button className="chip" onClick={() => cyRef.current?.fit(undefined, 45)}>fit</button>
+          <button className="chip" onClick={() => cyRef.current?.fit(undefined, 45)}>{t('fit')}</button>
         </div>
 
         <div className="graph-legend">
-          <div className="row"><span className="dot mastered" /> mastered</div>
-          <div className="row"><span className="dot review" /> in review</div>
-          <div className="row"><span className="dot learning" /> learning</div>
-          <div className="row"><span className="dot unseen" /> unseen</div>
-          <div className="row" style={{ marginTop: 4 }}><span className="line" /> prerequisite</div>
-          <div className="row"><span className="line dash" /> related</div>
-          <div className="row"><span className="line dot" /> mentioned</div>
+          <div className="row"><span className="dot mastered" /> {t('legendMastered')}</div>
+          <div className="row"><span className="dot review" /> {t('legendReview')}</div>
+          <div className="row"><span className="dot learning" /> {t('legendLearning')}</div>
+          <div className="row"><span className="dot unseen" /> {t('legendUnseen')}</div>
+          <div className="row" style={{ marginTop: 4 }}><span className="line" /> {t('legendPrereq')}</div>
+          <div className="row"><span className="line dash" /> {t('legendRelated')}</div>
+          <div className="row"><span className="line dot" /> {t('legendMentioned')}</div>
         </div>
       </div>
     </div>

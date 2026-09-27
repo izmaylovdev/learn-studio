@@ -13,6 +13,7 @@ import { buildSenses } from './formula/senses';
 import { Boundary } from './Boundary';
 import type { Formula } from '../types';
 import type { Check } from '../types';
+import { useT } from './i18n';
 
 const CHECK_BLOCK = /^:::check\s*\n([\s\S]*?)\n?:::\s*$/gm;
 const WIKILINK = /\[\[([a-z0-9][a-z0-9-]*)(?:\|([^\]]+))?\]\]/g;
@@ -82,6 +83,7 @@ export function Markdown({
   answers?: Check[];
   formulas?: (Formula | null)[];
 }) {
+  const t = useT();
   const segments = useMemo(() => segment(body), [body]);
   let checkIndex = 0;
 
@@ -138,12 +140,12 @@ export function Markdown({
                 const lang = /language-(\w+)/.exec(className ?? '')?.[1];
                 if (lang === 'mermaid') return <Mermaid chart={String(children).trim()} theme={theme} />;
                 if (lang === 'viz') {
-                  return <Boundary label="This figure"><Viz source={String(children)} /></Boundary>;
+                  return <Boundary label={t('thisFigure')}><Viz source={String(children)} /></Boundary>;
                 }
                 if (lang === 'formula') {
                   const slot = formulaSlot.get(String(children).trim());
                   return (
-                    <Boundary label="This formula explorer">
+                    <Boundary label={t('thisExplorer')}>
                       <FormulaExplorer spec={slot === undefined ? null : formulas[slot] ?? null}
                                        reason={slot === undefined ? 'unmatched' : 'parse'} />
                     </Boundary>
@@ -194,12 +196,13 @@ function Inline({ text }: { text: string }) {
 function CheckCard({
   question, answer, onGrade,
 }: { question: string; answer: string; onGrade?: (g: number) => void }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [graded, setGraded] = useState<number | null>(null);
 
   return (
     <div className="check">
-      <div className="label">recall check</div>
+      <div className="label">{t('recallCheck')}</div>
       <div className="q"><Inline text={question} /></div>
       {open ? (
         <>
@@ -207,20 +210,20 @@ function CheckCard({
           <div className="grades">
             {graded === null ? (
               <>
-                <button className="grade-btn miss" onClick={() => { setGraded(1); onGrade?.(1); }}>Missed it</button>
-                <button className="grade-btn" onClick={() => { setGraded(3); onGrade?.(3); }}>Hard</button>
-                <button className="grade-btn" onClick={() => { setGraded(4); onGrade?.(4); }}>Good</button>
-                <button className="grade-btn" onClick={() => { setGraded(5); onGrade?.(5); }}>Easy</button>
+                <button className="grade-btn miss" onClick={() => { setGraded(1); onGrade?.(1); }}>{t('missedIt')}</button>
+                <button className="grade-btn" onClick={() => { setGraded(3); onGrade?.(3); }}>{t('hard')}</button>
+                <button className="grade-btn" onClick={() => { setGraded(4); onGrade?.(4); }}>{t('good')}</button>
+                <button className="grade-btn" onClick={() => { setGraded(5); onGrade?.(5); }}>{t('easy')}</button>
               </>
             ) : (
-              <span className="saved">graded — next review rescheduled</span>
+              <span className="saved">{t('graded')}</span>
             )}
           </div>
         </>
       ) : (
         <div className="grades">
           <button className="grade-btn" onClick={() => setOpen(true)}>
-            {answer ? 'Show answer' : 'Answered it — grade myself'}
+            {t(answer ? 'showAnswer' : 'gradeMyself')}
           </button>
         </div>
       )}

@@ -3,6 +3,7 @@
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join, dirname, basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import matter from 'gray-matter';
 import { load as loadYaml } from 'js-yaml';
 
@@ -10,13 +11,18 @@ export const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 export const CONCEPTS_DIR = join(ROOT, 'library', 'concepts');
 export const TRACKS_DIR = join(ROOT, 'library', 'tracks');
 export const SYMBOLS_FILE = join(ROOT, 'library', 'symbols.yml');
+// Translations mirror the library under library/i18n/<lang>/. They live outside
+// concepts/ and tracks/ because both are walked recursively — a translation
+// there would be parsed as a second concept with the same id.
+export const I18N_DIR = join(ROOT, 'library', 'i18n');
+export const SOURCE_LANG = 'en';
 
 const WIKILINK = /\[\[([a-z0-9][a-z0-9-]*)(?:\|([^\]]+))?\]\]/g;
 const CHECK_BLOCK = /^:::check\s*$/gm;
 const FORMULA_BLOCK = /^```formula[ \t]*\n([\s\S]*?)\n```[ \t]*$/gm;
 
 /** The shared symbol lexicon. Formula blocks reference these ids. */
-export function loadSymbols(issues = []) {
+export function loadSymbols(issues = [], lang = SOURCE_LANG) {
   if (!existsSync(SYMBOLS_FILE)) return {};
   let raw;
   try {
@@ -61,8 +67,44 @@ export function loadSymbols(issues = []) {
       eg: String(v.eg ?? ''),
     };
   }
+  // A translated lexicon only carries the words. Everything the matcher reads
+  // (tex, match, sel, where) stays in the source file, so a translation cannot
+  // change which marks light up.
+  for (const [id, v] of Object.entries(readI18nYaml(lang, 'symbols.yml'))) {
+    if (!out[id] || !v || typeof v !== 'object') continue;
+    for (const key of SYMBOL_WORDS) if (v[key]) out[id][key] = String(v[key]);
+  }
   return out;
 }
+
+export const SYMBOL_WORDS = ['name', 'say', 'def', 'eg'];
+
+/** A YAML file under library/i18n/<lang>/, or {} for the source language or a missing file. */
+function readI18nYaml(lang, name) {
+  const file = join(I18N_DIR, lang, name);
+  if (lang === SOURCE_LANG || !existsSync(file)) return {};
+  try {
+    return loadYaml(readFileSync(file, 'utf8')) ?? {};
+  } catch {
+    return {}; // reported by checkTranslations, which parses it again with issues on
+  }
+}
+
+/** Languages with a directory under library/i18n, source language first. */
+export function languages() {
+  const found = existsSync(I18N_DIR)
+    ? readdirSync(I18N_DIR).filter((d) => statSync(join(I18N_DIR, d)).isDirectory())
+    : [];
+  return [SOURCE_LANG, ...found.filter((d) => d !== SOURCE_LANG).sort()];
+}
+
+/** Fingerprint of a source file, recorded in its translation as `translated_from`. */
+export function sourceHash(file) {
+  return createHash('sha1').update(readFileSync(file, 'utf8').replace(/\r\n/g, '\n')).digest('hex').slice(0, 12);
+}
+
+export const translationOf = (lang, kind, id) =>
+  lang === SOURCE_LANG ? null : join(I18N_DIR, lang, kind, `${id}.md`);
 
 /**
  * Extract ```formula blocks in document order. A block that fails to parse still
@@ -143,7 +185,16 @@ export function wikilinksIn(body) {
   return [...out];
 }
 
-function parseConcept(file, symbols = {}, sharedIssues = []) {
+function parseChecks(raw) {
+  return asArray(raw).length && typeof raw?.[0] === 'string'
+    ? raw.map((q) => ({ q: String(q), a: '' }))
+    : (Array.isArray(raw) ? raw : []).map((c) => ({
+        q: String(c?.q ?? ''),
+        a: String(c?.a ?? ''),
+      })).filter((c) => c.q);
+}
+
+function parseConcept(file, symbols = {}, sharedIssues = [], lang = SOURCE_LANG) {
   const raw = readFileSync(file, 'utf8');
   const { data, content } = matter(raw);
   const id = String(data.id ?? basename(file, '.md'));
@@ -153,12 +204,7 @@ function parseConcept(file, symbols = {}, sharedIssues = []) {
   if (!data.summary) problems.push('missing `summary`');
   if (!data.field) problems.push('missing `field` — it will be filed under Unfiled in the sidebar');
 
-  const checks = asArray(data.checks).length && typeof data.checks?.[0] === 'string'
-    ? data.checks.map((q) => ({ q: String(q), a: '' }))
-    : (Array.isArray(data.checks) ? data.checks : []).map((c) => ({
-        q: String(c?.q ?? ''),
-        a: String(c?.a ?? ''),
-      })).filter((c) => c.q);
+  const checks = parseChecks(data.checks);
 
   // The reader pairs answers to prompts positionally, so a count mismatch
   // silently shows the wrong answer under a question.
@@ -170,11 +216,30 @@ function parseConcept(file, symbols = {}, sharedIssues = []) {
   const relFile = file.slice(ROOT.length + 1);
   const formulas = parseFormulas(content, relFile, symbols, sharedIssues);
 
+  // The translation replaces the prose and nothing else. Prereqs, links, tags
+  // and the field key all come from the source, so the graph is the same graph
+  // in every language; mismatches are checkTranslations' job to report.
+  const tfile = translationOf(lang, 'concepts', id);
+  const t = tfile && existsSync(tfile) ? matter(readFileSync(tfile, 'utf8')) : null;
+  const words = t
+    ? {
+        lang,
+        title: String(t.data.title ?? data.title ?? id),
+        summary: String(t.data.summary ?? data.summary ?? ''),
+        checks: parseChecks(t.data.checks),
+        body: t.content,
+        formulas: parseFormulas(t.content, tfile.slice(ROOT.length + 1), symbols, []),
+      }
+    : { lang: SOURCE_LANG };
+
   return {
     id,
     file: relFile,
     formulas,
     title: String(data.title ?? id),
+    // `field` is a key as well as a label: the lexicon's `where:` and the
+    // sidebar's collapse state both match on it, so it stays in the source
+    // language and the UI looks up its display name in `fieldLabels`.
     field: String(data.field ?? 'Unfiled').trim() || 'Unfiled',
     summary: String(data.summary ?? ''),
     tags: asArray(data.tags),
@@ -189,27 +254,37 @@ function parseConcept(file, symbols = {}, sharedIssues = []) {
     mentions: wikilinksIn(content),
     body: content,
     problems,
+    ...words,
   };
 }
 
-function parseTrack(file) {
+function parseTrack(file, lang = SOURCE_LANG) {
   const raw = readFileSync(file, 'utf8');
   const { data, content } = matter(raw);
   const id = String(data.id ?? basename(file, '.md'));
+  // Stages are translated positionally and carry no concept lists of their
+  // own — which concepts a stage holds is structure, not wording.
+  const tfile = translationOf(lang, 'tracks', id);
+  const t = tfile && existsSync(tfile) ? matter(readFileSync(tfile, 'utf8')) : null;
+  const tStages = Array.isArray(t?.data.stages) ? t.data.stages : [];
   const stages = (Array.isArray(data.stages) ? data.stages : []).map((s, i) => ({
-    title: String(s?.title ?? `Stage ${i + 1}`),
-    goal: String(s?.goal ?? ''),
+    title: String(tStages[i]?.title ?? s?.title ?? `Stage ${i + 1}`),
+    goal: String(tStages[i]?.goal ?? s?.goal ?? ''),
     concepts: asArray(s?.concepts),
   }));
   return {
     id,
     file: file.slice(ROOT.length + 1),
-    title: String(data.title ?? id),
-    goal: String(data.goal ?? ''),
+    lang: t ? lang : SOURCE_LANG,
+    title: String(t?.data.title ?? data.title ?? id),
+    goal: String(t?.data.goal ?? data.goal ?? ''),
     tags: asArray(data.tags),
     stages,
-    body: content,
+    body: t ? t.content : content,
     conceptIds: stages.flatMap((s) => s.concepts),
+    // Track order is structure — it decides reading order and so the whole
+    // sidebar — so it sorts by the source title, never by a translated one.
+    sortKey: String(data.title ?? id),
   };
 }
 
@@ -217,9 +292,9 @@ function parseTrack(file) {
  * Builds the full library graph.
  * Edge kinds: 'prereq' (a must come before b), 'related', 'mention' (from [[links]]).
  */
-export function loadLibrary() {
+export function loadLibrary(lang = SOURCE_LANG) {
   const broken = [];
-  const symbols = loadSymbols(broken);
+  const symbols = loadSymbols(broken, lang);
   // One unparseable file must not take down the whole library — report it and
   // carry on, so `npm run check` can point at the offending path.
   const safe = (fn) => (file) => {
@@ -233,10 +308,12 @@ export function loadLibrary() {
   const drop = (x) => x !== null;
 
   const concepts = walk(CONCEPTS_DIR)
-    .map(safe((f) => parseConcept(f, symbols, broken)))
+    .map(safe((f) => parseConcept(f, symbols, broken, lang)))
     .filter(drop)
     .sort((a, b) => a.title.localeCompare(b.title));
-  const tracks = walk(TRACKS_DIR).map(safe(parseTrack)).filter(drop).sort((a, b) => a.title.localeCompare(b.title));
+  const tracks = walk(TRACKS_DIR).map(safe((f) => parseTrack(f, lang))).filter(drop)
+    .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
+    .map(({ sortKey, ...t }) => t);
   const byId = new Map(concepts.map((c) => [c.id, c]));
 
   const edges = [];
@@ -290,7 +367,12 @@ export function loadLibrary() {
     }
   }
 
-  return { concepts, tracks, edges, byId, backlinks, issues, symbols, usage };
+  const labels = readI18nYaml(lang, 'fields.yml');
+  const fieldLabels = Object.fromEntries(
+    [...new Set(concepts.map((c) => c.field))].map((f) => [f, String(labels[f] ?? f)])
+  );
+
+  return { lang, concepts, tracks, edges, byId, backlinks, issues, symbols, usage, fieldLabels };
 }
 
 /** Prereq edges must form a DAG or "what do I learn next" is meaningless. */
@@ -356,6 +438,8 @@ export function summarize(lib, progress) {
   }
 
   return {
+    lang: lib.lang,
+    fieldLabels: lib.fieldLabels,
     fields: [...firstOfField.keys()].sort(
       (a, b) => (firstOfField.get(a) - firstOfField.get(b)) || a.localeCompare(b)
     ),
@@ -468,4 +552,128 @@ export function mathCoverage(lib) {
       .map(([mark, v]) => ({ mark, count: v.count, where: [...v.where] }))
       .sort((a, b) => b.count - a.count),
   };
+}
+
+/* ---------- translations ----------
+ * A translation is a second copy of the prose, and prose is where the reader's
+ * interactive pieces hide: a check answer paired by position, a formula spec
+ * paired by its block, a figure named by its fence. Each is checked against the
+ * source here, because the reader would otherwise pair them wrongly in silence.
+ */
+
+const VIZ_BLOCK = /^```viz[ \t]*\n([\s\S]*?)\n```[ \t]*$/gm;
+// Words inside \text{} are prose that happens to sit in a formula, and are
+// expected to be translated. Everything else in the LaTeX must be identical.
+const stripText = (tex) => tex.replace(TEXT_ARG, '\text{}').replace(/\s+/g, '');
+
+/**
+ * Compares every translation in `lang` against its source. `coverage` counts
+ * what is translated; untranslated items are not issues — the reader falls
+ * back to the source language for them — so they are listed, not warned about.
+ */
+export function checkTranslations(lang) {
+  const issues = [];
+  const where = (f) => f.slice(ROOT.length + 1);
+  const src = loadLibrary(SOURCE_LANG);
+  const coverage = { concepts: 0, tracks: 0, symbols: 0, fields: 0, missing: [] };
+
+  const stale = (file, data, source) => {
+    const want = sourceHash(source);
+    if (!data.translated_from) {
+      issues.push({ level: 'warn', where: where(file), message: 'no `translated_from` stamp — run `npm run i18n -- stamp` once it is up to date' });
+    } else if (String(data.translated_from) !== want) {
+      issues.push({ level: 'warn', where: where(file), message: `stale: ${where(source)} has changed since it was translated` });
+    }
+  };
+
+  for (const c of src.concepts) {
+    const file = translationOf(lang, 'concepts', c.id);
+    if (!existsSync(file)) { coverage.missing.push(c.id); continue; }
+    coverage.concepts++;
+    const at = where(file);
+    let t;
+    try { t = matter(readFileSync(file, 'utf8')); }
+    catch (err) { issues.push({ level: 'error', where: at, message: `could not parse: ${err.message.split('\n')[0]}` }); continue; }
+    stale(file, t.data, join(ROOT, c.file));
+
+    for (const key of ['title', 'summary']) {
+      if (!t.data[key]) issues.push({ level: 'warn', where: at, message: `missing \`${key}\` — the source's is shown instead` });
+    }
+
+    const checks = parseChecks(t.data.checks);
+    const blocks = (t.content.match(CHECK_BLOCK) ?? []).length;
+    if (checks.length !== c.checks.length || blocks !== c.checks.length) {
+      issues.push({ level: 'error', where: at, message: `${blocks} \`:::check\` block(s) and ${checks.length} answer(s), but the source has ${c.checks.length} — progress is graded per check, so the counts must match` });
+    }
+
+    const tIssues = [];
+    const formulas = parseFormulas(t.content, at, src.symbols, tIssues);
+    issues.push(...tIssues.filter((i) => i.level === 'error'));
+    if (formulas.length !== c.formulas.length) {
+      issues.push({ level: 'error', where: at, message: `${formulas.length} formula block(s), source has ${c.formulas.length}` });
+    }
+    formulas.forEach((f, i) => {
+      const s = c.formulas[i];
+      if (!f || !s) return;
+      if (stripText(f.tex) !== stripText(s.tex)) {
+        issues.push({ level: 'error', where: at, message: `formula ${i + 1} (\`${f.title}\`): \`tex:\` differs from the source — translate only \text{} inside it` });
+      }
+      const ids = (x) => x.symbols.map((y) => y.id).join(',');
+      if (ids(f) !== ids(s)) {
+        issues.push({ level: 'error', where: at, message: `formula ${i + 1} (\`${f.title}\`): \`symbols:\` differs from the source` });
+      }
+      for (const [key, value] of [['reading', f.reading], ['steps', f.steps.length], ['why', f.why]]) {
+        if (!value) issues.push({ level: 'warn', where: at, message: `formula ${i + 1} has no \`${key}:\`` });
+      }
+    });
+
+    const links = (body) => wikilinksIn(body).sort().join(' ');
+    if (links(t.content) !== links(c.body)) {
+      issues.push({ level: 'warn', where: at, message: `[[links]] differ from the source — the graph is built from the source, so the reader would see different chips than the edges say` });
+    }
+    const viz = (body) => [...body.matchAll(VIZ_BLOCK)].map((m) => m[1].replace(/\s+/g, ' ').trim()).join(' | ');
+    if (viz(t.content) !== viz(c.body)) {
+      issues.push({ level: 'error', where: at, message: 'the ```viz blocks differ from the source — figures are chosen by name, which is not translated' });
+    }
+  }
+
+  for (const tr of src.tracks) {
+    const file = translationOf(lang, 'tracks', tr.id);
+    if (!existsSync(file)) { coverage.missing.push(`track:${tr.id}`); continue; }
+    coverage.tracks++;
+    const t = matter(readFileSync(file, 'utf8'));
+    stale(file, t.data, join(ROOT, tr.file));
+    const n = Array.isArray(t.data.stages) ? t.data.stages.length : 0;
+    if (n !== tr.stages.length) {
+      issues.push({ level: 'error', where: where(file), message: `${n} stage(s), source has ${tr.stages.length} — stages are paired by position` });
+    }
+  }
+
+  const symFile = join(I18N_DIR, lang, 'symbols.yml');
+  if (existsSync(symFile)) {
+    let raw = {};
+    try { raw = loadYaml(readFileSync(symFile, 'utf8')) ?? {}; }
+    catch (err) { issues.push({ level: 'error', where: where(symFile), message: `not valid YAML: ${err.message.split('\n')[0]}` }); }
+    for (const [id, v] of Object.entries(raw)) {
+      if (!src.symbols[id]) issues.push({ level: 'warn', where: where(symFile), message: `\`${id}\` is not in library/symbols.yml` });
+      else if (v?.name && v?.def) coverage.symbols++;
+    }
+    for (const id of Object.keys(src.symbols)) if (!raw[id]) coverage.missing.push(`symbol:${id}`);
+  } else {
+    coverage.missing.push(...Object.keys(src.symbols).map((id) => `symbol:${id}`));
+  }
+
+  const labels = readI18nYaml(lang, 'fields.yml');
+  for (const f of new Set(src.concepts.map((c) => c.field))) {
+    if (labels[f]) coverage.fields++;
+    else coverage.missing.push(`field:${f}`);
+  }
+
+  coverage.total = {
+    concepts: src.concepts.length,
+    tracks: src.tracks.length,
+    symbols: Object.keys(src.symbols).length,
+    fields: new Set(src.concepts.map((c) => c.field)).size,
+  };
+  return { issues, coverage };
 }

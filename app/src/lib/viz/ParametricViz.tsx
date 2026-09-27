@@ -1,24 +1,31 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Slider, Choice, Readout } from './Plot';
+import { L, useTr } from '../i18n';
 
 interface Spec {
-  label: string;
+  label: ReactNode;
   x: (t: number) => number;
   y: (t: number) => number;
   span: number;
   view: [number, number, number, number];
-  note: string;
+  note: ReactNode;
 }
 
 const CURVES: Record<string, Spec> = {
-  circle: { label: 'circle', x: Math.cos, y: Math.sin, span: 2 * Math.PI, view: [-1.4, -1.4, 1.4, 1.4],
-    note: 'constant speed 1, so arc length is just the elapsed time — 2π' },
-  cycloid: { label: 'cycloid', x: (t) => t - Math.sin(t), y: (t) => 1 - Math.cos(t), span: 2 * Math.PI,
-    view: [-0.6, -0.6, 7, 2.8], note: 'speed drops to zero at the cusp, where the wheel point touches the ground' },
-  lissajous: { label: 'lissajous', x: (t) => Math.sin(3 * t), y: (t) => Math.sin(2 * t), span: 2 * Math.PI,
-    view: [-1.4, -1.4, 1.4, 1.4], note: 'self-intersecting — no function y = f(x) can describe it' },
-  spiral: { label: 'spiral', x: (t) => (t / 8) * Math.cos(t), y: (t) => (t / 8) * Math.sin(t), span: 6 * Math.PI,
-    view: [-2.8, -2.8, 2.8, 2.8], note: 'fails the vertical line test many times over' },
+  circle: { label: <L en="circle" uk="коло" />, x: Math.cos, y: Math.sin, span: 2 * Math.PI, view: [-1.4, -1.4, 1.4, 1.4],
+    note: <L en="constant speed 1, so arc length is just the elapsed time — 2π"
+             uk="стала швидкість 1, тож довжина дуги — це просто час, що минув, — 2π" /> },
+  cycloid: { label: <L en="cycloid" uk="циклоїда" />, x: (t) => t - Math.sin(t), y: (t) => 1 - Math.cos(t), span: 2 * Math.PI,
+    view: [-0.6, -0.6, 7, 2.8],
+    note: <L en="speed drops to zero at the cusp, where the wheel point touches the ground"
+             uk="у точці звороту, де точка колеса торкається землі, швидкість падає до нуля" /> },
+  lissajous: { label: <L en="lissajous" uk="Ліссажу" />, x: (t) => Math.sin(3 * t), y: (t) => Math.sin(2 * t), span: 2 * Math.PI,
+    view: [-1.4, -1.4, 1.4, 1.4],
+    note: <L en="self-intersecting — no function y = f(x) can describe it"
+             uk="самоперетинна — жодна функція y = f(x) її не опише" /> },
+  spiral: { label: <L en="spiral" uk="спіраль" />, x: (t) => (t / 8) * Math.cos(t), y: (t) => (t / 8) * Math.sin(t), span: 6 * Math.PI,
+    view: [-2.8, -2.8, 2.8, 2.8],
+    note: <L en="fails the vertical line test many times over" uk="багаторазово не проходить тест вертикальної прямої" /> },
 };
 type Key = keyof typeof CURVES;
 
@@ -26,6 +33,7 @@ const S = 300;
 
 /** A parametric curve as motion: position, velocity, and accumulated arc length. */
 export function ParametricViz() {
+  const tr = useTr();
   const [key, setKey] = useState<Key>('cycloid');
   const [frac, setFrac] = useState(0.45);
 
@@ -80,16 +88,26 @@ export function ParametricViz() {
               format={() => t.toFixed(2)} />
 
       <Readout items={[
-        { label: 'position (x, y)', value: `${spec.x(t).toFixed(2)}, ${spec.y(t).toFixed(2)}` },
-        { label: 'speed √(x′²+y′²)', value: speed.toFixed(3) },
-        { label: 'arc length so far', value: arc.toFixed(4) },
+        { label: tr('position (x, y)', 'положення (x, y)'), value: `${spec.x(t).toFixed(2)}, ${spec.y(t).toFixed(2)}` },
+        { label: tr('speed √(x′²+y′²)', 'швидкість √(x′²+y′²)'), value: speed.toFixed(3) },
+        { label: tr('arc length so far', 'пройдена довжина дуги'), value: arc.toFixed(4) },
       ]} />
 
       <p className="viz-note">
-        The dot is a particle and the arrow is its velocity — its length is the speed
-        <code>√(x′²+y′²)</code>, which is exactly the arc-length integrand. So arc length is just
-        <code>∫ speed dt</code>: total distance travelled. {spec.note}. Note that the curve is the same set of
-        points however you parametrize it, but tracing it twice would double the arc length.
+        <L
+          en={<>
+            The dot is a particle and the arrow is its velocity — its length is the speed
+            <code>√(x′²+y′²)</code>, which is exactly the arc-length integrand. So arc length is just
+            <code>∫ speed dt</code>: total distance travelled. {spec.note}. Note that the curve is the same set of
+            points however you parametrize it, but tracing it twice would double the arc length.
+          </>}
+          uk={<>
+            Точка — це частинка, а стрілка — її швидкість; довжина стрілки дорівнює модулю швидкості
+            <code> √(x′²+y′²)</code>, а це і є підінтегральний вираз довжини дуги. Тож довжина дуги — це просто
+            <code> ∫ швидкість dt</code>, увесь пройдений шлях. {spec.note}. Зауважте: як не параметризуй криву,
+            множина точок та сама, але пройшовши її двічі, ви подвоїте довжину дуги.
+          </>}
+        />
       </p>
     </div>
   );

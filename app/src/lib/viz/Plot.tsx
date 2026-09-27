@@ -52,8 +52,8 @@ export function Plot({
   xDomain: [number, number];
   yDomain: [number, number];
   height?: number;
-  xLabel?: string;
-  yLabel?: string;
+  xLabel?: ReactNode;
+  yLabel?: ReactNode;
   /** Hide the x tick labels — for the upper panel of a stacked pair, where one
    *  shared axis underneath reads as a single figure and two reads as two.
    *  Only the labels go: the padding stays, so stacked panels keep their x
@@ -114,7 +114,7 @@ export function Plot({
 export function Slider({
   label, value, min, max, step = 1, onChange, format,
 }: {
-  label: string; value: number; min: number; max: number; step?: number;
+  label: ReactNode; value: number; min: number; max: number; step?: number;
   onChange: (v: number) => void; format?: (v: number) => string;
 }) {
   return (
@@ -129,7 +129,7 @@ export function Slider({
 
 export function Choice<T extends string>({
   value, options, onChange,
-}: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
+}: { value: T; options: { value: T; label: ReactNode }[]; onChange: (v: T) => void }) {
   return (
     <div className="viz-choice">
       {options.map((o) => (
@@ -141,11 +141,11 @@ export function Choice<T extends string>({
   );
 }
 
-export function Readout({ items }: { items: { label: string; value: string; tone?: 'good' | 'warn' }[] }) {
+export function Readout({ items }: { items: { label: ReactNode; value: string; tone?: 'good' | 'warn' }[] }) {
   return (
     <div className="viz-readout">
-      {items.map((i) => (
-        <div key={i.label} className={`viz-stat${i.tone ? ` ${i.tone}` : ''}`}>
+      {items.map((i, k) => (
+        <div key={k} className={`viz-stat${i.tone ? ` ${i.tone}` : ''}`}>
           <span className="viz-stat-v">{i.value}</span>
           <span className="viz-stat-k">{i.label}</span>
         </div>

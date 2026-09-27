@@ -1,0 +1,20 @@
+# Ukrainian display names for concept fields. The keys are the `field:` values
+# in library/concepts/*.md and stay in English: they are also the keys the
+# lexicon's `where:` and the sidebar's collapse state match on.
+
+Foundations of the Integral: Основи інтеграла
+Integration Techniques: Методи інтегрування
+Applications of Integration: Застосування інтеграла
+Parametric and Polar: Параметричні та полярні криві
+Sequences and Series: Послідовності й ряди
+Power and Taylor Series: Степеневі ряди й ряди Тейлора
+Probability Foundations: Основи теорії ймовірностей
+Conditioning and Independence: Умовна ймовірність і незалежність
+Random Variables: Випадкові величини
+Named Distributions: Відомі розподіли
+Limit Theorems: Граничні теореми
+Vectors and Covariance: Вектори й коваріація
+Fusing Estimates: Злиття оцінок
+State-Space Models: Моделі простору станів
+The Kalman Filter: Фільтр Калмана
+Filters in Practice: Фільтри на практиці

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useT } from '../i18n';
 
 /**
  * A choreographed figure: a list of keyframes the engine morphs between on a
@@ -24,7 +25,7 @@ export interface Beat<S extends SceneState> {
   /** Shown while morphing into this beat and for the whole of its hold. */
   caption?: ReactNode;
   /** Short name for the chapter strip. */
-  label?: string;
+  label?: ReactNode;
   state: S;
   ease?: (t: number) => number;
 }
@@ -97,6 +98,7 @@ export function Scene<S extends SceneState>({
   render: (state: S, ctx: SceneCtx) => ReactNode;
   note?: ReactNode;
 }) {
+  const tr = useT();
   const { spans, total } = useMemo(() => layout(beats as Beat<SceneState>[]), [beats]);
   const [t, setT] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -167,12 +169,12 @@ export function Scene<S extends SceneState>({
 
       <div className="scene-transport">
         <button className="scene-play" onClick={toggle}
-                aria-label={playing ? 'Pause' : ended ? 'Replay' : 'Play'}>
+                aria-label={tr(playing ? 'pause' : ended ? 'replay' : 'play')}>
           {playing ? '❚❚' : ended ? '↻' : '▶'}
         </button>
         <input
           className="scene-scrub" type="range" min={0} max={total} step={0.01} value={t}
-          aria-label="Scrub the animation"
+          aria-label={tr('scrub')}
           onChange={(e) => { setPlaying(false); setArmed(false); seek(Number(e.target.value)); }}
         />
         <span className="scene-time">{t.toFixed(1)}s</span>

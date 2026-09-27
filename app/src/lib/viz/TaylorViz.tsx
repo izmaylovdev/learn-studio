@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plot, Slider, Choice, Readout, samplePath } from './Plot';
+import { L, useTr } from '../i18n';
 
 const fact: number[] = [1];
 for (let i = 1; i <= 30; i++) fact[i] = fact[i - 1] * i;
@@ -30,6 +31,7 @@ type Key = keyof typeof FNS;
 
 /** Taylor polynomials closing in on a function, and failing outside the radius. */
 export function TaylorViz() {
+  const tr = useTr();
   const [key, setKey] = useState<Key>('sin');
   const [N, setN] = useState(3);
 
@@ -79,20 +81,30 @@ export function TaylorViz() {
         )}
       </Plot>
 
-      <Slider label="degree N" value={N} min={0} max={16} onChange={setN} />
+      <Slider label={tr('degree N', 'степінь N')} value={N} min={0} max={16} onChange={setN} />
 
       <Readout items={[
-        { label: 'terms used', value: String(N + 1) },
-        { label: `max |f − T| on |x|≤${inner}`, value: nearErr < 1e-6 ? '<1e-6' : nearErr.toFixed(4),
+        { label: tr('terms used', 'членів ряду'), value: String(N + 1) },
+        { label: tr(`max |f − T| on |x|≤${inner}`, `max |f − T| при |x|≤${inner}`), value: nearErr < 1e-6 ? '<1e-6' : nearErr.toFixed(4),
           tone: nearErr < 0.01 ? 'good' : 'warn' },
-        { label: 'radius R', value: spec.radius === Infinity ? '∞' : String(spec.radius) },
+        { label: tr('radius R', 'радіус R'), value: spec.radius === Infinity ? '∞' : String(spec.radius) },
       ]} />
 
       <p className="viz-note">
-        The solid curve is <b>f</b>, the accent curve is <b>T<sub>N</sub></b>. They agree near the centre and
-        peel apart as you move away — which is the <code>|x−a|<sup>N+1</sup></code> factor in the error bound,
-        made visible. For <b>ln(1+x)</b> and <b>1/(1−x)</b> the shaded band is the radius of convergence:
-        raising N inside it helps, and outside it the polynomial diverges no matter how many terms you add.
+        <L
+          en={<>
+            The solid curve is <b>f</b>, the accent curve is <b>T<sub>N</sub></b>. They agree near the centre and
+            peel apart as you move away — which is the <code>|x−a|<sup>N+1</sup></code> factor in the error bound,
+            made visible. For <b>ln(1+x)</b> and <b>1/(1−x)</b> the shaded band is the radius of convergence:
+            raising N inside it helps, and outside it the polynomial diverges no matter how many terms you add.
+          </>}
+          uk={<>
+            Суцільна крива — це <b>f</b>, виділена — <b>T<sub>N</sub></b>. Біля центру вони збігаються, а далі
+            розходяться — це множник <code>|x−a|<sup>N+1</sup></code> з оцінки похибки, який стає видимим. Для
+            <b> ln(1+x)</b> і <b>1/(1−x)</b> затінена смуга — це радіус збіжності: усередині неї більше N
+            допомагає, а поза нею многочлен розбігається, скільки б членів ви не додали.
+          </>}
+        />
       </p>
     </div>
   );

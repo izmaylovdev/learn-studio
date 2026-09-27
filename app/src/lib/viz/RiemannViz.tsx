@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plot, Slider, Choice, Readout, samplePath } from './Plot';
+import { L, useTr } from '../i18n';
 
 const FNS = {
   square: { label: 'x²', f: (x: number) => x * x, a: 0, b: 2, exact: 8 / 3, y: [0, 4.4] as [number, number] },
@@ -11,6 +12,7 @@ type Rule = 'left' | 'right' | 'mid';
 
 /** Riemann sums converging on the definite integral as n grows. */
 export function RiemannViz() {
+  const tr = useTr();
   const [key, setKey] = useState<Key>('square');
   const [n, setN] = useState(6);
   const [rule, setRule] = useState<Rule>('left');
@@ -34,7 +36,11 @@ export function RiemannViz() {
         <Choice value={key} onChange={setKey}
                 options={(Object.keys(FNS) as Key[]).map((k) => ({ value: k, label: FNS[k].label }))} />
         <Choice value={rule} onChange={setRule}
-                options={[{ value: 'left', label: 'left' }, { value: 'mid', label: 'midpoint' }, { value: 'right', label: 'right' }]} />
+                options={[
+                  { value: 'left', label: tr('left', 'ліве') },
+                  { value: 'mid', label: tr('midpoint', 'середнє') },
+                  { value: 'right', label: tr('right', 'праве') },
+                ]} />
       </div>
 
       <Plot xDomain={[a - (b - a) * 0.06, b + (b - a) * 0.06]} yDomain={[y[0] - y[1] * 0.06, y[1]]} xLabel="x">
@@ -56,15 +62,24 @@ export function RiemannViz() {
       <Slider label="n" value={n} min={1} max={80} onChange={setN} />
 
       <Readout items={[
-        { label: 'Riemann sum', value: sum.toFixed(4) },
-        { label: 'exact integral', value: exact.toFixed(4) },
-        { label: 'error', value: err.toFixed(4), tone: err < 0.01 ? 'good' : 'warn' },
+        { label: tr('Riemann sum', 'сума Рімана'), value: sum.toFixed(4) },
+        { label: tr('exact integral', 'точний інтеграл'), value: exact.toFixed(4) },
+        { label: tr('error', 'похибка'), value: err.toFixed(4), tone: err < 0.01 ? 'good' : 'warn' },
       ]} />
 
       <p className="viz-note">
-        Drag <b>n</b> up and the rectangles converge on the curve — that limit <em>is</em> the definition of
-        the integral. Note that the midpoint rule is far more accurate than left or right at the same n,
-        because its errors cancel rather than accumulate.
+        <L
+          en={<>
+            Drag <b>n</b> up and the rectangles converge on the curve — that limit <em>is</em> the definition of
+            the integral. Note that the midpoint rule is far more accurate than left or right at the same n,
+            because its errors cancel rather than accumulate.
+          </>}
+          uk={<>
+            Збільшуйте <b>n</b> — і прямокутники зійдуться до кривої; ця границя <em>і є</em> означенням
+            інтеграла. Зверніть увагу: правило середніх точок за того самого n набагато точніше за ліве
+            чи праве, бо його похибки взаємно гасяться, а не накопичуються.
+          </>}
+        />
       </p>
     </div>
   );

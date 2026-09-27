@@ -13,6 +13,7 @@ library and records study progress, but content is written here, in files.
 library/concepts/*.md   one concept per file — the nodes of the graph
 library/tracks/*.md     ordered paths through concepts
 library/symbols.yml     the symbol lexicon that formula blocks draw on
+library/i18n/<lang>/    translations — concepts/, tracks/, symbols.yml, fields.yml
 progress/progress.json  mastery + review schedule (never edit by hand mid-session)
 tools/library.mjs       the parser. Content model changes start here.
 tools/progress.mjs      SM-2 scheduling and the "what next" logic
@@ -26,6 +27,7 @@ app/                    Vite + React viewer
 npm run dev     # api :8787 + viewer :5273
 npm run index   # parse, validate, report; writes .cache/graph.json
 npm run check   # same, but exits 1 on broken references or prereq cycles
+npm run i18n -- stamp uk <id>…   # record that a translation matches its source
 ```
 
 Run `npm run check` after any edit to `library/`. It is the only thing standing
@@ -384,3 +386,58 @@ API.
    as having no lexicon entry is an equation the reader cannot ask about, and the
    fix is an entry in `library/symbols.yml`, not a change to the prose.
 4. If it belongs to a track, add it to the right stage.
+5. Translate it into every language under `library/i18n/` — see below — and
+   stamp it. An untranslated concept still works, shown in English with a
+   notice, so this is completion rather than correctness; `npm run check` lists
+   what is missing on its `i18n` line.
+
+## Translations
+
+The viewer has a language toggle (EN / UK) in the sidebar. The source language
+is English; a translation lives beside the library, never inside `concepts/` or
+`tracks/` — both are walked recursively, so a file there would parse as a
+duplicate concept.
+
+```
+library/i18n/uk/concepts/<id>.md   same filename as the source
+library/i18n/uk/tracks/<id>.md
+library/i18n/uk/symbols.yml        id → name, say, def, eg
+library/i18n/uk/fields.yml         English field name → display name
+```
+
+**A translation replaces the prose and nothing else.** A concept translation
+carries `id`, `title`, `summary`, `checks` and the full body; prereqs, related,
+tags, difficulty, sources and `field` all come from the source file, so the
+graph is the same graph in every language. A track translation carries `title`,
+`goal`, the body, and `stages` as `title`/`goal` pairs in source order — no
+concept lists. The lexicon translation carries only the four wording fields;
+everything the matcher reads stays in `library/symbols.yml`.
+
+`field` stays English on purpose: it is a key as well as a label (the lexicon's
+`where:` and the sidebar's collapse state match on it). Its display name comes
+from `fields.yml`.
+
+Inside the body, translate everything a reader sees — prose, headings, table
+cells, mermaid labels, code comments, `\text{…}` inside maths, and the
+`title`/`reading`/`steps`/`notes`/`why` of formula blocks. Keep verbatim:
+formula `tex:` (apart from `\text{}`) and `symbols:`, every `[[wikilink]]` id,
+every ```` ```viz ```` block, and code. `npm run check` compares each translation
+against its source and fails on a mismatched `tex:`, `symbols:` list, viz block
+or check count, and warns on differing `[[links]]` — each of those would make
+the reader pair things wrongly in silence.
+
+**Staleness.** Each translation records `translated_from:` — a hash of the
+source file it was made from. Edit the English and the check warns that the
+translation is stale. After bringing it up to date, re-stamp:
+
+```bash
+npm run i18n -- stamp uk u-substitution   # or --all, but only if all are current
+```
+
+Stamping is a claim that the translation matches; stamping blindly hides drift.
+
+The interface's own strings live in `app/src/lib/i18n.tsx` (one entry per
+string, both languages side by side, so TypeScript rejects a missing one).
+Figure and scene prose sits inline in each file under `app/src/lib/viz/` as
+`<L en={…} uk={…} />`, or `tr(en, uk)` where a string is needed — a new figure
+must supply both.

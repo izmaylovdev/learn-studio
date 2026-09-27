@@ -1,6 +1,7 @@
 import { useId, useMemo } from 'react';
 import { Plot, Readout } from '../Plot';
 import { Scene, type Beat } from '../Scene';
+import { L, useTr } from '../../i18n';
 
 const TRIALS = 2500;
 const MAX_N = 30;
@@ -33,32 +34,39 @@ function sd(xs: number[]) {
 type S = { u: number; xlo: number; xhi: number; yhi: number; normal: number; cauchy: number };
 
 const BEATS: Beat<S>[] = [
-  { label: 'the source', hold: 1.8,
+  { label: <L en="the source" uk="джерело" />, hold: 1.8,
     state: { u: 1, xlo: EXP[0], xhi: EXP[1], yhi: 1.25, normal: 0, cauchy: 0 },
-    caption: '2500 draws from a lopsided source — waiting times, piled at zero and decaying right. This is not a bell, and nothing about it wants to be one.' },
+    caption: <L en="2500 draws from a lopsided source — waiting times, piled at zero and decaying right. This is not a bell, and nothing about it wants to be one."
+                uk="2500 вибірок з перекошеного джерела — часи очікування, скупчені біля нуля й спадні праворуч. Це не дзвін, і ніщо в ньому не прагне ним стати." /> },
 
   { label: 'n = 2', in: 1.2, hold: 1.4,
     state: { u: 2, xlo: EXP[0], xhi: EXP[1], yhi: 1.45, normal: 0, cauchy: 0 },
-    caption: 'Now average two draws at a time and histogram the averages. Same source, same 2500 samples — the only change is that each bar counts a mean instead of a draw.' },
+    caption: <L en="Now average two draws at a time and histogram the averages. Same source, same 2500 samples — the only change is that each bar counts a mean instead of a draw."
+                uk="Тепер усереднюємо по дві вибірки й будуємо гістограму середніх. Те саме джерело, ті самі 2500 вибірок — змінилося лише те, що кожен стовпчик рахує середнє, а не окрему вибірку." /> },
 
   { label: 'n = 5', in: 1.3, hold: 1.4,
     state: { u: 5, xlo: EXP[0], xhi: EXP[1], yhi: 1.95, normal: 0, cauchy: 0 },
-    caption: 'Five at a time. The pile has pulled away from zero and the long right tail is being eaten — one big draw can no longer carry a whole average.' },
+    caption: <L en="Five at a time. The pile has pulled away from zero and the long right tail is being eaten — one big draw can no longer carry a whole average."
+                uk="По п’ять. Купа відірвалася від нуля, а довгий правий хвіст поїдається — одна велика вибірка вже не може тягнути ціле середнє." /> },
 
   { label: 'n = 30', in: 1.9, hold: 1.9,
     state: { u: 30, xlo: EXP[0], xhi: EXP[1], yhi: 2.9, normal: 0, cauchy: 0 },
-    caption: 'Thirty. Symmetric, centred on μ = 1, and the skew is simply gone.' },
+    caption: <L en="Thirty. Symmetric, centred on μ = 1, and the skew is simply gone."
+                uk="Тридцять. Симетрично, з центром у μ = 1, а скошеність просто зникла." /> },
 
-  { label: 'the bell', in: 1.6, hold: 2.4,
+  { label: <L en="the bell" uk="дзвін" />, in: 1.6, hold: 2.4,
     state: { u: 30, xlo: 0.4, xhi: 1.6, yhi: 2.9, normal: 1, cauchy: 0 },
-    caption: 'Zoom in, and overlay the normal density with mean μ and spread σ/√n. Nothing here was fitted: both numbers come from the source, and the shape came from the theorem.' },
+    caption: <L en="Zoom in, and overlay the normal density with mean μ and spread σ/√n. Nothing here was fitted: both numbers come from the source, and the shape came from the theorem."
+                uk="Наблизимо й накладемо нормальну густину із середнім μ і розкидом σ/√n. Тут нічого не підганяли: обидва числа взято з джерела, а форму дала теорема." /> },
 
-  { label: 'the catch', in: 1.9, hold: 2.8,
+  { label: <L en="the catch" uk="підступ" />, in: 1.9, hold: 2.8,
     state: { u: 30, xlo: CAUCHY[0], xhi: CAUCHY[1], yhi: 0.5, normal: 0, cauchy: 1 },
-    caption: 'Same experiment, still n = 30, on a Cauchy source. It has no finite variance, so σ/√n means nothing — and the averages are exactly as spread out as a single draw. Averaging needs a finite σ to bite on.' },
+    caption: <L en="Same experiment, still n = 30, on a Cauchy source. It has no finite variance, so σ/√n means nothing — and the averages are exactly as spread out as a single draw. Averaging needs a finite σ to bite on."
+                uk="Той самий експеримент, так само n = 30, але на джерелі Коші. Скінченної дисперсії немає, тож σ/√n нічого не означає — і середні розкидані рівно так само, як одна вибірка. Усередненню потрібна скінченна σ, щоб було за що вчепитися." /> },
 ];
 
 export function CLTScene() {
+  const tr = useTr();
   const clip = useId().replace(/:/g, '');
 
   // One pass for every n up to MAX_N, up front. Blending two neighbouring
@@ -108,7 +116,7 @@ export function CLTScene() {
 
         return (
           <>
-            <Plot xDomain={x} yDomain={y} xLabel="value of the sample mean" height={240}>
+            <Plot xDomain={x} yDomain={y} xLabel={tr('value of the sample mean', 'значення вибіркового середнього')} height={240}>
               {(sc) => {
                 const Bars = ({ vals, range, opacity, fill }:
                   { vals: number[]; range: [number, number]; opacity: number; fill: string }) => {
@@ -161,24 +169,31 @@ export function CLTScene() {
             </Plot>
 
             <Readout items={[
-              { label: 'n averaged', value: showCauchy ? '30' : String(Math.round(s.u)) },
-              { label: 'measured spread',
-                value: showCauchy ? 'unbounded' : spread.toFixed(3),
+              { label: tr('n averaged', 'усереднено n'), value: showCauchy ? '30' : String(Math.round(s.u)) },
+              { label: tr('measured spread', 'виміряний розкид'),
+                value: showCauchy ? tr('unbounded', 'необмежений') : spread.toFixed(3),
                 tone: showCauchy ? 'warn' : undefined },
-              { label: 'σ/√n predicts',
-                value: showCauchy ? 'no finite σ' : (1 / Math.sqrt(s.u)).toFixed(3),
+              { label: tr('σ/√n predicts', 'σ/√n передбачає'),
+                value: showCauchy ? tr('no finite σ', 'немає скінченного σ') : (1 / Math.sqrt(s.u)).toFixed(3),
                 tone: showCauchy ? 'warn' : 'good' },
             ]} />
           </>
         );
       }}
       note={
-        <>
-          The two readouts are the <b>measured</b> spread of the averages and the <b>σ/√n</b> the
-          theorem predicts. They track each other the whole way down — that agreement is the
-          quantitative half of the claim, and the bell shape is only the qualitative half.
-          Scrub to any n to compare them directly.
-        </>
+        <L
+          en={<>
+            The two readouts are the <b>measured</b> spread of the averages and the <b>σ/√n</b> the
+            theorem predicts. They track each other the whole way down — that agreement is the
+            quantitative half of the claim, and the bell shape is only the qualitative half.
+            Scrub to any n to compare them directly.
+          </>}
+          uk={<>
+            Два показники — це <b>виміряний</b> розкид середніх і <b>σ/√n</b>, що його передбачає теорема.
+            Вони йдуть поруч усю дорогу — ця згода є кількісною половиною твердження, а форма дзвона лише
+            якісною. Перемотайте до будь-якого n, щоб порівняти їх напряму.
+          </>}
+        />
       }
     />
   );

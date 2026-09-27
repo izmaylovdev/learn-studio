@@ -116,11 +116,24 @@ button { font: inherit; cursor: pointer; }
 .dot.review { background: var(--review); }
 .dot.mastered { background: var(--mastered); }
 
+.side-foot { display: flex; gap: 6px; margin: 0 10px 12px; }
 .theme-toggle {
-  margin: 0 10px 12px; padding: 6px 10px; background: none; border: 1px solid var(--line);
+  flex: 1; padding: 6px 10px; background: none; border: 1px solid var(--line);
   border-radius: 7px; color: var(--muted); font-size: 12px; text-align: left;
 }
 .theme-toggle:hover { color: var(--text); border-color: var(--muted); }
+.lang-toggle { display: flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.lang-toggle button {
+  padding: 6px 9px; background: none; border: 0; color: var(--faint);
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em;
+}
+.lang-toggle button + button { border-left: 1px solid var(--line); }
+.lang-toggle button:hover { color: var(--text); }
+.lang-toggle button.on { background: var(--panel); color: var(--text); }
+.untranslated {
+  margin: 0 0 22px; padding: 9px 13px; border: 1px dashed var(--line);
+  border-radius: var(--radius); color: var(--muted); font-size: 13px;
+}
 
 /* ---------- main ---------- */
 .main { overflow-y: auto; }

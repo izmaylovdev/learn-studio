@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plot, Slider, Choice, Readout, samplePath } from './Plot';
+import { L, useTr } from '../i18n';
 
 type Pair = {
   label: string;
@@ -16,17 +17,17 @@ type Pair = {
 
 const PAIRS: Record<string, Pair> = {
   cubic: {
-    label: 'x & x³', f: (x) => x, g: (x) => x ** 3,
+    label: 'x, x³', f: (x) => x, g: (x) => x ** 3,
     fLabel: 'y = x', gLabel: 'y = x³',
     a: -1, b: 1, cross: [0], y: [-1.3, 1.3],
   },
   trig: {
-    label: 'sin & cos', f: Math.sin, g: Math.cos,
+    label: 'sin, cos', f: Math.sin, g: Math.cos,
     fLabel: 'y = sin x', gLabel: 'y = cos x',
     a: 0, b: 2 * Math.PI, cross: [Math.PI / 4, (5 * Math.PI) / 4], y: [-1.45, 1.45],
   },
   root: {
-    label: '√x & x/2', f: Math.sqrt, g: (x) => x / 2,
+    label: '√x, x/2', f: Math.sqrt, g: (x) => x / 2,
     fLabel: 'y = √x', gLabel: 'y = x/2',
     a: 0, b: 4, cross: [], y: [-0.35, 2.3],
   },
@@ -53,6 +54,7 @@ function band(p: Pair, a: number, b: number, s: Parameters<typeof samplePath>[3]
  * readouts come apart the moment the sweep passes a crossing.
  */
 export function AreaBetweenViz() {
+  const tr = useTr();
   const [key, setKey] = useState<Key>('cubic');
   const p = PAIRS[key];
   const [t, setT] = useState(0.62);
@@ -112,22 +114,36 @@ export function AreaBetweenViz() {
         <span><i style={{ background: 'var(--accent)' }} />{p.gLabel} (g)</span>
       </div>
 
-      <Slider label="sweep to x" value={t} min={0} max={1} step={0.002} onChange={setT}
+      <Slider label={tr('sweep to x', 'до точки x')} value={t} min={0} max={1} step={0.002} onChange={setT}
               format={() => sweep.toFixed(2)} />
 
       <Readout items={[
-        { label: 'slice height f − g', value: gap.toFixed(3), tone: gap < 0 ? 'warn' : undefined },
+        { label: tr('slice height f − g', 'висота зрізу f − g'), value: gap.toFixed(3), tone: gap < 0 ? 'warn' : undefined },
         { label: '∫(f − g) dx', value: signed.toFixed(4), tone: split ? 'warn' : undefined },
-        { label: 'true area', value: area.toFixed(4), tone: split ? undefined : 'good' },
+        { label: tr('true area', 'справжня площа'), value: area.toFixed(4), tone: split ? undefined : 'good' },
       ]} />
 
       <p className="viz-note">
-        Sweep right and watch the two numbers. While the slice height stays positive they are the same
-        number — the integral <em>is</em> the area. Past a crossing the band turns red, the slice height goes
-        negative, and <code>∫(f−g)</code> starts <b>paying back</b> area it already counted. On <b>x & x³</b> it reaches exactly 0 at x = 1 while the true area is ½; on
-        <b> sin & cos</b> it does the same over a full period. The fix is not <code>|f−g|</code> — that is
-        just a name for the split — it is finding the crossing and integrating each side with its own top.
-        Try <b>√x & x/2</b> to see the case where nothing crosses and the caution costs you nothing.
+        <L
+          en={<>
+            Sweep right and watch the two numbers. While the slice height stays positive they are the same
+            number — the integral <em>is</em> the area. Past a crossing the band turns red, the slice height goes
+            negative, and <code>∫(f−g)</code> starts <b>paying back</b> area it already counted. On <b>x, x³</b> it
+            reaches exactly 0 at x = 1 while the true area is ½; on <b>sin, cos</b> it does the same over a full
+            period. The fix is not <code>|f−g|</code> — that is just a name for the split — it is finding the
+            crossing and integrating each side with its own top. Try <b>√x, x/2</b> to see the case where nothing
+            crosses and the caution costs you nothing.
+          </>}
+          uk={<>
+            Ведіть праворуч і стежте за двома числами. Поки висота зрізу додатна, вони однакові — інтеграл
+            <em> і є</em> площею. Після перетину смуга червоніє, висота зрізу стає від’ємною, і
+            <code> ∫(f−g)</code> починає <b>віднімати</b> площу, яку вже порахував. На <b>x, x³</b> він дорівнює
+            рівно 0 при x = 1, хоча справжня площа ½; на <b>sin, cos</b> те саме стається за повний період.
+            Рятує не <code>|f−g|</code> — це лише назва для розбиття, — а пошук точки перетину й окреме
+            інтегрування кожної частини з її власним верхом. Спробуйте <b>√x, x/2</b>: тут нічого не
+            перетинається, і обережність нічого не коштує.
+          </>}
+        />
       </p>
     </div>
   );

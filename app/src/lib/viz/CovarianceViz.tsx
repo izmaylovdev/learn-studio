@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plot, Slider, Readout } from './Plot';
+import { L, useTr } from '../i18n';
 
 /**
  * An uncertainty ellipse pushed through a constant-velocity step. The point is
@@ -27,6 +28,7 @@ function ellipse(a: number, b: number, c: number, k = 1, n = 96): [number, numbe
 }
 
 export function CovarianceViz() {
+  const tr = useTr();
   const [dt, setDt] = useState(6);
   const [sv, setSv] = useState(0.25);     // velocity uncertainty, m/s
   const [sa, setSa] = useState(0.06);     // unmodelled acceleration, m/s²
@@ -51,7 +53,8 @@ export function CovarianceViz() {
 
   return (
     <div className="viz">
-      <Plot xDomain={[-10, 10]} yDomain={[-1, 1]} xLabel="position error (m)" yLabel="velocity error (m/s)" height={250}>
+      <Plot xDomain={[-10, 10]} yDomain={[-1, 1]} xLabel={tr('position error (m)', 'похибка положення (м)')}
+            yLabel={tr('velocity error (m/s)', 'похибка швидкості (м/с)')} height={250}>
         {(s) => (
           <>
             <path className="viz-prior" d={path(ellipse(P[0], P[1], P[2]), s)} />
@@ -64,28 +67,41 @@ export function CovarianceViz() {
       </Plot>
 
       <div className="viz-legend">
-        <span><i style={{ background: 'var(--muted)' }} /> before the step</span>
-        <span><i style={{ background: 'var(--accent)' }} /> after F, plus Q</span>
+        <span><i style={{ background: 'var(--muted)' }} /> {tr('before the step', 'до кроку')}</span>
+        <span><i style={{ background: 'var(--accent)' }} /> {tr('after F, plus Q', 'після F, плюс Q')}</span>
       </div>
 
-      <Slider label="Δt (s)" value={dt} min={0} max={10} step={0.5} onChange={setDt} format={(v) => v.toFixed(1)} />
-      <Slider label="σᵥ (m/s)" value={sv} min={0.05} max={0.4} step={0.01} onChange={setSv} format={(v) => v.toFixed(2)} />
-      <Slider label="σₐ (m/s²)" value={sa} min={0} max={0.25} step={0.01} onChange={setSa} format={(v) => v.toFixed(2)} />
+      <Slider label={tr('Δt (s)', 'Δt (с)')} value={dt} min={0} max={10} step={0.5} onChange={setDt} format={(v) => v.toFixed(1)} />
+      <Slider label={tr('σᵥ (m/s)', 'σᵥ (м/с)')} value={sv} min={0.05} max={0.4} step={0.01} onChange={setSv} format={(v) => v.toFixed(2)} />
+      <Slider label={tr('σₐ (m/s²)', 'σₐ (м/с²)')} value={sa} min={0} max={0.25} step={0.01} onChange={setSa} format={(v) => v.toFixed(2)} />
 
       <Readout items={[
-        { label: 'σ position (m)', value: Math.sqrt(a1).toFixed(2) },
-        { label: 'σ velocity (m/s)', value: Math.sqrt(c1).toFixed(3) },
-        { label: 'correlation ρ', value: rho.toFixed(2), tone: Math.abs(rho) > 0.5 ? 'good' : undefined },
+        { label: tr('σ position (m)', 'σ положення (м)'), value: Math.sqrt(a1).toFixed(2) },
+        { label: tr('σ velocity (m/s)', 'σ швидкості (м/с)'), value: Math.sqrt(c1).toFixed(3) },
+        { label: tr('correlation ρ', 'кореляція ρ'), value: rho.toFixed(2), tone: Math.abs(rho) > 0.5 ? 'good' : undefined },
       ]} />
 
       <p className="viz-note">
-        At <code>Δt = 0</code> the two ellipses coincide and the shape is <b>upright</b> — position and velocity
-        errors unrelated. Drag Δt out and watch it <b>tilt</b>, not merely grow. Nothing was measured and no noise
-        was needed for that: both new components contain the same old velocity, so their errors are forced to move
-        together. The correlation readout is the width of the channel a position measurement will later travel
-        along to correct a velocity <b>no sensor ever sees</b>. Now push σₐ up. The ellipse grows — and the tilt
-        gets <b>stronger</b>, because one unknown acceleration also disturbs both components at once. That is the
-        same fact as "a diagonal Q is physically incoherent", seen as a picture.
+        <L
+          en={<>
+            At <code>Δt = 0</code> the two ellipses coincide and the shape is <b>upright</b> — position and velocity
+            errors unrelated. Drag Δt out and watch it <b>tilt</b>, not merely grow. Nothing was measured and no noise
+            was needed for that: both new components contain the same old velocity, so their errors are forced to move
+            together. The correlation readout is the width of the channel a position measurement will later travel
+            along to correct a velocity <b>no sensor ever sees</b>. Now push σₐ up. The ellipse grows — and the tilt
+            gets <b>stronger</b>, because one unknown acceleration also disturbs both components at once. That is the
+            same fact as "a diagonal Q is physically incoherent", seen as a picture.
+          </>}
+          uk={<>
+            При <code>Δt = 0</code> два еліпси збігаються, і форма <b>пряма</b> — похибки положення й швидкості не
+            пов’язані. Збільшуйте Δt і дивіться, як еліпс <b>нахиляється</b>, а не просто росте. Для цього нічого не
+            вимірювали й шум не знадобився: обидві нові компоненти містять ту саму стару швидкість, тож їхні похибки
+            змушені рухатися разом. Показник кореляції — це ширина каналу, яким вимірювання положення згодом
+            пройде, щоб виправити швидкість, <b>якої не бачить жоден датчик</b>. Тепер підніміть σₐ. Еліпс росте — і
+            нахил стає <b>сильнішим</b>, бо одне невідоме прискорення теж збурює обидві компоненти одночасно. Це той
+            самий факт, що й «діагональна Q фізично неузгоджена», тільки у вигляді малюнка.
+          </>}
+        />
       </p>
     </div>
   );

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getConcept, postProgress } from '../api';
 import type { Concept, Status } from '../types';
 import { Markdown } from '../lib/Markdown';
+import { useLang, useT } from '../lib/i18n';
 
 const STATUSES: Status[] = ['unseen', 'learning', 'review', 'mastered'];
 
@@ -13,15 +14,17 @@ export function Reader({
   theme: 'dark' | 'light';
   onChange: () => void;
 }) {
+  const t = useT();
+  const lang = useLang();
   const [concept, setConcept] = useState<Concept | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState('');
   const notesTimer = useRef<number>();
 
   const load = useCallback(async () => {
-    try { setConcept(await getConcept(id)); setError(null); }
+    try { setConcept(await getConcept(id, lang)); setError(null); }
     catch (err) { setError(String((err as Error).message)); }
-  }, [id]);
+  }, [id, lang]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -52,7 +55,7 @@ export function Reader({
   };
 
   if (error) return <div className="page"><div className="error-box"><b>{error}</b></div></div>;
-  if (!concept) return <div className="page"><p className="empty">Loading…</p></div>;
+  if (!concept) return <div className="page"><p className="empty">{t('loading')}</p></div>;
 
   const { state } = concept;
 
@@ -60,60 +63,61 @@ export function Reader({
     <div className="page">
       <div className="reader">
         <div>
+          {concept.lang !== lang && <p className="untranslated">{t('untranslated')}</p>}
           <Markdown
             body={concept.body}
             titles={titles}
             theme={theme}
             answers={concept.checks}
             formulas={concept.formulas ?? []}
-            onGrade={(g) => void send({ grade: g }, 'review recorded')}
+            onGrade={(g) => void send({ grade: g }, t('reviewRecorded'))}
           />
         </div>
 
         <aside className="aside">
           <div className="block">
-            <h5>Status</h5>
+            <h5>{t('status')}</h5>
             <div className="status-picker">
               {STATUSES.map((s) => (
                 <button key={s}
                         className={`${state.status === s ? `on ${s}` : ''}`}
-                        onClick={() => void send({ status: s }, `marked ${s}`)}>
-                  {s}
+                        onClick={() => void send({ status: s }, t('markedAs', t(`status.${s}`)))}>
+                  {t(`status.${s}`)}
                 </button>
               ))}
             </div>
             <div className="meta-line">
-              {state.lastReviewed && <span>last {state.lastReviewed}</span>}
-              {state.nextReview && <span>next {state.nextReview}</span>}
-              {state.reps > 0 && <span>{state.reps} reps</span>}
+              {state.lastReviewed && <span>{t('last', state.lastReviewed)}</span>}
+              {state.nextReview && <span>{t('next', state.nextReview)}</span>}
+              {state.reps > 0 && <span>{t('reps', state.reps)}</span>}
             </div>
             <div className="saved">{saved}</div>
           </div>
 
           <div className="block">
-            <h5>About</h5>
+            <h5>{t('about')}</h5>
             <div className="meta-line" style={{ marginTop: 0 }}>
-              <span>{concept.estMinutes} min</span>
-              <span>difficulty {concept.difficulty}/5</span>
-              <span>depth {concept.depth}</span>
+              <span>{t('minutes', concept.estMinutes)}</span>
+              <span>{t('difficulty', concept.difficulty)}</span>
+              <span>{t('depth', concept.depth)}</span>
             </div>
             {concept.tags.length > 0 && (
               <div className="meta-line">{concept.tags.map((t) => <span key={t}>#{t}</span>)}</div>
             )}
           </div>
 
-          <RefBlock title="Prerequisites" ids={concept.prereqs} titles={titles} />
-          <RefBlock title="Related" ids={concept.related} titles={titles} />
+          <RefBlock title={t('prerequisites')} ids={concept.prereqs} titles={titles} />
+          <RefBlock title={t('related')} ids={concept.related} titles={titles} />
 
           {concept.backlinks.length > 0 && (
             <div className="block">
-              <h5>Referenced by</h5>
+              <h5>{t('referencedBy')}</h5>
               <ul>
                 {concept.backlinks.map((b) => (
                   <li key={`${b.from}-${b.kind}`}>
                     <a href={`#/c/${b.from}`}>
                       {titles.get(b.from) ?? b.from}
-                      <span className="kind">{b.kind}</span>
+                      <span className="kind">{t(`edge.${b.kind}`)}</span>
                     </a>
                   </li>
                 ))}
@@ -123,7 +127,7 @@ export function Reader({
 
           {concept.tracks.length > 0 && (
             <div className="block">
-              <h5>In tracks</h5>
+              <h5>{t('inTracks')}</h5>
               <ul>
                 {concept.tracks.map((t) => (
                   <li key={t.id}><a href={`#/t/${t.id}`}>{t.title}</a></li>
@@ -134,7 +138,7 @@ export function Reader({
 
           {concept.sources.length > 0 && (
             <div className="block">
-              <h5>Sources</h5>
+              <h5>{t('sources')}</h5>
               <ul>
                 {concept.sources.map((s, i) => (
                   <li key={i}>
@@ -148,21 +152,21 @@ export function Reader({
           )}
 
           <div className="block">
-            <h5>My notes</h5>
+            <h5>{t('myNotes')}</h5>
             <textarea
               className="notes"
               defaultValue={state.notes}
-              placeholder="What clicked, what didn't, what to come back to…"
+              placeholder={t('notesPlaceholder')}
               onChange={(e) => {
                 const notes = e.target.value;
                 clearTimeout(notesTimer.current);
-                notesTimer.current = window.setTimeout(() => void send({ notes }, 'notes saved'), 700);
+                notesTimer.current = window.setTimeout(() => void send({ notes }, t('notesSaved')), 700);
               }}
             />
           </div>
 
           <div className="block">
-            <h5>Source file</h5>
+            <h5>{t('sourceFile')}</h5>
             <code style={{ fontSize: 11.5, color: 'var(--faint)', wordBreak: 'break-all' }}>
               {concept.file}
             </code>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plot, Slider, Choice, Readout, samplePath } from './Plot';
+import { L, useTr } from '../i18n';
 
 type Method = 'washer' | 'shell';
 
@@ -10,6 +11,7 @@ const A = 0, B = 4;
 
 /** One slice of a solid of revolution — perpendicular (washer) or parallel (shell). */
 export function SolidViz() {
+  const tr = useTr();
   const [method, setMethod] = useState<Method>('washer');
   const [pos, setPos] = useState(1.6);
 
@@ -32,7 +34,10 @@ export function SolidViz() {
     <div className="viz">
       <div className="viz-controls">
         <Choice value={method} onChange={setMethod}
-                options={[{ value: 'washer', label: 'washer  ⟂  about x-axis' }, { value: 'shell', label: 'shell  ∥  about y-axis' }]} />
+                options={[
+                  { value: 'washer', label: tr('washer  ⟂  about x-axis', 'шайба  ⟂  навколо осі x') },
+                  { value: 'shell', label: tr('shell  ∥  about y-axis', 'оболонка  ∥  навколо осі y') },
+                ]} />
       </div>
 
       <Plot xDomain={[-0.4, 4.4]} yDomain={[-0.3, 2.4]} xLabel="x" height={240}>
@@ -65,21 +70,32 @@ export function SolidViz() {
         }}
       </Plot>
 
-      <Slider label="slice at x" value={pos} min={0.05} max={3.95} step={0.05} onChange={setPos}
+      <Slider label={tr('slice at x', 'зріз у точці x')} value={pos} min={0.05} max={3.95} step={0.05} onChange={setPos}
               format={(v) => v.toFixed(2)} />
 
       <Readout items={[
         { label: method === 'washer' ? 'π(R²−r²)' : '2πr·h', value: sliceVal.toFixed(3) },
         { label: method === 'washer' ? 'R, r' : 'r, h', value: method === 'washer' ? `${R.toFixed(2)}, ${r.toFixed(2)}` : `${pos.toFixed(2)}, ${(R - r).toFixed(2)}` },
-        { label: 'total volume', value: volume.toFixed(4) },
+        { label: tr('total volume', 'повний об’єм'), value: volume.toFixed(4) },
       ]} />
 
       <p className="viz-note">
-        Same region, two ways to slice it. The <b>washer</b> cuts perpendicular to the axis of revolution, so
-        the slice is an annulus and you subtract <em>areas</em> — <code>π(R²−r²)</code>, never
-        <code>π(R−r)²</code>. The <b>shell</b> cuts parallel, so the slice sweeps a cylinder of circumference
-        <code>2πr</code> and height <code>h</code>. Slide across and watch which quantity stays simple: about
-        the y-axis, the shell needs no inversion of √x, which is the whole reason to reach for it.
+        <L
+          en={<>
+            Same region, two ways to slice it. The <b>washer</b> cuts perpendicular to the axis of revolution, so
+            the slice is an annulus and you subtract <em>areas</em> — <code>π(R²−r²)</code>, never
+            <code>π(R−r)²</code>. The <b>shell</b> cuts parallel, so the slice sweeps a cylinder of circumference
+            <code>2πr</code> and height <code>h</code>. Slide across and watch which quantity stays simple: about
+            the y-axis, the shell needs no inversion of √x, which is the whole reason to reach for it.
+          </>}
+          uk={<>
+            Та сама область, два способи її нарізати. <b>Шайба</b> ріже перпендикулярно до осі обертання, тож
+            зріз — це кільце, і віднімати треба <em>площі</em>: <code>π(R²−r²)</code>, а не
+            <code> π(R−r)²</code>. <b>Оболонка</b> ріже паралельно, тож зріз замітає циліндр із довжиною кола
+            <code> 2πr</code> і висотою <code>h</code>. Поводіть повзунок і стежте, яка величина лишається
+            простою: навколо осі y оболонці не треба обертати √x — саме заради цього її й обирають.
+          </>}
+        />
       </p>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useId, useMemo } from 'react';
 import { Plot, Readout, samplePath } from '../Plot';
 import { Scene, DrawPath, type Beat } from '../Scene';
+import { L, useTr } from '../../i18n';
 
 const fact: number[] = [1];
 for (let i = 1; i <= 40; i++) fact[i] = fact[i - 1] * i;
@@ -42,34 +43,41 @@ type S = { draw: number; u: number; show: number; xhi: number; yhi: number };
 const BEATS: Beat<S>[] = [
   { label: 'sin x', hold: 0.5,
     state: { draw: 0, u: 0, show: 0, xhi: 7, yhi: 2.4 },
-    caption: 'Here is sin x.' },
+    caption: <L en="Here is sin x." uk="Ось sin x." /> },
 
-  { label: 'the curve', in: 1.2, hold: 1.6,
+  { label: <L en="the curve" uk="крива" />, in: 1.2, hold: 1.6,
     state: { draw: 1, u: 0, show: 0, xhi: 7, yhi: 2.4 },
-    caption: 'It wiggles forever. Nothing polynomial about it — a degree-N polynomial has at most N roots, and this has infinitely many.' },
+    caption: <L en="It wiggles forever. Nothing polynomial about it — a degree-N polynomial has at most N roots, and this has infinitely many."
+                uk="Вона коливається вічно. Нічого многочленного — многочлен степеня N має не більше N коренів, а тут їх нескінченно багато." /> },
 
   { label: 'T₁', in: 1.0, hold: 1.7,
     state: { draw: 1, u: 0, show: 1, xhi: 7, yhi: 2.4 },
-    caption: 'T₁ = x. The tangent at the origin: right value, right slope, wrong everything else.' },
+    caption: <L en="T₁ = x. The tangent at the origin: right value, right slope, wrong everything else."
+                uk="T₁ = x. Дотична в початку координат: правильне значення, правильний нахил, усе інше хибне." /> },
 
   { label: 'T₃', in: 1.3, hold: 1.7,
     state: { draw: 1, u: 1, show: 1, xhi: 7, yhi: 2.4 },
-    caption: 'Subtract x³/6 and the line bends down to catch the first hump. Watch where it bends: near 0 the new term is negligible, so it changes nothing there.' },
+    caption: <L en="Subtract x³/6 and the line bends down to catch the first hump. Watch where it bends: near 0 the new term is negligible, so it changes nothing there."
+                uk="Віднімемо x³/6 — і пряма згинається донизу, щоб піймати перший горб. Стежте, де саме вона згинається: біля 0 новий член мізерний, тож там він нічого не змінює." /> },
 
   { label: 'T₅', in: 1.2, hold: 1.5,
     state: { draw: 1, u: 2, show: 1, xhi: 7, yhi: 2.4 },
-    caption: 'Add x⁵/120. Every term is a correction that sleeps near the origin and wakes up further out — that is the xᵏ factor doing its work.' },
+    caption: <L en="Add x⁵/120. Every term is a correction that sleeps near the origin and wakes up further out — that is the xᵏ factor doing its work."
+                uk="Додамо x⁵/120. Кожен член — це поправка, що спить біля початку координат і прокидається далі, — так працює множник xᵏ." /> },
 
   { label: 'T₁₃', in: 1.9, hold: 1.8,
     state: { draw: 1, u: 5, show: 1, xhi: 7, yhi: 2.4 },
-    caption: 'Keep going and the agreement creeps outward from the centre. It never gets better at the centre — it was already exact there.' },
+    caption: <L en="Keep going and the agreement creeps outward from the centre. It never gets better at the centre — it was already exact there."
+                uk="Далі збіг повзе назовні від центру. У самому центрі він ніколи не покращується — там він і так уже точний." /> },
 
-  { label: 'the catch', in: 1.7, hold: 2.6,
+  { label: <L en="the catch" uk="підступ" />, in: 1.7, hold: 2.6,
     state: { draw: 1, u: 5, show: 1, xhi: 17, yhi: 9 },
-    caption: 'Now pull the camera back. T₁₃ was never a copy of sin x — it is a polynomial, and polynomials run away. sin x has infinite radius of convergence, but the degree you stopped at still has a horizon.' },
+    caption: <L en="Now pull the camera back. T₁₃ was never a copy of sin x — it is a polynomial, and polynomials run away. sin x has infinite radius of convergence, but the degree you stopped at still has a horizon."
+                uk="Тепер віддалимо камеру. T₁₃ ніколи не був копією sin x — це многочлен, а многочлени тікають на нескінченність. Радіус збіжності sin x нескінченний, але степінь, на якому ви зупинилися, все одно має свій горизонт." /> },
 ];
 
 export function TaylorScene() {
+  const tr = useTr();
   const clip = useId().replace(/:/g, '');
   const beats = useMemo(() => BEATS, []);
 
@@ -111,20 +119,28 @@ export function TaylorScene() {
             </Plot>
 
             <Readout items={[
-              { label: 'degree', value: s.show < 0.5 ? '—' : String(Math.round(STEPS[Math.min(STEPS.length - 1, Math.round(s.u))])) },
-              { label: 'agrees to ±0.02 out to', value: r <= 0 ? '—' : `|x| ≈ ${r.toFixed(1)}`, tone: r > 4 ? 'good' : undefined },
-              { label: 'window', value: `±${s.xhi.toFixed(0)}` },
+              { label: tr('degree', 'степінь'), value: s.show < 0.5 ? '—' : String(Math.round(STEPS[Math.min(STEPS.length - 1, Math.round(s.u))])) },
+              { label: tr('agrees to ±0.02 out to', 'збіг до ±0.02 аж до'), value: r <= 0 ? '—' : `|x| ≈ ${r.toFixed(1)}`, tone: r > 4 ? 'good' : undefined },
+              { label: tr('window', 'вікно'), value: `±${s.xhi.toFixed(0)}` },
             ]} />
           </>
         );
       }}
       note={
-        <>
-          The shaded band is where the polynomial is within <b>0.02</b> of sin&nbsp;x. It grows with
-          the degree — always outward from the centre, never uniformly — which is the
-          <code>|x−a|<sup>N+1</sup></code> factor in the remainder bound, made visible. Scrub back
-          and forth to compare any two degrees directly.
-        </>
+        <L
+          en={<>
+            The shaded band is where the polynomial is within <b>0.02</b> of sin&nbsp;x. It grows with
+            the degree — always outward from the centre, never uniformly — which is the
+            <code>|x−a|<sup>N+1</sup></code> factor in the remainder bound, made visible. Scrub back
+            and forth to compare any two degrees directly.
+          </>}
+          uk={<>
+            Затінена смуга — це місце, де многочлен відрізняється від sin&nbsp;x не більше ніж на <b>0.02</b>.
+            Вона росте зі степенем — завжди назовні від центру, ніколи рівномірно, — і це множник
+            <code> |x−a|<sup>N+1</sup></code> з оцінки залишку, який стає видимим. Перемотуйте туди-сюди,
+            щоб порівняти будь-які два степені напряму.
+          </>}
+        />
       }
     />
   );

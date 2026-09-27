@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plot, Slider, Choice, Readout } from './Plot';
+import { L, useTr } from '../i18n';
 
 /**
  * The classic pick-your-variable region: the parabola x = y² and the line
@@ -20,6 +21,7 @@ const botV = (x: number) => (x <= SPLIT ? -Math.sqrt(x) : x - 2);
 type Mode = 'dx' | 'dy';
 
 export function SliceOrientationViz() {
+  const tr = useTr();
   const [mode, setMode] = useState<Mode>('dy');
   const [posX, setPosX] = useState(2.2);
   const [posY, setPosY] = useState(0.6);
@@ -34,7 +36,10 @@ export function SliceOrientationViz() {
     <div className="viz">
       <div className="viz-controls">
         <Choice value={mode} onChange={setMode}
-                options={[{ value: 'dx', label: 'vertical slices  ·  dx' }, { value: 'dy', label: 'horizontal slices  ·  dy' }]} />
+                options={[
+                  { value: 'dx', label: tr('vertical slices  ·  dx', 'вертикальні зрізи  ·  dx') },
+                  { value: 'dy', label: tr('horizontal slices  ·  dy', 'горизонтальні зрізи  ·  dy') },
+                ]} />
       </div>
 
       <Plot xDomain={xD} yDomain={yD} xLabel="x" yLabel="y" height={310}>
@@ -69,7 +74,7 @@ export function SliceOrientationViz() {
               {mode === 'dx' && (
                 <>
                   <line className="viz-marker" x1={s.sx(SPLIT)} x2={s.sx(SPLIT)} y1={s.top} y2={s.bottom} />
-                  <text className="viz-annot" x={s.sx(SPLIT) + 6} y={s.top + 12}>floor changes here</text>
+                  <text className="viz-annot" x={s.sx(SPLIT) + 6} y={s.top + 12}>{tr('floor changes here', 'тут змінюється низ')}</text>
                 </>
               )}
 
@@ -101,25 +106,38 @@ export function SliceOrientationViz() {
       </Plot>
 
       {mode === 'dx'
-        ? <Slider label="slice at x" value={posX} min={0.05} max={3.95} step={0.05} onChange={setPosX}
+        ? <Slider label={tr('slice at x', 'зріз у точці x')} value={posX} min={0.05} max={3.95} step={0.05} onChange={setPosX}
                   format={(v) => v.toFixed(2)} />
-        : <Slider label="slice at y" value={posY} min={-0.95} max={1.95} step={0.05} onChange={setPosY}
+        : <Slider label={tr('slice at y', 'зріз у точці y')} value={posY} min={-0.95} max={1.95} step={0.05} onChange={setPosY}
                   format={(v) => v.toFixed(2)} />}
 
       <Readout items={[
-        { label: mode === 'dx' ? 'slice height' : 'slice width', value: extent.toFixed(3) },
-        { label: 'integrals needed', value: mode === 'dx' ? '2' : '1', tone: mode === 'dx' ? 'warn' : 'good' },
-        { label: 'area either way', value: AREA.toFixed(3) },
+        { label: mode === 'dx' ? tr('slice height', 'висота зрізу') : tr('slice width', 'ширина зрізу'), value: extent.toFixed(3) },
+        { label: tr('integrals needed', 'потрібно інтегралів'), value: mode === 'dx' ? '2' : '1', tone: mode === 'dx' ? 'warn' : 'good' },
+        { label: tr('area either way', 'площа будь-яким способом'), value: AREA.toFixed(3) },
       ]} />
 
       <p className="viz-note">
-        Same region, same answer, two setups. Drag the <b>vertical</b> slice from left to right and watch its
-        bottom endpoint jump formula at x = 1: before the corner the floor is the parabola's lower branch
-        <code>−√x</code>, after it the line <code>x−2</code>. No single integrand covers both, so you write two
-        integrals — and you had to notice the corner to know that. The <b>horizontal</b> slice never changes
-        its story: left end on <code>y²</code>, right end on <code>y+2</code>, all the way from y = −1 to
-        y = 2. Choosing dy here is not a trick, it is reading which boundary is a <em>single</em> function of
-        which variable. That decision, made before you write anything down, is usually the whole problem.
+        <L
+          en={<>
+            Same region, same answer, two setups. Drag the <b>vertical</b> slice from left to right and watch its
+            bottom endpoint jump formula at x = 1: before the corner the floor is the parabola's lower branch
+            <code>−√x</code>, after it the line <code>x−2</code>. No single integrand covers both, so you write two
+            integrals — and you had to notice the corner to know that. The <b>horizontal</b> slice never changes
+            its story: left end on <code>y²</code>, right end on <code>y+2</code>, all the way from y = −1 to
+            y = 2. Choosing dy here is not a trick, it is reading which boundary is a <em>single</em> function of
+            which variable. That decision, made before you write anything down, is usually the whole problem.
+          </>}
+          uk={<>
+            Та сама область, та сама відповідь, дві постановки. Ведіть <b>вертикальний</b> зріз зліва направо й
+            стежте, як його нижній кінець змінює формулу при x = 1: до кута низом є нижня гілка параболи
+            <code> −√x</code>, після нього — пряма <code>x−2</code>. Жоден один підінтегральний вираз не покриває
+            обидва випадки, тож інтегралів два — і щоб це знати, кут треба було помітити. <b>Горизонтальний</b> зріз
+            ніколи не змінює своєї історії: лівий кінець на <code>y²</code>, правий на <code>y+2</code>, на всьому
+            проміжку від y = −1 до y = 2. Вибір dy тут — не трюк, а прочитання того, яка межа є <em>однією</em>
+            функцією якої змінної. Це рішення, ухвалене ще до першого рядка, зазвичай і є всією задачею.
+          </>}
+        />
       </p>
     </div>
   );

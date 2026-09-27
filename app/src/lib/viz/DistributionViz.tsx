@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Choice, Plot, Readout, Slider } from './Plot';
+import { L, useTr } from '../i18n';
 
 type Which = 'binomial' | 'poisson';
 
@@ -15,6 +16,7 @@ function logFact(k: number) {
  * Poisson; let np grow and either becomes the normal.
  */
 export function DistributionViz() {
+  const tr = useTr();
   const [which, setWhich] = useState<Which>('binomial');
   const [n, setN] = useState(20);
   const [p, setP] = useState(0.3);
@@ -43,7 +45,10 @@ export function DistributionViz() {
   return (
     <div className="viz">
       <Choice value={which} onChange={setWhich}
-              options={[{ value: 'binomial', label: 'binomial' }, { value: 'poisson', label: 'Poisson' }]} />
+              options={[
+                { value: 'binomial', label: tr('binomial', 'біноміальний') },
+                { value: 'poisson', label: tr('Poisson', 'Пуассона') },
+              ]} />
 
       <Plot xDomain={[-0.5, K + 0.5]} yDomain={[0, peak * 1.15]} xLabel="k" height={220}>
         {(s) => (
@@ -73,21 +78,32 @@ export function DistributionViz() {
         )}
       </Plot>
 
-      <Slider label="n trials" value={n} min={1} max={80} onChange={setN} />
+      <Slider label={tr('n trials', 'n випробувань')} value={n} min={1} max={80} onChange={setN} />
       <Slider label="p" value={p} min={0.01} max={0.99} step={0.01} onChange={setP} format={(v) => v.toFixed(2)} />
 
       <Readout items={[
-        { label: 'mean', value: mean.toFixed(3) },
-        { label: 'variance', value: (sd * sd).toFixed(3) },
+        { label: tr('mean', 'середнє'), value: mean.toFixed(3) },
+        { label: tr('variance', 'дисперсія'), value: (sd * sd).toFixed(3) },
         { label: which === 'binomial' ? 'np' : 'λ', value: lambda.toFixed(2) },
       ]} />
 
       <p className="viz-note">
-        Two different convergences live in these sliders. Push <b>n up and p down</b> keeping np near 3 —
-        the binomial and the Poisson become indistinguishable, and neither cares about n and p separately
-        any more, only their product. Now push <b>np above about 10</b>: the green normal curve lands on
-        top of either one. The dashed lines are one σ out; for the Poisson mean and variance are
-        <em> the same number</em>, which is the claim you can test against real count data.
+        <L
+          en={<>
+            Two different convergences live in these sliders. Push <b>n up and p down</b> keeping np near 3 —
+            the binomial and the Poisson become indistinguishable, and neither cares about n and p separately
+            any more, only their product. Now push <b>np above about 10</b>: the green normal curve lands on
+            top of either one. The dashed lines are one σ out; for the Poisson mean and variance are
+            <em> the same number</em>, which is the claim you can test against real count data.
+          </>}
+          uk={<>
+            У цих повзунках живуть дві різні збіжності. Збільшуйте <b>n і зменшуйте p</b>, тримаючи np біля 3, —
+            біноміальний розподіл і розподіл Пуассона стають нерозрізненними, і жодному з них уже не важливі n і p
+            окремо, лише їхній добуток. Тепер підніміть <b>np вище приблизно 10</b>: зелена нормальна крива лягає
+            поверх будь-якого з них. Пунктирні лінії — на відстані одного σ; у Пуассона середнє й дисперсія —
+            <em> одне й те саме число</em>, і саме це твердження можна перевірити на реальних даних лічби.
+          </>}
+        />
       </p>
     </div>
   );

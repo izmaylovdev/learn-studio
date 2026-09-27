@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react';
+import { L } from './i18n';
 
 /**
  * An embedded figure that throws must not take the whole material down with it.
@@ -23,9 +24,12 @@ export class Boundary extends Component<
     if (this.state.error) {
       return (
         <div className="viz viz-error">
-          <b>{this.props.label} failed to render.</b>
+          <b>{this.props.label} <L en="failed to render." uk="— не вдалося відобразити." /></b>
           <p>{this.state.error.message}</p>
-          <p>The rest of this material is unaffected. Details are in the browser console.</p>
+          <p>
+            <L en="The rest of this material is unaffected. Details are in the browser console."
+               uk="Решта матеріалу працює. Подробиці — у консолі браузера." />
+          </p>
         </div>
       );
     }

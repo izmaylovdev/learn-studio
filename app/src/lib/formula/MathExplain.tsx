@@ -6,7 +6,8 @@ import type { Graph, MathTarget, Symbol_ } from '../../types';
 import { annotate, paint } from './annotate';
 import { buildSenses, type Senses } from './senses';
 import { SymbolCard } from './SymbolCard';
-import { KIND_NAME, KIND_ORDER } from './kinds';
+import { KIND_ORDER, useKinds } from './kinds';
+import { useT } from '../i18n';
 
 /**
  * Every formula the reader meets can be taken apart, not just the ones an
@@ -91,6 +92,8 @@ function MathDrawer({
   onClose: () => void;
 }) {
   const stage = useRef<HTMLDivElement>(null);
+  const t = useT();
+  const { KIND_NAME } = useKinds();
   const [selected, setSelected] = useState<string | null>(target.symbol);
   const [order, setOrder] = useState<string[]>([]);
 
@@ -149,17 +152,17 @@ function MathDrawer({
 
   return (
     <aside className={`mx-drawer${coloured ? ' coloured' : ''}`} role="dialog"
-           aria-label="What this formula says">
+           aria-label={t('drawerLabel')}>
       <header className="mx-head">
         <div>
-          <div className="mx-eyebrow">{target.title ? 'Formula' : 'This formula'}</div>
+          <div className="mx-eyebrow">{t(target.title ? 'formula' : 'thisFormula')}</div>
           {target.title && <div className="mx-title">{target.title}</div>}
         </div>
         <label className="fx-toggle">
           <input type="checkbox" checked={coloured} onChange={(e) => setColoured(e.target.checked)} />
-          colour
+          {t('colour')}
         </label>
-        <button className="mx-close" onClick={onClose} aria-label="Close">✕</button>
+        <button className="mx-close" onClick={onClose} aria-label={t('close')}>✕</button>
       </header>
 
       <div
@@ -197,15 +200,10 @@ function MathDrawer({
           <div className="mx-empty">
             <p>
               {inLine.length
-                ? <>This line uses <b>{inLine.length}</b> mark{inLine.length > 1 ? 's' : ''} the lexicon
-                    knows. Click one — in the formula or in the row above — to see what it is doing here.</>
-                : <>Nothing in this line is in the lexicon yet. <code>npm run index</code> lists the marks
-                    that have no entry.</>}
+                ? t('lineUses', inLine.length)
+                : <>{t('lineNone')} <code>npm run index</code> {t('lineNoneRun')}</>}
             </p>
-            <p className="mx-aside">
-              Anything typeset as maths on the page opens here, including the bits
-              inside a sentence — they highlight as you pass over them.
-            </p>
+            <p className="mx-aside">{t('drawerAside')}</p>
             {kinds.length > 0 && (
               <div className="mx-legend">
                 {kinds.map((k) => (
@@ -218,8 +216,8 @@ function MathDrawer({
       </div>
 
       <footer className="mx-foot">
-        <span><kbd>←</kbd> <kbd>→</kbd> step · <kbd>esc</kbd> close</span>
-        <a href="#/lexicon">Full lexicon →</a>
+        <span><kbd>←</kbd> <kbd>→</kbd> {t('keysStep')} · <kbd>esc</kbd> {t('keysClose')}</span>
+        <a href="#/lexicon">{t('fullLexicon')}</a>
       </footer>
     </aside>
   );

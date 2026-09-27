@@ -1,19 +1,23 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Slider, Choice, Readout } from './Plot';
+import { L, useTr } from '../i18n';
 
-interface Spec { label: string; r: (t: number) => number; span: number; max: number; note: string }
+interface Spec { label: string; r: (t: number) => number; span: number; max: number; note: ReactNode }
 
 const CURVES: Record<string, Spec> = {
   rose3: { label: 'r = cos 3θ', r: (t) => Math.cos(3 * t), span: Math.PI, max: 1,
-    note: 'three petals — the curve retraces itself after π, which is why odd n gives n petals' },
+    note: <L en="three petals — the curve retraces itself after π, which is why odd n gives n petals"
+             uk="три пелюстки — після π крива проходить себе вдруге, тому непарне n дає n пелюсток" /> },
   rose4: { label: 'r = cos 2θ', r: (t) => Math.cos(2 * t), span: 2 * Math.PI, max: 1,
-    note: 'four petals — even n needs a full 2π sweep to close, giving 2n petals' },
+    note: <L en="four petals — even n needs a full 2π sweep to close, giving 2n petals"
+             uk="чотири пелюстки — парному n для замикання потрібен повний оберт 2π, і пелюсток 2n" /> },
   cardioid: { label: 'r = 1 + cos θ', r: (t) => 1 + Math.cos(t), span: 2 * Math.PI, max: 2,
-    note: 'a cardioid, traced once over a full 2π' },
+    note: <L en="a cardioid, traced once over a full 2π" uk="кардіоїда, яку обходять один раз за повні 2π" /> },
   circle: { label: 'r = 2cos θ', r: (t) => 2 * Math.cos(t), span: Math.PI, max: 2,
-    note: 'a circle through the origin — traced completely in only π, not 2π' },
+    note: <L en="a circle through the origin — traced completely in only π, not 2π"
+             uk="коло через початок координат — повністю окреслюється вже за π, а не 2π" /> },
   spiral: { label: 'r = θ/3', r: (t) => t / 3, span: 4 * Math.PI, max: 4.2,
-    note: 'an Archimedean spiral, which never closes' },
+    note: <L en="an Archimedean spiral, which never closes" uk="спіраль Архімеда, яка ніколи не замикається" /> },
 };
 type Key = keyof typeof CURVES;
 
@@ -21,6 +25,7 @@ const SIZE = 300;
 
 /** Sweeping the angle shows both the trace and the (1/2)r²dθ sector accumulating. */
 export function PolarViz() {
+  const tr = useTr();
   const [key, setKey] = useState<Key>('rose3');
   const [frac, setFrac] = useState(0.55);
 
@@ -70,20 +75,30 @@ export function PolarViz() {
         <circle className="viz-point" cx={px(upto)} cy={py(upto)} r={4} />
       </svg>
 
-      <Slider label="θ swept" value={frac} min={0} max={1} step={0.005} onChange={setFrac}
+      <Slider label={tr('θ swept', 'пройдений θ')} value={frac} min={0} max={1} step={0.005} onChange={setFrac}
               format={(v) => `${(v * spec.span / Math.PI).toFixed(2)}π`} />
 
       <Readout items={[
-        { label: 'r at this θ', value: spec.r(upto).toFixed(3) },
-        { label: 'area swept  ½∫r²dθ', value: area.toFixed(4) },
-        { label: 'full sweep', value: `${(spec.span / Math.PI).toFixed(2)}π` },
+        { label: tr('r at this θ', 'r при цьому θ'), value: spec.r(upto).toFixed(3) },
+        { label: tr('area swept  ½∫r²dθ', 'заметена площа  ½∫r²dθ'), value: area.toFixed(4) },
+        { label: tr('full sweep', 'повний оберт'), value: `${(spec.span / Math.PI).toFixed(2)}π` },
       ]} />
 
       <p className="viz-note">
-        The shaded wedge is the accumulated <code>½r²dθ</code>. Watch <b>r</b> pass through zero — those are
-        the angles where one loop closes and the next opens, and they are the limits you want for a
-        single-petal area. {spec.note}. Sweeping past the full span retraces the curve and double-counts
-        the area, which is the classic error in polar area problems.
+        <L
+          en={<>
+            The shaded wedge is the accumulated <code>½r²dθ</code>. Watch <b>r</b> pass through zero — those are
+            the angles where one loop closes and the next opens, and they are the limits you want for a
+            single-petal area. {spec.note}. Sweeping past the full span retraces the curve and double-counts
+            the area, which is the classic error in polar area problems.
+          </>}
+          uk={<>
+            Затінений сектор — це накопичене <code>½r²dθ</code>. Стежте, як <b>r</b> проходить через нуль: на цих
+            кутах одна петля замикається й відкривається наступна, і саме вони є межами для площі однієї
+            пелюстки. {spec.note}. Якщо пройти далі за повний проміжок, крива піде вдруге й площа
+            порахується двічі — класична помилка в задачах на площу в полярних координатах.
+          </>}
+        />
       </p>
     </div>
   );

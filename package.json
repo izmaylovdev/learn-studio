@@ -10,7 +10,8 @@
     "dev:web": "vite",
     "build": "tsc -b app && vite build",
     "index": "node tools/index-library.mjs",
-    "check": "node tools/index-library.mjs --strict"
+    "check": "node tools/index-library.mjs --strict",
+    "i18n": "node tools/i18n.mjs"
   },
   "dependencies": {
     "cytoscape": "^3.30.2",
